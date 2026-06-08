@@ -119,63 +119,83 @@ Manual      Insights       Meditate     Reports
 
 ## Project Structure
 
-```
-EmoScope/
-├── app/src/main/
-│   ├── AndroidManifest.xml
-│   ├── assets/face_landmarker.task        # MediaPipe model (3.6MB)
-│   ├── java/com/example/emoscope/
-│   │   ├── MainActivity.java              # Central hub
-│   │   ├── Constants.java                 # Global constants
-│   │   │
-│   │   ├── # Core Engines
-│   │   ├── FaceAnalyzer.java              # 52 blendshape to 10 emotions
-│   │   ├── AiMemoryEngine.java            # 30-day NLP analysis
-│   │   ├── BreathingEngine.java           # Breath animation engine
-│   │   ├── DeepSeekClient.java            # OkHttp AI client
-│   │   ├── EmoLineChartView.java          # Custom Canvas chart
-│   │   │
-│   │   ├── # Custom Animation Views
-│   │   ├── BreathingOverlayView.java      # 5-layer breathing rings
-│   │   ├── VoiceWaveView.java             # 5 animated vocal bars
-│   │   ├── SonarRippleView.java           # Expanding sonar ripples
-│   │   ├── ConfettiView.java              # Particle burst
-│   │   │
-│   │   ├── # Utilities
-│   │   ├── EmoDatabaseHelper.java         # SQLite + saveRecord()
-│   │   ├── MoodDialogHelper.java          # Shared mood picker
-│   │   ├── StreakManager.java             # Streak calculation
-│   │   ├── HistoryAdapter.java            # Timeline RecyclerView
-│   │   ├── SecureStorage.java             # KeyChain encryption
-│   │   ├── NotificationHelper.java        # AlarmManager scheduling
-│   │   ├── ReminderReceiver.java          # BroadcastReceiver
-│   │   ├── BootReceiver.java              # Re-register on reboot
-│   │   ├── CrashHandler.java              # Global crash handler
-│   │   │
-│   │   ├── fragments/
-│   │   │   ├── RadarFragment.java         # Homepage
-│   │   │   ├── WorkshopFragment.java      # Growth + tools
-│   │   │   ├── HistoryFragment.java       # Timeline + chart
-│   │   │   └── SettingsFragment.java      # Settings
-│   │   │
-│   │   └── viewmodels/
-│   │       ├── RadarViewModel.java
-│   │       └── HistoryViewModel.java
-│   │
-│   └── res/
-│       ├── anim/          # 10 animation XMLs
-│       ├── drawable/      # 60+ vector drawables & gradients
-│       ├── layout/        # 6 XML layouts
-│       ├── menu/          # bottom_nav_menu.xml
-│       ├── values/        # colors, themes, shapes, strings
-│       ├── values-night/  # Dark theme
-│       └── xml/           # FileProvider, shortcuts, backup
-│
-├── gradle/libs.versions.toml
-├── build.gradle.kts
-├── settings.gradle.kts
-└── README.md
-```
+### Core Layer — `app/src/main/java/com/example/emoscope/`
+
+| File | Role |
+|------|------|
+| `MainActivity.java` | Central hub — camera, voice recognition, SOS, database, fragment navigation |
+| `Constants.java` | All global constants: SharedPreferences keys, API params, emotion labels, level thresholds |
+
+#### Engines
+
+| File | Role |
+|------|------|
+| `FaceAnalyzer.java` | 52 MediaPipe blendshapes → 10 emotions → EMA smoothing → weighted 0-100 score |
+| `AiMemoryEngine.java` | 30-day retrospective NLP: stress/joy sources Top-3, low-point/highlight detection |
+| `BreathingEngine.java` | Sequence-based breath animation: Box Breathing & 4-7-8, vibrate on phase change |
+| `DeepSeekClient.java` | OkHttp client: exponential backoff retry, streaming typewriter effect, structured prompt |
+| `EmoLineChartView.java` | Custom Canvas chart: gradient emotion zones, dotted reference lines, date-labeled X-axis |
+
+#### Custom Animation Views
+
+| File | Role |
+|------|------|
+| `BreathingOverlayView.java` | 5-layer gradient purple concentric rings pulsing with breath rhythm |
+| `VoiceWaveView.java` | 5 randomly-heighted animated vocal bars during recording |
+| `SonarRippleView.java` | Expanding semi-transparent rings from mic button center |
+| `ConfettiView.java` | 60-particle colorful burst on badge unlock |
+
+#### Utilities
+
+| File | Role |
+|------|------|
+| `EmoDatabaseHelper.java` | SQLiteOpenHelper: table creation, migration, unified `saveRecord()` |
+| `MoodDialogHelper.java` | Shared 2x4 emoji grid mood picker with optional tags and notes |
+| `StreakManager.java` | Daily streak calculation: update, reset, format display text |
+| `HistoryAdapter.java` | RecyclerView adapter: dual ViewType (date header + record item), auto date grouping |
+| `SecureStorage.java` | Android KeyChain-backed encrypted storage for API keys and contacts |
+| `NotificationHelper.java` | AlarmManager scheduler: daily reminders, weekly summaries, custom message builder |
+| `ReminderReceiver.java` | BroadcastReceiver for alarm triggers |
+| `BootReceiver.java` | Re-registers all alarms after device reboot |
+| `CrashHandler.java` | Global uncaught exception handler |
+
+#### Fragments (MVVM)
+
+| File | Tab | Content |
+|------|-----|---------|
+| `RadarFragment.java` | 首页 (Home) | Face analysis card, today's mood score, 7-day trend, AI observation, voice button |
+| `WorkshopFragment.java` | 成长 (Growth) | AI insight, level card, journal, meditation, gratitude, weekly report, badges |
+| `HistoryFragment.java` | 记录 (Timeline) | Emotion chart, stat capsules, filter chips, timeline feed with date headers |
+| `SettingsFragment.java` | 我的 (Profile) | Safety, interaction, notification, engine settings |
+
+#### ViewModels
+
+| File | Role |
+|------|------|
+| `RadarViewModel.java` | Face/Light/Voice/AI response/SOS/TTS LiveData for homepage |
+| `HistoryViewModel.java` | History items, stats, filters, refresh state for timeline page |
+
+### Resource Layer — `app/src/main/res/`
+
+| Directory | Contents |
+|-----------|----------|
+| `anim/` | 10 custom animation XMLs: fade, slide, pulse, pop-in |
+| `drawable/` | 60+ vector drawable icons, gradient shapes, card backgrounds, accent stripes |
+| `layout/` | 6 XML layouts: `activity_main`, `fragment_radar`, `fragment_workshop`, `fragment_history`, `fragment_settings`, `item_history_record` |
+| `menu/` | `bottom_nav_menu.xml` — 4-tab navigation |
+| `values/` | `colors.xml` (70+ colors), `themes.xml` (Material 3 DayNight), `shapes.xml` (S=12 M=16 L=24dp), `strings.xml` (50+ Chinese strings) |
+| `values-night/` | Dark theme color overrides |
+| `xml/` | `file_paths.xml` (FileProvider), `shortcuts.xml`, `backup_rules.xml`, `network_security_config.xml` |
+
+### Build Layer — Root
+
+| File | Role |
+|------|------|
+| `build.gradle.kts` | Root Gradle config |
+| `app/build.gradle.kts` | Dependencies: MediaPipe, CameraX, OkHttp, Material 3, Biometric, SplashScreen |
+| `gradle/libs.versions.toml` | Version catalog |
+| `settings.gradle.kts` | Module declaration |
+| `gradle.properties` | JVM & Android build properties |
 
 ---
 
