@@ -1,0 +1,159 @@
+<resources>
+    <string name="app_name">EmoScope</string>
+
+    <!-- 问候语 -->
+    <string name="greeting_default">深呼吸，感受当下的平静</string>
+    <string name="greeting_night">夜深了，把烦恼清空再睡吧</string>
+    <string name="greeting_morning">早安！新的一天，拥抱微光</string>
+    <string name="greeting_noon">午后时光，让思绪放慢脚步</string>
+    <string name="greeting_afternoon">喝杯温水，缓解紧绷的神经</string>
+    <string name="greeting_evening">晚上好，今天辛苦了，向我倾诉吧</string>
+
+    <!-- 灵敏度 -->
+    <string name="sensitivity_low">低（防误触）</string>
+    <string name="sensitivity_high">高（高敏感）</string>
+    <string name="sensitivity_medium">中等（推荐）</string>
+    <string name="api_key_unset">未配置</string>
+
+    <!-- Toast -->
+    <string name="toast_tts_on">语音播报已开启</string>
+    <string name="toast_tts_off">语音播报已静音</string>
+    <string name="toast_clipboard_saved">已复制到剪贴板</string>
+
+    <!-- 对话框 -->
+    <string name="dialog_clear_title">清空情绪记录</string>
+    <string name="dialog_clear_message">记录清空后将无法恢复，确认删除吗？</string>
+    <string name="dialog_clear_confirm">确认清空</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="dialog_contact_title">设置紧急联络人</string>
+    <string name="dialog_save">保存</string>
+    <string name="dialog_api_title">配置 DeepSeek API Key</string>
+    <string name="dialog_api_message">请输入您的 DeepSeek API Key：</string>
+    <string name="dialog_bind">确认</string>
+    <string name="dialog_sensitivity_title">应激阻断灵敏度</string>
+    <string name="dialog_sensitivity_opt_high">高（容易触发阻断）</string>
+    <string name="dialog_sensitivity_opt_medium">中等（推荐）</string>
+    <string name="dialog_sensitivity_opt_low">低（需用力摇晃才触发）</string>
+
+    <!-- SOS -->
+    <string name="sos_no_contact">请先在设置中配置紧急联络人</string>
+    <string name="sos_sms_body">【EmoScope 安全提醒】我目前情绪状态不稳定，触发了紧急阻断机制，请尽快联系我确认安全。</string>
+    <string name="sos_sms_failed">短信发送失败，请检查紧急联络人号码</string>
+
+    <!-- 导出 -->
+    <string name="export_report_header">【EmoScope 情绪分析报告】\n生成时间：</string>
+    <string name="export_empty">报告生成失败：暂无情绪记录</string>
+    <string name="export_subject">EmoScope 情绪报告</string>
+    <string name="export_chooser_title">发送报告到…</string>
+
+    <!-- 面容检测 -->
+    <string name="face_no_face">未检测到面部</string>
+
+    <!-- 语音 -->
+    <string name="voice_recording">正在录音…</string>
+    <string name="voice_listening">正在聆听…</string>
+    <string name="voice_hold_to_speak">按住说话</string>
+
+    <!-- AI -->
+    <string name="ai_connecting">AI 模型连接中…</string>
+    <string name="ai_no_api_key">请先在「控制」页面配置 DeepSeek API Key</string>
+    <string name="ai_busy">AI 引擎处理中，请稍后…</string>
+    <string name="ai_request_failed">AI 连接失败，请检查网络或 API Key 余额</string>
+
+    <!-- 权限 -->
+    <string name="perm_sms_title">需要短信权限</string>
+    <string name="perm_sms_rationale">SOS 紧急求助需要短信权限才能向您的紧急联系人发送求助信息</string>
+    <string name="perm_authorize">授权</string>
+    <string name="perm_core_denied">相机与麦克风权限是核心功能所必需的</string>
+    <string name="perm_sms_granted">SOS 短信权限已就绪</string>
+
+    <!-- 历史页面 -->
+    <string name="history_no_memory">暂无情绪记录</string>
+
+    <!-- 心情摘要 -->
+    <string name="mood_loading">实时情绪 · 检测中</string>
+
+    <!-- 声纹分析 -->
+    <string name="voice_not_heard">未检测到语音，请长按底部按钮重试</string>
+
+    <!-- 通知 -->
+    <string name="notify_time_title">选择提醒时间</string>
+    <string name="notify_daily_on">每日提醒已开启（%1$02d:%2$02d）</string>
+    <string name="notify_daily_off">每日提醒已关闭</string>
+    <string name="notify_weekly_on">每周报告已开启（周日 21:00）</string>
+    <string name="notify_weekly_off">每周报告已关闭</string>
+    <string name="notify_permission_title">需要通知权限</string>
+    <string name="notify_permission_rationale">开启通知权限后，EmoScope 才能在设定时间提醒你记录心情</string>
+
+    <!-- 生物识别 -->
+    <string name="biometric_title">解锁 EmoScope</string>
+    <string name="biometric_subtitle">请验证身份以继续使用</string>
+    <string name="biometric_not_available">此设备不支持生物识别</string>
+    <string name="biometric_lock_enabled">应用锁已开启</string>
+    <string name="biometric_lock_disabled">应用锁已关闭</string>
+
+    <!-- 呼吸模式 -->
+    <string name="breath_mode_title">选择呼吸模式</string>
+    <string name="breath_inhale">缓缓吸气…</string>
+    <string name="breath_hold">屏住呼吸…</string>
+    <string name="breath_exhale">慢慢呼出…</string>
+
+    <!-- 导出 -->
+    <string name="export_format_title">选择导出格式</string>
+    <string name="export_saved">已保存到 Download/EmoScope/</string>
+
+    <!-- App Shortcuts -->
+    <string name="shortcut_record_mood_short">记录心情</string>
+    <string name="shortcut_record_mood_long">快速记录此刻心情</string>
+    <string name="shortcut_breathing_short">呼吸练习</string>
+    <string name="shortcut_breathing_long">开始呼吸放松练习</string>
+    <string name="shortcut_history_short">查看情绪轨迹</string>
+    <string name="shortcut_history_long">查看历史情绪记录</string>
+
+    <!-- 语音模式切换 -->
+    <string name="voice_click_mode">点击切换模式</string>
+    <string name="voice_click_mode_desc">开启后点按按钮开始/停止录音（30秒自动停止），关闭后需长按录音</string>
+    <string name="voice_countdown">%d秒后自动停止</string>
+    <string name="voice_tap_to_stop">点击停止录音</string>
+
+    <!-- SOS 倒计时 -->
+    <string name="sos_countdown_title">即将触发紧急干预</string>
+    <string name="sos_countdown_message">将在 %d 秒后发送求助短信并启动呼吸练习</string>
+    <string name="sos_cancel_now">立即取消</string>
+
+    <!-- 情绪评分 -->
+    <string name="mood_score_format">情绪评分 · %d分</string>
+
+    <!-- 手动记录 AI -->
+    <string name="manual_ai_analyze">AI 解读当前情绪</string>
+    <string name="manual_ai_analyzing">AI 分析中…</string>
+
+    <!-- JSON 导入导出 -->
+    <string name="export_json_title">数据备份</string>
+    <string name="export_json_export">导出完整备份</string>
+    <string name="export_json_import">导入备份恢复</string>
+    <string name="export_json_success">备份已保存到 Download/EmoScope/</string>
+    <string name="import_json_success">数据恢复成功，共 %d 条记录</string>
+    <string name="import_json_empty">未找到备份文件，请先将 .json 备份文件放入 Download/EmoScope/</string>
+    <string name="import_json_confirm">导入将覆盖现有记录，确认继续？</string>
+
+    <!-- 情绪标签 -->
+    <string name="tag_select_title">选择标签</string>
+    <string name="tag_filter_title">按标签筛选</string>
+
+    <!-- 连续打卡 -->
+    <string name="streak_format">🔥 已连续记录 %d 天</string>
+
+    <!-- 隐私模式 -->
+    <string name="privacy_mode">隐私模式</string>
+    <string name="privacy_mode_desc">开启后应用截图自动模糊，切换应用时自动返回首页</string>
+
+    <!-- 心灵工坊 -->
+    <string name="workshop_title">心灵工坊</string>
+    <string name="workshop_subtitle">滋养内心，探索更好的自己</string>
+    <string name="workshop_journal">情绪日记</string>
+    <string name="workshop_meditation">正念冥想</string>
+    <string name="workshop_prediction">情绪趋势预测</string>
+    <string name="workshop_gratitude">感恩清单</string>
+    <string name="workshop_badges">成就徽章</string>
+</resources>

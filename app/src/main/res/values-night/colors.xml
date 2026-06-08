@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════════════════
+         暗色模式覆盖 — 仅覆盖浅色模式不同的值
+         ═══════════════════════════════════════════════════════════ -->
+
+    <color name="positive_green">#34D399</color>
+    <color name="positive_green_light">#1A34D399</color>
+    <color name="warning_orange">#FBBF24</color>
+    <color name="warning_orange_light">#1AFBBF24</color>
+    <color name="danger_red">#F87171</color>
+    <color name="danger_red_light">#1AF87171</color>
+
+    <color name="chart_grid">#1AFFFFFF</color>
+    <color name="chart_text">#71717A</color>
+    <color name="overlay_white">#1AFFFFFF</color>
+
+    <!-- 图表暗色调 — 暗色模式下提亮以保证可见性 -->
+    <color name="positive_green_dark">#34D399</color>
+    <color name="danger_red_dark">#F87171</color>
+    <color name="accent_purple">#A78BFA</color>
+    <color name="accent_purple_dark">#8B5CF6</color>
+
+    <!-- 装饰元素色 — 暗色模式 -->
+    <color name="deco_accent">#A78BFA</color>
+    <color name="deco_tertiary">#38BDF8</color>
+    <color name="deco_secondary">#94A3B8</color>
+    <color name="deco_outline_variant">#3F3F46</color>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         分类语义色 — 暗色模式（降低亮度，保持可见）
+         ═══════════════════════════════════════════════════════════ -->
+    <color name="cat_journal">#FBBF24</color>
+    <color name="cat_journal_container">#1AF59E0B</color>
+    <color name="cat_journal_on_container">#FDE68A</color>
+    <color name="cat_meditation">#34D399</color>
+    <color name="cat_meditation_container">#1A10B981</color>
+    <color name="cat_meditation_on_container">#A7F3D0</color>
+    <color name="cat_prediction">#A78BFA</color>
+    <color name="cat_prediction_container">#1A7C5CFC</color>
+    <color name="cat_prediction_on_container">#DDD6FE</color>
+    <color name="cat_gratitude">#F472B6</color>
+    <color name="cat_gratitude_container">#1AEC4899</color>
+    <color name="cat_gratitude_on_container">#FBCFE8</color>
+    <color name="cat_quote">#38BDF8</color>
+    <color name="cat_quote_container">#1A0EA5E9</color>
+    <color name="cat_quote_on_container">#BAE6FD</color>
+    <color name="cat_badge">#A78BFA</color>
+    <color name="cat_badge_container">#1A8B5CF6</color>
+    <color name="cat_badge_on_container">#DDD6FE</color>
+
+    <!-- 覆盖层颜色 — 暗色模式保持一致 -->
+    <color name="overlay_dark_90">#E6000000</color>
+    <color name="overlay_dark_92">#EA000000</color>
+    <color name="overlay_dark_30">#4D000000</color>
+    <color name="overlay_white_90">#E6FFFFFF</color>
+    <color name="overlay_white_50">#80FFFFFF</color>
+    <color name="overlay_white_20">#33FFFFFF</color>
+    <color name="selection_highlight">#33A78BFA</color>
+</resources>

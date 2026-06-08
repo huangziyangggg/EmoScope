@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 左侧强调色条的卡片背景 — 用于面容分析主卡 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 底色 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorSurfaceContainerLow" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <!-- 左侧 4dp 主色装饰条 -->
+    <item
+        android:left="0dp"
+        android:top="16dp"
+        android:bottom="16dp">
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorPrimary" />
+            <corners
+                android:topRightRadius="4dp"
+                android:bottomRightRadius="4dp" />
+            <size android:width="4dp" />
+        </shape>
+    </item>
+</layer-list>

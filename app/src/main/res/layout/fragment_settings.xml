@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="20dp"
+        android:text="控制中枢"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnSurface" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="20dp"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ══ 安全与干预 ══ -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp">
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/dot_section"
+                    android:contentDescription="段落标记" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="安全与干预"
+                    android:textColor="?attr/colorError"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+                app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                app:cardElevation="2dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="0.5dp">
+                <!-- 安全区红色顶条 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/danger_red" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/btnSetContact"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="12dp"
+                            android:src="@drawable/ic_phone"
+                            android:contentDescription=""
+                            android:tint="?attr/colorError" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="紧急求助联络人"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <TextView
+                            android:id="@+id/tvCurrentContact"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="10086"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginHorizontal="16dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/btnSetSensitivity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="12dp"
+                            android:src="@drawable/ic_phone"
+                            android:contentDescription=""
+                            android:tint="?attr/colorError" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="应激阻断灵敏度"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <TextView
+                            android:id="@+id/tvCurrentSensitivity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="中等"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginHorizontal="16dp"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="生物识别应用锁"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchBiometric"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:checked="false" />
+                    </RelativeLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginHorizontal="16dp"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@id/switchPrivacy"
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="隐私模式"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="13sp"
+                                android:fontFamily="sans-serif" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="防截图·切应用回首页"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:textSize="11sp"
+                                android:fontFamily="sans-serif"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchPrivacy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:checked="false" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ 交互与感官 ══ -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp">
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/dot_section"
+                    android:contentDescription="段落标记" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="交互与感官"
+                    android:textColor="?attr/colorTertiary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+                app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                app:cardElevation="2dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="0.5dp">
+                <!-- 交互区蓝色顶条 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="?attr/colorTertiary" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="触觉震动反馈"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchHaptic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:checked="true" />
+                    </RelativeLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginHorizontal="16dp"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="AI 语音播报"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchTts"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:checked="true" />
+                    </RelativeLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginHorizontal="16dp"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toStartOf="@id/switchVoiceMode"
+                            android:orientation="vertical"
+                            android:layout_centerVertical="true">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="语音点击切换"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="13sp"
+                                android:fontFamily="sans-serif" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="点击开始/停止，30秒自动停止"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:textSize="11sp"
+                                android:fontFamily="sans-serif"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchVoiceMode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:checked="false" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ 通知与提醒 ══ -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp">
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/dot_section"
+                    android:contentDescription="段落标记" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="通知与提醒"
+                    android:textColor="@color/positive_green"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+                app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                app:cardElevation="2dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="0.5dp">
+                <!-- 通知区绿色顶条 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/positive_green" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="每日心情提醒"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchNotifyDaily"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:checked="false" />
+                    </RelativeLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginHorizontal="16dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/btnNotifyTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="12dp"
+                            android:src="@drawable/ic_phone"
+                            android:contentDescription=""
+                            android:tint="?attr/colorError" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="提醒时间"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <TextView
+                            android:id="@+id/tvNotifyTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="20:00"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginHorizontal="16dp"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="每周情绪报告"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchNotifyWeekly"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:checked="false" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ 底层引擎 ══ -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp">
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/dot_section"
+                    android:contentDescription="段落标记" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="底层引擎"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="28dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+                app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                app:cardElevation="2dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="0.5dp">
+                <!-- 引擎区紫色顶条 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="?attr/colorPrimary" />
+                <LinearLayout
+                    android:id="@+id/btnSetApiKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DeepSeek API Key"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif" />
+                        <TextView
+                            android:id="@+id/tvCurrentApiKey"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="sk-75...dc2"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:layout_marginTop="2dp"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="修改"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 版本信息 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="EmoScope v2.0 · AI 情绪成长伙伴"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif"
+                android:alpha="0.5"
+                android:paddingBottom="32dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

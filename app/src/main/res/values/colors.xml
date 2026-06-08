@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════════════════
+         EmoScope 现代轻量化色彩系统
+         设计参考: ChatGPT / Apple Health / YouTube
+         核心理念: 大面积中性色 + 单一点缀色 + 情绪语义色
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- ── Light: Primary (柔和薰衣草蓝) ──────────────────────── -->
+    <color name="md_theme_light_primary">#7C5CFC</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#EDE9FE</color>
+    <color name="md_theme_light_onPrimaryContainer">#3B1FA0</color>
+
+    <!-- ── Light: Secondary (中性石板灰) ──────────────────────── -->
+    <color name="md_theme_light_secondary">#64748B</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#F1F5F9</color>
+    <color name="md_theme_light_onSecondaryContainer">#334155</color>
+
+    <!-- ── Light: Tertiary (清新天蓝) ─────────────────────────── -->
+    <color name="md_theme_light_tertiary">#0EA5E9</color>
+    <color name="md_theme_light_onTertiary">#FFFFFF</color>
+    <color name="md_theme_light_tertiaryContainer">#E0F2FE</color>
+    <color name="md_theme_light_onTertiaryContainer">#0C4A6E</color>
+
+    <!-- ── Light: Error ───────────────────────────────────────── -->
+    <color name="md_theme_light_error">#EF4444</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+    <color name="md_theme_light_errorContainer">#FEE2E2</color>
+    <color name="md_theme_light_onErrorContainer">#991B1B</color>
+
+    <!-- ── Light: Background / Surface ─────────────────────────── -->
+    <color name="md_theme_light_background">#FAFAFA</color>
+    <color name="md_theme_light_onBackground">#18181B</color>
+    <color name="md_theme_light_surface">#FFFFFF</color>
+    <color name="md_theme_light_onSurface">#18181B</color>
+    <color name="md_theme_light_surfaceVariant">#F4F4F5</color>
+    <color name="md_theme_light_onSurfaceVariant">#71717A</color>
+
+    <!-- ── Light: Outline ─────────────────────────────────────── -->
+    <color name="md_theme_light_outline">#D4D4D8</color>
+    <color name="md_theme_light_outlineVariant">#E4E4E7</color>
+
+    <!-- ── Light: Inverse ─────────────────────────────────────── -->
+    <color name="md_theme_light_inverseSurface">#18181B</color>
+    <color name="md_theme_light_inverseOnSurface">#FAFAFA</color>
+    <color name="md_theme_light_inversePrimary">#A78BFA</color>
+
+    <!-- ── Light: Surface Container 系列 (M3 层级) ─────────────── -->
+    <color name="md_theme_light_surfaceContainerLowest">#FFFFFF</color>
+    <color name="md_theme_light_surfaceContainerLow">#F8F8FA</color>
+    <color name="md_theme_light_surfaceContainer">#F4F4F5</color>
+    <color name="md_theme_light_surfaceContainerHigh">#EEEEF0</color>
+    <color name="md_theme_light_surfaceContainerHighest">#E8E8EB</color>
+    <color name="md_theme_light_surfaceTint">#7C5CFC</color>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Dark Theme
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- ── Dark: Primary ──────────────────────────────────────── -->
+    <color name="md_theme_dark_primary">#A78BFA</color>
+    <color name="md_theme_dark_onPrimary">#3B1FA0</color>
+    <color name="md_theme_dark_primaryContainer">#5B3CC0</color>
+    <color name="md_theme_dark_onPrimaryContainer">#EDE9FE</color>
+
+    <!-- ── Dark: Secondary ────────────────────────────────────── -->
+    <color name="md_theme_dark_secondary">#94A3B8</color>
+    <color name="md_theme_dark_onSecondary">#1E293B</color>
+    <color name="md_theme_dark_secondaryContainer">#334155</color>
+    <color name="md_theme_dark_onSecondaryContainer">#F1F5F9</color>
+
+    <!-- ── Dark: Tertiary ─────────────────────────────────────── -->
+    <color name="md_theme_dark_tertiary">#38BDF8</color>
+    <color name="md_theme_dark_onTertiary">#0C4A6E</color>
+    <color name="md_theme_dark_tertiaryContainer">#0E7490</color>
+    <color name="md_theme_dark_onTertiaryContainer">#E0F2FE</color>
+
+    <!-- ── Dark: Error ────────────────────────────────────────── -->
+    <color name="md_theme_dark_error">#F87171</color>
+    <color name="md_theme_dark_onError">#7F1D1D</color>
+    <color name="md_theme_dark_errorContainer">#991B1B</color>
+    <color name="md_theme_dark_onErrorContainer">#FEE2E2</color>
+
+    <!-- ── Dark: Background / Surface ─────────────────────────── -->
+    <color name="md_theme_dark_background">#09090B</color>
+    <color name="md_theme_dark_onBackground">#FAFAFA</color>
+    <color name="md_theme_dark_surface">#18181B</color>
+    <color name="md_theme_dark_onSurface">#FAFAFA</color>
+    <color name="md_theme_dark_surfaceVariant">#27272A</color>
+    <color name="md_theme_dark_onSurfaceVariant">#A1A1AA</color>
+
+    <!-- ── Dark: Outline ──────────────────────────────────────── -->
+    <color name="md_theme_dark_outline">#52525B</color>
+    <color name="md_theme_dark_outlineVariant">#3F3F46</color>
+
+    <!-- ── Dark: Inverse ──────────────────────────────────────── -->
+    <color name="md_theme_dark_inverseSurface">#FAFAFA</color>
+    <color name="md_theme_dark_inverseOnSurface">#18181B</color>
+    <color name="md_theme_dark_inversePrimary">#7C5CFC</color>
+
+    <!-- ── Dark: Surface Container 系列 ────────────────────────── -->
+    <color name="md_theme_dark_surfaceContainerLowest">#0C0C0E</color>
+    <color name="md_theme_dark_surfaceContainerLow">#141416</color>
+    <color name="md_theme_dark_surfaceContainer">#18181B</color>
+    <color name="md_theme_dark_surfaceContainerHigh">#222226</color>
+    <color name="md_theme_dark_surfaceContainerHighest">#2C2C30</color>
+    <color name="md_theme_dark_surfaceTint">#A78BFA</color>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         语义颜色
+         ═══════════════════════════════════════════════════════════ -->
+    <color name="positive_green">#10B981</color>
+    <color name="positive_green_light">#D1FAE5</color>
+    <color name="warning_orange">#F59E0B</color>
+    <color name="warning_orange_light">#FEF3C7</color>
+    <color name="danger_red">#EF4444</color>
+    <color name="danger_red_light">#FEE2E2</color>
+
+    <!-- ── 图表专用 ──────────────────────────────────────────── -->
+    <color name="chart_green">#10B981</color>
+    <color name="chart_green_fill">#20D1FAE5</color>
+    <color name="chart_red">#EF4444</color>
+    <color name="chart_red_fill">#20FEE2E2</color>
+    <color name="chart_purple">#7C5CFC</color>
+    <color name="chart_purple_fill">#20EDE9FE</color>
+    <color name="chart_grid">#1A000000</color>
+    <color name="chart_text">#A1A1AA</color>
+
+    <!-- ── 图表暗色调 (EmoLineChartView 引用) ────────────────── -->
+    <color name="positive_green_dark">#059669</color>
+    <color name="danger_red_dark">#DC2626</color>
+    <color name="accent_purple">#7C5CFC</color>
+    <color name="accent_purple_dark">#6366F1</color>
+
+    <!-- ── 渐变 (仅保留必要的两个) ────────────────────────────── -->
+    <color name="grad_btn_start">#7C5CFC</color>
+    <color name="grad_btn_end">#6366F1</color>
+    <color name="grad_btn_recording_start">#EF4444</color>
+    <color name="grad_btn_recording_end">#F87171</color>
+
+    <!-- ── 装饰元素色 — 用于 drawable 中的主题适配 ────────── -->
+    <color name="deco_accent">#7C5CFC</color>
+    <color name="deco_tertiary">#0EA5E9</color>
+    <color name="deco_secondary">#64748B</color>
+    <color name="deco_outline_variant">#E4E4E7</color>
+
+    <!-- ── 旧别名兼容 ────────────────────────────────────────── -->
+    <color name="primary_blue">@color/md_theme_light_primary</color>
+    <color name="text_gray">@color/md_theme_light_onSurfaceVariant</color>
+    <color name="card_white">@color/md_theme_light_surface</color>
+    <color name="dark_bg">@color/md_theme_light_onBackground</color>
+    <color name="overlay_white">#4DFFFFFF</color>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         分类语义色 — 为不同功能卡片提供独立配色
+         ═══════════════════════════════════════════════════════════ -->
+    <!-- 日记: 暖琥珀 -->
+    <color name="cat_journal">#F59E0B</color>
+    <color name="cat_journal_container">#FFF7ED</color>
+    <color name="cat_journal_on_container">#92400E</color>
+    <!-- 冥想: 森林绿 -->
+    <color name="cat_meditation">#10B981</color>
+    <color name="cat_meditation_container">#ECFDF5</color>
+    <color name="cat_meditation_on_container">#065F46</color>
+    <!-- 预测: 薰衣草紫 -->
+    <color name="cat_prediction">#7C5CFC</color>
+    <color name="cat_prediction_container">#EDE9FE</color>
+    <color name="cat_prediction_on_container">#3B1FA0</color>
+    <!-- 感恩: 玫瑰粉 -->
+    <color name="cat_gratitude">#EC4899</color>
+    <color name="cat_gratitude_container">#FDF2F8</color>
+    <color name="cat_gratitude_on_container">#9D174D</color>
+    <!-- 金句: 天蓝 -->
+    <color name="cat_quote">#0EA5E9</color>
+    <color name="cat_quote_container">#E0F2FE</color>
+    <color name="cat_quote_on_container">#0C4A6E</color>
+    <!-- 徽章: 星耀紫 -->
+    <color name="cat_badge">#8B5CF6</color>
+    <color name="cat_badge_container">#F5F3FF</color>
+    <color name="cat_badge_on_container">#4C1D95</color>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         覆盖层颜色 — 用于全屏遮罩、半透明按钮等
+         ═══════════════════════════════════════════════════════════ -->
+    <color name="overlay_dark_90">#E6000000</color>
+    <color name="overlay_dark_92">#EA000000</color>
+    <color name="overlay_dark_30">#4D000000</color>
+    <color name="overlay_white_90">#E6FFFFFF</color>
+    <color name="overlay_white_50">#80FFFFFF</color>
+    <color name="overlay_white_20">#33FFFFFF</color>
+    <color name="selection_highlight">#206C5CE7</color>
+</resources>

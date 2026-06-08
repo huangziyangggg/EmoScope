@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 语音按钮 — 薰衣草到靛蓝渐变 + 微阴影 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="135"
+        android:startColor="#7C5CFC"
+        android:centerColor="#6D4FF0"
+        android:endColor="#6366F1"
+        android:type="linear" />
+    <corners android:radius="28dp" />
+</shape>

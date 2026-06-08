@@ -1,0 +1,8 @@
+<!-- 光照 — 强烈阳光 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24"
+    android:tint="#F59E0B">
+    <path android:fillColor="@android:color/white"
+        android:pathData="M12,7c-2.76,0 -5,2.24 -5,5s2.24,5 5,5 5,-2.24 5,-5 -2.24,-5 -5,-5zM11,1v3h2V1h-2zM11,20v3h2v-3h-2zM3.5,5.88l1.41,1.41 1.06,-1.06L4.56,4.82 3.5,5.88zM18.03,17.71l1.41,1.41 1.06,-1.06 -1.41,-1.41 -1.06,1.06zM1,11v2h3v-2H1zM20,11v2h3v-2h-3zM4.56,19.18l1.06,-1.06 -1.41,-1.41 -1.06,1.06 1.41,1.41zM19.47,5.88l-1.41,1.41 1.06,1.06 1.41,-1.41 -1.06,-1.06z"/>
+</vector>

@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="4dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="记录"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="回溯你的情绪历程"
+                android:textSize="13sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:fontFamily="sans-serif"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnHistoryMore"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="更多操作"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
+            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
+            app:cardElevation="0dp">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="11dp"
+                android:src="@drawable/ic_more"
+                android:contentDescription="更多操作" />
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <!-- 趋势图表卡 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="14dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+        app:cardElevation="2dp"
+        app:strokeColor="?attr/colorOutlineVariant"
+        app:strokeWidth="0.5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="6dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/dot_primary"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="情绪趋势"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="近30天"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/chartContainer"
+                android:layout_width="match_parent"
+                android:layout_height="190dp"
+                android:padding="8dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="?attr/colorOutlineVariant"
+                android:layout_marginHorizontal="16dp" />
+
+            <!-- 统计数字 — 4 个独立胶囊卡片 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp">
+
+                <!-- 总记录 — 中性色 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                    app:cardElevation="0dp"
+                    app:strokeColor="?attr/colorOutlineVariant"
+                    app:strokeWidth="0.5dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="总记录"
+                            android:textSize="10sp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:fontFamily="sans-serif" />
+                        <TextView
+                            android:id="@+id/tvStatTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 平均分 — 主题色 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                    app:cardElevation="0dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0.5dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="平均分"
+                            android:textSize="10sp"
+                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:fontFamily="sans-serif" />
+                        <TextView
+                            android:id="@+id/tvStatAvg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="--"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnPrimaryContainer" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 积极 — 绿色 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    app:cardBackgroundColor="@color/positive_green_light"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/positive_green"
+                    app:strokeWidth="0.5dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="积极"
+                            android:textSize="10sp"
+                            android:textColor="@color/positive_green"
+                            android:fontFamily="sans-serif" />
+                        <TextView
+                            android:id="@+id/tvStatPos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/positive_green" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 预警 — 红色 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    app:cardBackgroundColor="@color/danger_red_light"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/danger_red"
+                    app:strokeWidth="0.5dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="预警"
+                            android:textSize="10sp"
+                            android:textColor="@color/danger_red"
+                            android:fontFamily="sans-serif" />
+                        <TextView
+                            android:id="@+id/tvStatNeg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/danger_red" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 筛选栏 — 使用 MaterialCardView pill 样式 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="14dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/filterAll"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:gravity="center"
+                android:paddingHorizontal="14dp"
+                android:text="全部"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorPrimary"
+                android:background="@drawable/filter_pill_selected"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="筛选全部记录" />
+
+            <TextView
+                android:id="@+id/filterWeek"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:gravity="center"
+                android:paddingHorizontal="14dp"
+                android:layout_marginStart="6dp"
+                android:text="7天"
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:background="@drawable/filter_pill"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="筛选近7天记录" />
+
+            <TextView
+                android:id="@+id/filterMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:gravity="center"
+                android:paddingHorizontal="14dp"
+                android:layout_marginStart="6dp"
+                android:text="30天"
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:background="@drawable/filter_pill"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="筛选近30天记录" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/filterPositive"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:padding="7dp"
+            android:src="@drawable/ic_filter_positive"
+            android:background="@drawable/filter_pill"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="筛选积极情绪" />
+
+        <ImageView
+            android:id="@+id/filterWarning"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:padding="7dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_filter_warning"
+            android:background="@drawable/filter_pill"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="筛选预警情绪" />
+    </LinearLayout>
+
+    <!-- 空状态 -->
+    <LinearLayout
+        android:id="@+id/layoutEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="40dp">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_empty_clipboard"
+            android:contentDescription="暂无记录"
+            android:alpha="0.4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="暂无情绪记录"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="长按底部按钮开始记录\n你的第一条情绪快照"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="13sp"
+            android:lineSpacingExtra="6dp"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvHistoryEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="暂无情绪记录\n长按底部按钮开始记录你的第一条情绪快照"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        android:lineSpacingExtra="8dp"
+        android:visibility="gone" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeHistory"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHistory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="12dp"
+            android:scrollbars="none" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</LinearLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    EmoScope 自动备份规则
+    排除 SharedPreferences（含 API Key 和紧急联系人手机号），
+    仅保留数据库记录用于用户数据迁移。
+-->
+<full-backup-content>
+    <!-- 不包含 SharedPreferences（含 API Key / 紧急联系人），仅备份数据库 -->
+    <include domain="database" path="." />
+</full-backup-content>

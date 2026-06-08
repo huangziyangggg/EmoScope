@@ -1,0 +1,45 @@
+# Android
+*.apk
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+build/
+.gradle/
+local.properties
+*.iml
+.idea/
+*.log
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Gradle
+gradle/wrapper/gradle-wrapper.jar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keystore
+keystore.properties
+*.jks
+*.keystore
+
+# Screenshots
+screenshots/
+
+# Vosk model (too large)
+app/src/main/assets/model-cn/
+
+# Claude
+.claude/
+.spec-workflow/
+
+# IDE
+.vscode/
+
+# Old screenshots
+show_*.png

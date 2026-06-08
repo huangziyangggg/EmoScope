@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    EmoScope 应用快捷操作 (Android 7.1+)
+    长按桌面图标即可快速跳转
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="record_mood"
+        android:enabled="true"
+        android:icon="@drawable/ic_history"
+        android:shortcutShortLabel="@string/shortcut_record_mood_short"
+        android:shortcutLongLabel="@string/shortcut_record_mood_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.emoscope"
+            android:targetClass="com.example.emoscope.MainActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="breathing"
+        android:enabled="true"
+        android:icon="@drawable/ic_radar"
+        android:shortcutShortLabel="@string/shortcut_breathing_short"
+        android:shortcutLongLabel="@string/shortcut_breathing_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.emoscope"
+            android:targetClass="com.example.emoscope.MainActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="check_history"
+        android:enabled="true"
+        android:icon="@drawable/ic_settings"
+        android:shortcutShortLabel="@string/shortcut_history_short"
+        android:shortcutLongLabel="@string/shortcut_history_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.emoscope"
+            android:targetClass="com.example.emoscope.MainActivity" />
+    </shortcut>
+</shortcuts>

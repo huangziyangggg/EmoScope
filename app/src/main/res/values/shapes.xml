@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════════════════
+         EmoScope Material 3 Shape Appearances
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- Small: 芯片、小按钮、工具栏图标 -->
+    <style name="ShapeAppearance.EmoScope.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <!-- Medium: 标准卡片、对话框、设置项 -->
+    <style name="ShapeAppearance.EmoScope.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <!-- Large: 大卡片 — 更柔和的圆角 -->
+    <style name="ShapeAppearance.EmoScope.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+
+    <!-- 导航栏选中指示器 — 胶囊形状 -->
+    <style name="Widget.EmoScope.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:shape">rectangle</item>
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+        <item name="android:color">?attr/colorPrimaryContainer</item>
+        <item name="android:height">32dp</item>
+        <item name="android:width">56dp</item>
+    </style>
+</resources>

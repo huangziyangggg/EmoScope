@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 历史条目 — 左侧 3dp 情绪色条（颜色由 tint 动态设置） -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorSurface" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item
+        android:left="0dp"
+        android:top="8dp"
+        android:bottom="8dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#10B981" />
+            <corners
+                android:topRightRadius="3dp"
+                android:bottomRightRadius="3dp" />
+            <size android:width="3dp" />
+        </shape>
+    </item>
+</layer-list>

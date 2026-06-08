@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 设置分组卡片 — 极淡主色背景 + 微阴影 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="?attr/colorSurfaceContainerLow" />
+    <corners android:radius="20dp" />
+    <stroke
+        android:width="0.5dp"
+        android:color="?attr/colorOutlineVariant" />
+</shape>
