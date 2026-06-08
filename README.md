@@ -1,4 +1,4 @@
-# EmoScope — AI Emotion Growth Companion
+# EmoScope — Multimodal Emotion Recognition and Psychological Assessment System
 
 <p align="center">
   <strong>记录情绪 · 理解情绪 · 改善情绪 · 长期成长</strong>
