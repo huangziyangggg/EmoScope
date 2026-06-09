@@ -25,6 +25,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // MediaPipe 0.10.14 不提供 x86_64 原生库，排除此 ABI 让 x86_64 模拟器回退到 32 位 x86
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86")
+        }
     }
 
     // Release 签名配置
