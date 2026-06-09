@@ -32,7 +32,7 @@ public class ConfettiView extends View {
     private final Random random = new Random();
     private ValueAnimator animator;
     private static final int[] COLORS = {
-        0xFF7C5CFC, 0xFF10B981, 0xFFF59E0B, 0xFFEC4899, 0xFF0EA5E9, 0xFFEF4444
+        0xFFB794F4, 0xFF10B981, 0xFFF59E0B, 0xFFEC4899, 0xFF0EA5E9, 0xFFEF4444
     };
 
     public ConfettiView(Context context, AttributeSet attrs) {

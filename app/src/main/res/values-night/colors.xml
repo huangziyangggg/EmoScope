@@ -18,11 +18,11 @@
     <!-- 图表暗色调 — 暗色模式下提亮以保证可见性 -->
     <color name="positive_green_dark">#34D399</color>
     <color name="danger_red_dark">#F87171</color>
-    <color name="accent_purple">#A78BFA</color>
-    <color name="accent_purple_dark">#8B5CF6</color>
+    <color name="accent_purple">#C4B5FD</color>
+    <color name="accent_purple_dark">#B794F4</color>
 
     <!-- 装饰元素色 — 暗色模式 -->
-    <color name="deco_accent">#A78BFA</color>
+    <color name="deco_accent">#C4B5FD</color>
     <color name="deco_tertiary">#38BDF8</color>
     <color name="deco_secondary">#94A3B8</color>
     <color name="deco_outline_variant">#3F3F46</color>
@@ -36,8 +36,8 @@
     <color name="cat_meditation">#34D399</color>
     <color name="cat_meditation_container">#1A10B981</color>
     <color name="cat_meditation_on_container">#A7F3D0</color>
-    <color name="cat_prediction">#A78BFA</color>
-    <color name="cat_prediction_container">#1A7C5CFC</color>
+    <color name="cat_prediction">#C4B5FD</color>
+    <color name="cat_prediction_container">#1AB794F4</color>
     <color name="cat_prediction_on_container">#DDD6FE</color>
     <color name="cat_gratitude">#F472B6</color>
     <color name="cat_gratitude_container">#1AEC4899</color>
@@ -45,8 +45,8 @@
     <color name="cat_quote">#38BDF8</color>
     <color name="cat_quote_container">#1A0EA5E9</color>
     <color name="cat_quote_on_container">#BAE6FD</color>
-    <color name="cat_badge">#A78BFA</color>
-    <color name="cat_badge_container">#1A8B5CF6</color>
+    <color name="cat_badge">#C4B5FD</color>
+    <color name="cat_badge_container">#1AA78BFA</color>
     <color name="cat_badge_on_container">#DDD6FE</color>
 
     <!-- 覆盖层颜色 — 暗色模式保持一致 -->

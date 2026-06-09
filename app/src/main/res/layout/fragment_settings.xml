@@ -8,7 +8,7 @@
     android:paddingStart="16dp"
     android:paddingTop="40dp"
     android:paddingEnd="16dp"
-    android:paddingBottom="28dp"
+    android:paddingBottom="80dp"
     android:scrollbars="none">
 
     <LinearLayout

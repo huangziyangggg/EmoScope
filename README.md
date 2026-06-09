@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0-7C5CFC?style=flat-square" alt="Version"/>
+  <img src="https://img.shields.io/badge/version-2.0-B794F4?style=flat-square" alt="Version"/>
   <img src="https://img.shields.io/badge/minSdk-24-green?style=flat-square" alt="Min SDK"/>
   <img src="https://img.shields.io/badge/targetSdk-36-blue?style=flat-square" alt="Target SDK"/>
   <img src="https://img.shields.io/badge/language-Java%2011-orange?style=flat-square" alt="Language"/>

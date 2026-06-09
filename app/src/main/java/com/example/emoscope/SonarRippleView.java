@@ -28,7 +28,7 @@ public class SonarRippleView extends View {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private ValueAnimator animator;
     private boolean isAnimating = false;
-    private int rippleColor = 0xFF7C5CFC;
+    private int rippleColor = 0xFFB794F4;
 
     public SonarRippleView(Context context, AttributeSet attrs) {
         super(context, attrs);

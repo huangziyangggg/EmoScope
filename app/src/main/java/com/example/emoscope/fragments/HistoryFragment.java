@@ -272,7 +272,7 @@ public class HistoryFragment extends Fragment {
                             r.getChildAt(j).setBackgroundColor(0x00000000);
                         }
                     }
-                    item.setBackgroundColor(0x206C5CE7);
+                    item.setBackgroundColor(0x20B794F4);
                 });
 
                 item.addView(icon);

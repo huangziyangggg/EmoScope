@@ -143,7 +143,8 @@ public class RadarFragment extends Fragment {
 
     // ═══════════════════════════ 点击事件 ═══════════════════════════
     private void setupClickListeners(View v) {
-        v.findViewById(R.id.btnSOS).setOnClickListener(view -> {
+        // SOS 点击绑定到整个卡片区域（含图标和文字）
+        v.findViewById(R.id.cvSOS).setOnClickListener(view -> {
             if (callback != null) callback.onSOSClicked();
         });
 
@@ -182,8 +183,9 @@ public class RadarFragment extends Fragment {
             return true;
         });
 
+        // 语音按钮 — 触摸监听绑定到整个卡片，扩大可点击区域
         View btnContainer = v.findViewById(R.id.btnContainerMain);
-        btnSpeakMain.setOnTouchListener((view, motionEvent) -> {
+        btnContainer.setOnTouchListener((view, motionEvent) -> {
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                 if (callback != null) callback.onVoiceButtonPressed();
             } else if (motionEvent.getAction() == MotionEvent.ACTION_UP

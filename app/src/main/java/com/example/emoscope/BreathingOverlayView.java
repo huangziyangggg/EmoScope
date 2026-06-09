@@ -19,7 +19,7 @@ public class BreathingOverlayView extends View {
     private final float[] ringScales = {0.3f, 0.5f, 0.7f, 0.85f, 1.0f};
     private final float[] ringAlphas = {0.15f, 0.25f, 0.4f, 0.6f, 0.8f};
     private final int[] ringColors = {
-        0xFF7C5CFC, 0xFF6366F1, 0xFF8B5CF6, 0xFFA78BFA, 0xFFC4B5FD
+        0xFFB794F4, 0xFFA78BFA, 0xFF9B8AF0, 0xFFC4B5FD, 0xFFDDD6FE
     };
 
     private float globalScale = 1f;

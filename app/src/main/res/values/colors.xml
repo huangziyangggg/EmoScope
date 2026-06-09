@@ -6,11 +6,11 @@
          核心理念: 大面积中性色 + 单一点缀色 + 情绪语义色
          ═══════════════════════════════════════════════════════════ -->
 
-    <!-- ── Light: Primary (柔和薰衣草蓝) ──────────────────────── -->
-    <color name="md_theme_light_primary">#7C5CFC</color>
+    <!-- ── Light: Primary (淡紫色/薰衣草) ──────────────────────── -->
+    <color name="md_theme_light_primary">#B794F4</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
-    <color name="md_theme_light_primaryContainer">#EDE9FE</color>
-    <color name="md_theme_light_onPrimaryContainer">#3B1FA0</color>
+    <color name="md_theme_light_primaryContainer">#F3F0FF</color>
+    <color name="md_theme_light_onPrimaryContainer">#5B21B6</color>
 
     <!-- ── Light: Secondary (中性石板灰) ──────────────────────── -->
     <color name="md_theme_light_secondary">#64748B</color>
@@ -45,7 +45,7 @@
     <!-- ── Light: Inverse ─────────────────────────────────────── -->
     <color name="md_theme_light_inverseSurface">#18181B</color>
     <color name="md_theme_light_inverseOnSurface">#FAFAFA</color>
-    <color name="md_theme_light_inversePrimary">#A78BFA</color>
+    <color name="md_theme_light_inversePrimary">#C4B5FD</color>
 
     <!-- ── Light: Surface Container 系列 (M3 层级) ─────────────── -->
     <color name="md_theme_light_surfaceContainerLowest">#FFFFFF</color>
@@ -53,16 +53,16 @@
     <color name="md_theme_light_surfaceContainer">#F4F4F5</color>
     <color name="md_theme_light_surfaceContainerHigh">#EEEEF0</color>
     <color name="md_theme_light_surfaceContainerHighest">#E8E8EB</color>
-    <color name="md_theme_light_surfaceTint">#7C5CFC</color>
+    <color name="md_theme_light_surfaceTint">#B794F4</color>
 
     <!-- ═══════════════════════════════════════════════════════════
          Dark Theme
          ═══════════════════════════════════════════════════════════ -->
 
-    <!-- ── Dark: Primary ──────────────────────────────────────── -->
-    <color name="md_theme_dark_primary">#A78BFA</color>
-    <color name="md_theme_dark_onPrimary">#3B1FA0</color>
-    <color name="md_theme_dark_primaryContainer">#5B3CC0</color>
+    <!-- ── Dark: Primary (淡紫) ───────────────────────────────────── -->
+    <color name="md_theme_dark_primary">#C4B5FD</color>
+    <color name="md_theme_dark_onPrimary">#2E1065</color>
+    <color name="md_theme_dark_primaryContainer">#6D28D9</color>
     <color name="md_theme_dark_onPrimaryContainer">#EDE9FE</color>
 
     <!-- ── Dark: Secondary ────────────────────────────────────── -->
@@ -98,7 +98,7 @@
     <!-- ── Dark: Inverse ──────────────────────────────────────── -->
     <color name="md_theme_dark_inverseSurface">#FAFAFA</color>
     <color name="md_theme_dark_inverseOnSurface">#18181B</color>
-    <color name="md_theme_dark_inversePrimary">#7C5CFC</color>
+    <color name="md_theme_dark_inversePrimary">#B794F4</color>
 
     <!-- ── Dark: Surface Container 系列 ────────────────────────── -->
     <color name="md_theme_dark_surfaceContainerLowest">#0C0C0E</color>
@@ -123,25 +123,25 @@
     <color name="chart_green_fill">#20D1FAE5</color>
     <color name="chart_red">#EF4444</color>
     <color name="chart_red_fill">#20FEE2E2</color>
-    <color name="chart_purple">#7C5CFC</color>
-    <color name="chart_purple_fill">#20EDE9FE</color>
+    <color name="chart_purple">#B794F4</color>
+    <color name="chart_purple_fill">#20D9CFFC</color>
     <color name="chart_grid">#1A000000</color>
     <color name="chart_text">#A1A1AA</color>
 
     <!-- ── 图表暗色调 (EmoLineChartView 引用) ────────────────── -->
     <color name="positive_green_dark">#059669</color>
     <color name="danger_red_dark">#DC2626</color>
-    <color name="accent_purple">#7C5CFC</color>
-    <color name="accent_purple_dark">#6366F1</color>
+    <color name="accent_purple">#B794F4</color>
+    <color name="accent_purple_dark">#A78BFA</color>
 
-    <!-- ── 渐变 (仅保留必要的两个) ────────────────────────────── -->
-    <color name="grad_btn_start">#7C5CFC</color>
-    <color name="grad_btn_end">#6366F1</color>
+    <!-- ── 渐变 (淡紫按钮) ────────────────────────────────────── -->
+    <color name="grad_btn_start">#B794F4</color>
+    <color name="grad_btn_end">#9B8AF0</color>
     <color name="grad_btn_recording_start">#EF4444</color>
     <color name="grad_btn_recording_end">#F87171</color>
 
     <!-- ── 装饰元素色 — 用于 drawable 中的主题适配 ────────── -->
-    <color name="deco_accent">#7C5CFC</color>
+    <color name="deco_accent">#B794F4</color>
     <color name="deco_tertiary">#0EA5E9</color>
     <color name="deco_secondary">#64748B</color>
     <color name="deco_outline_variant">#E4E4E7</color>
@@ -164,10 +164,10 @@
     <color name="cat_meditation">#10B981</color>
     <color name="cat_meditation_container">#ECFDF5</color>
     <color name="cat_meditation_on_container">#065F46</color>
-    <!-- 预测: 薰衣草紫 -->
-    <color name="cat_prediction">#7C5CFC</color>
-    <color name="cat_prediction_container">#EDE9FE</color>
-    <color name="cat_prediction_on_container">#3B1FA0</color>
+    <!-- 预测: 淡紫薰衣草 -->
+    <color name="cat_prediction">#B794F4</color>
+    <color name="cat_prediction_container">#F3F0FF</color>
+    <color name="cat_prediction_on_container">#5B21B6</color>
     <!-- 感恩: 玫瑰粉 -->
     <color name="cat_gratitude">#EC4899</color>
     <color name="cat_gratitude_container">#FDF2F8</color>
@@ -176,8 +176,8 @@
     <color name="cat_quote">#0EA5E9</color>
     <color name="cat_quote_container">#E0F2FE</color>
     <color name="cat_quote_on_container">#0C4A6E</color>
-    <!-- 徽章: 星耀紫 -->
-    <color name="cat_badge">#8B5CF6</color>
+    <!-- 徽章: 淡紫星耀 -->
+    <color name="cat_badge">#A78BFA</color>
     <color name="cat_badge_container">#F5F3FF</color>
     <color name="cat_badge_on_container">#4C1D95</color>
 
@@ -190,5 +190,5 @@
     <color name="overlay_white_90">#E6FFFFFF</color>
     <color name="overlay_white_50">#80FFFFFF</color>
     <color name="overlay_white_20">#33FFFFFF</color>
-    <color name="selection_highlight">#206C5CE7</color>
+    <color name="selection_highlight">#20B794F4</color>
 </resources>
