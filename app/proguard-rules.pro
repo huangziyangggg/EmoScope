@@ -1,41 +1,32 @@
-# ── OkHttp / Okio ──────────────────────────────────────────
+# OkHttp / Okio
 -dontwarn okhttp3.**
 -dontwarn okio.**
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
-# ── MediaPipe Face Landmarker (JNI + protobuf) ──────────────
+# MediaPipe Face Landmarker uses generated task/protobuf/JNI entry points that R8
+# should not rename or strip.
 -keep class com.google.mediapipe.** { *; }
 -keep class com.google.auto.value.** { *; }
 -dontwarn com.google.auto.value.**
 -dontwarn com.google.mediapipe.**
 
-# ── Vosk 离线语音识别 (JNI + native .so) ───────────────────
--keep class org.vosk.** { *; }
--keep class com.alphacephei.** { *; }
--dontwarn org.vosk.**
-
-# ── JNA (Vosk 依赖) ────────────────────────────────────────
--keep class com.sun.jna.** { *; }
--dontwarn com.sun.jna.**
--dontwarn java.awt.**
-
-# ── CameraX ─────────────────────────────────────────────────
+# CameraX runtime classes are used through AndroidX camera providers.
 -keep class androidx.camera.** { *; }
 -dontwarn androidx.camera.**
 
-# ── JSON (org.json) ─────────────────────────────────────────
+# org.json is referenced from app code and platform variants differ by API level.
 -keep class org.json.** { *; }
 
-# ── 应用自身类 ──────────────────────────────────────────────
+# App classes accessed reflectively or from platform callbacks.
 -keep class com.example.emoscope.Constants { *; }
 -keep class com.example.emoscope.EmoDatabaseHelper { *; }
 
-# ── R8: auto-value 引用的编译期类（运行时不存在） ──────────
+# Compile-time-only references pulled by generated libraries.
 -dontwarn javax.lang.model.**
 -dontwarn javax.tools.**
 
-# ── 保留行号（调试堆栈） ────────────────────────────────────
+# Keep useful release crash line numbers.
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile

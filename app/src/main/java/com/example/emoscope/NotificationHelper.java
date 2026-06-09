@@ -84,12 +84,11 @@ public final class NotificationHelper {
                 // 查询昨天的情绪记录
                 java.util.Calendar cal = java.util.Calendar.getInstance();
                 cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
-                String yesterday = new java.text.SimpleDateFormat("MM-dd", java.util.Locale.getDefault())
-                        .format(cal.getTime());
                 cursor = db.rawQuery(
                         "SELECT " + Constants.COL_POSITIVE + " FROM " + Constants.TABLE_RECORDS +
-                        " WHERE " + Constants.COL_TIME + " LIKE '" + yesterday + "%'" +
-                        " ORDER BY " + Constants.COL_ID + " DESC LIMIT 5", null);
+                        " WHERE " + Constants.COL_TIME + " LIKE ? OR " +
+                        Constants.COL_TIME + " LIKE ? ORDER BY " + Constants.COL_ID + " DESC LIMIT 5",
+                        EmoDatabaseHelper.dayLikeArgs(cal.getTime()));
                 if (cursor.getCount() == 0) {
                     return "昨天没有记录心情，今天别忘了记录哦 🌱";
                 }

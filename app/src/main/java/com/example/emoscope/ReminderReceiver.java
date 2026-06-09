@@ -40,15 +40,17 @@ public class ReminderReceiver extends BroadcastReceiver {
                 cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
                 cal.set(java.util.Calendar.MINUTE, 0);
                 cal.set(java.util.Calendar.SECOND, 0);
-                String weekStart = new java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.getDefault()).format(cal.getTime());
+                java.util.Date weekStart = cal.getTime();
 
                 cursor = db.rawQuery(
-                        "SELECT " + Constants.COL_POSITIVE + ", COUNT(*) FROM " + Constants.TABLE_RECORDS +
-                        " WHERE " + Constants.COL_TIME + " >= ? GROUP BY " + Constants.COL_POSITIVE,
-                        new String[]{weekStart});
+                        "SELECT " + Constants.COL_TIME + ", " + Constants.COL_POSITIVE
+                                + " FROM " + Constants.TABLE_RECORDS
+                                + " ORDER BY " + Constants.COL_ID + " DESC LIMIT 200",
+                        null);
                 while (cursor.moveToNext()) {
-                    if (cursor.getInt(0) == 1) pos = cursor.getInt(1);
-                    else neg = cursor.getInt(1);
+                    if (!EmoDatabaseHelper.isAtOrAfter(cursor.getString(0), weekStart)) continue;
+                    if (cursor.getInt(1) == 1) pos++;
+                    else neg++;
                 }
                 total = pos + neg;
             } finally {

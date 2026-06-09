@@ -5,33 +5,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -48,18 +39,8 @@ import com.example.emoscope.viewmodels.HistoryViewModel;
 import com.example.emoscope.viewmodels.RadarViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.MaterialColors;
-import com.google.mediapipe.framework.image.BitmapImageBuilder;
-import com.google.mediapipe.framework.image.MPImage;
 import com.google.mediapipe.tasks.components.containers.Category;
-import com.google.mediapipe.tasks.core.BaseOptions;
-import com.google.mediapipe.tasks.vision.core.RunningMode;
-import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker;
-import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult;
-import com.google.common.util.concurrent.ListenableFuture;
 
-import org.json.JSONObject;
-
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -80,7 +61,10 @@ public class MainActivity extends AppCompatActivity
     EmoDatabaseHelper dbHelper;
     private DeepSeekClient deepSeekClient;
     private FaceAnalyzer faceAnalyzer;
+    private CameraEmotionController cameraController;
     private BreathingEngine breathingEngine;
+    private SosInterventionController sosController;
+    private VoiceRecognitionController voiceController;
     private TextToSpeech tts;
     private SensorManager sensorManager;
     private Sensor accelerometer;
@@ -107,21 +91,12 @@ public class MainActivity extends AppCompatActivity
     private BreathingOverlayView breathOverlay;
 
     // ── 相机引擎 ──────────────────────────────────────────────────
-    private ProcessCameraProvider cameraProvider;
-    private FaceLandmarker faceLandmarker;
-    private int lensFacing = CameraSelector.LENS_FACING_FRONT;
-
     // ── 语音引擎 ──────────────────────────────────────────────────
-    private android.speech.SpeechRecognizer androidRecognizer;
     private volatile boolean isVoiceRecording = false;
     private long voiceRecordStartTime = 0;
-    private StringBuilder partialText = new StringBuilder();
 
     // ── 安全状态 ──────────────────────────────────────────────────
-    private boolean hasSentSmsThisSession = false;
-    private long lastSmsTime = 0;
     private long lastShakeTime = 0;
-    private int breathMode = Constants.BREATH_MODE_BOX;
 
     // ── 数据缓存 ──────────────────────────────────────────────────
     private String currentFaceTop3Desc = "平静专注 100%";
@@ -159,18 +134,27 @@ public class MainActivity extends AppCompatActivity
         // 初始化 DeepSeek 客户端
         deepSeekClient = new DeepSeekClient(this, backgroundExecutor, dbHelper,
                 new DeepSeekClient.AiCallback() {
-                    @Override public void onAiStarted() { radarVM.setAiStarted(); }
+                    @Override public void onAiStarted() {
+                        runOnUiThread(() -> radarVM.setAiStarted());
+                    }
                     @Override public void onAiResponse(String reply, String fp, String st,
                                                        String ld, boolean isPos) {
-                        if (radarFragment != null) radarFragment.showTypewriterEffect(reply);
-                        if (isTtsEnabled() && tts != null && !isFinishing()) {
-                            tts.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
-                        }
+                        runOnUiThread(() -> {
+                            if (radarFragment != null) radarFragment.showTypewriterEffect(reply);
+                            if (isTtsEnabled() && tts != null && !isFinishing()) {
+                                tts.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
+                            }
+                        });
                         saveToDatabase("自动分析",
                                 "环境:" + ld + " | 面部:" + fp +
                                 "\n原话:" + st + "\n回复: " + reply, isPos);
                     }
-                    @Override public void onAiError(String msg) { radarVM.setAiError(msg); }
+                    @Override public void onAiError(String msg) {
+                        runOnUiThread(() -> {
+                            radarVM.setAiError(msg);
+                            showUserMessage(msg);
+                        });
+                    }
                 });
 
         // 加载偏好设置
@@ -225,11 +209,97 @@ public class MainActivity extends AppCompatActivity
         // 绑定 Activity 级别视图
         bindActivityViews();
 
+        cameraController = new CameraEmotionController(this, this, viewFinder,
+                backgroundExecutor, new CameraEmotionController.Callback() {
+                    @Override public void onLightState(int iconRes, String description) {
+                        runOnUiThread(() -> {
+                            currentLightDesc = description;
+                            radarVM.setLightState(iconRes, description);
+                        });
+                    }
+
+                    @Override public void onFaceBlendshapes(
+                            List<List<Category>> blendshapes, long timestampMs) {
+                        runOnUiThread(() -> faceAnalyzer.analyze(blendshapes, timestampMs));
+                    }
+
+                    @Override public void onNoFace() {
+                        runOnUiThread(() -> faceAnalyzer.analyze(null, 0));
+                    }
+
+                    @Override public void onCameraError(String message) {
+                        runOnUiThread(() -> {
+                            radarVM.setNoFace();
+                            showUserMessage(message);
+                        });
+                    }
+                });
+
         // 呼吸引擎
         breathingEngine = new BreathingEngine(breathCircle, new BreathingEngine.BreathCallback() {
             @Override public void onPhaseChange(String text) { tvBreathText.setText(text); }
             @Override public void onVibrate(int fbConstant) { triggerHaptic(breathCircle, fbConstant); }
             @Override public void onCycleEnd() { /* loop */ }
+        });
+
+        sosController = new SosInterventionController(this, breathingEngine, layoutBreathing,
+                breathOverlay, new SosInterventionController.Host() {
+                    @Override public void triggerHaptic(View view, int feedbackConstant) {
+                        MainActivity.this.triggerHaptic(view, feedbackConstant);
+                    }
+
+                    @Override public boolean checkSmsPermission() {
+                        return MainActivity.this.checkSmsPermission();
+                    }
+
+                    @Override public void requestSmsPermission() {
+                        MainActivity.this.requestSmsPermission();
+                    }
+
+                    @Override public String emergencyContact() {
+                        return secureStorage().get(Constants.KEY_CONTACT, "");
+                    }
+
+                    @Override public void setSosVisible(boolean visible) {
+                        triggerSOSButton(visible);
+                    }
+
+                    @Override public void showMessage(String message) {
+                        runOnUiThread(() -> showUserMessage(message));
+                    }
+                });
+
+        voiceController = new VoiceRecognitionController(this, new VoiceRecognitionController.Callback() {
+            @Override public void onReady() {
+                runOnUiThread(() -> radarVM.setVoiceListening());
+            }
+
+            @Override public void onProcessing() {
+                runOnUiThread(() -> radarVM.setVoiceButtonText("处理中..."));
+            }
+
+            @Override public void onPartialText(String text) {
+                runOnUiThread(() -> radarVM.setVoiceText("\"" + text + "\""));
+            }
+
+            @Override public void onFinalText(String text) {
+                runOnUiThread(() -> handleVoiceResult(text));
+            }
+
+            @Override public void onNoSpeech() {
+                runOnUiThread(() -> {
+                    stopRecording();
+                    radarVM.setVoiceNotHeard();
+                });
+            }
+
+            @Override public void onError(String message) {
+                runOnUiThread(() -> {
+                    stopRecording();
+                    radarVM.setVoiceText(message);
+                    showUserMessage(message);
+                });
+            }
         });
 
         // 初始化 Fragment
@@ -309,6 +379,10 @@ public class MainActivity extends AppCompatActivity
     // ═══════════════════════════════════════════════════════════════
     @Override public void onFaceCardClicked() {
         triggerHaptic(getWindow().getDecorView(), HapticFeedbackConstants.VIRTUAL_KEY);
+        if (!checkCorePermissions()) {
+            showCorePermissionDialog();
+            return;
+        }
         fragmentContainer().setVisibility(View.GONE);
         bottomNav.setVisibility(View.GONE);
         layoutCameraMode.setAlpha(0f);
@@ -330,6 +404,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override public void onVoiceButtonPressed() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            showCorePermissionDialog();
+            return;
+        }
+        if (voiceController != null && !voiceController.isAvailable()) {
+            showUserMessage("当前设备没有可用的系统语音识别服务");
+            radarVM.setVoiceText("当前设备没有可用的系统语音识别服务");
+            return;
+        }
         boolean clickMode = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
                 .getBoolean(Constants.KEY_VOICE_CLICK_MODE, Constants.DEFAULT_VOICE_CLICK_MODE);
 
@@ -460,6 +544,11 @@ public class MainActivity extends AppCompatActivity
         showQuickMoodDialog();
     }
 
+    @Override public void onDailyCareSecondaryClicked() {
+        triggerHaptic(getWindow().getDecorView(), HapticFeedbackConstants.VIRTUAL_KEY);
+        if (bottomNav != null) bottomNav.setSelectedItemId(R.id.navWorkshop);
+    }
+
     /** 快速心情记录弹窗 — 复用 HistoryFragment 的心情打卡逻辑 */
     public void showQuickMoodDialog() {
         LinearLayout grid = new LinearLayout(this);
@@ -525,6 +614,8 @@ public class MainActivity extends AppCompatActivity
                     saveToDatabase("手动记录", "心情: " + label, isPos);
                     // 更新打卡天数
                     updateStreakFromMain();
+                    refreshDailyLoopSoon();
+                    showUserMessage("已记录：" + label);
                 })
                 .setNegativeButton(getString(R.string.dialog_cancel), null)
                 .show();
@@ -553,6 +644,14 @@ public class MainActivity extends AppCompatActivity
                 .putInt(Constants.KEY_STREAK_COUNT, streak).apply();
     }
 
+    private void refreshDailyLoopSoon() {
+        findViewById(android.R.id.content).postDelayed(() -> {
+            if (radarFragment != null) radarFragment.refreshDailyLoop();
+            if (historyFragment != null) historyFragment.loadHistoryData();
+            if (workshopFragment != null) workshopFragment.refreshUI();
+        }, 250);
+    }
+
     private void stopRecording() {
         if (!isVoiceRecording) return;
         isVoiceRecording = false;
@@ -576,8 +675,10 @@ public class MainActivity extends AppCompatActivity
     private void setupOverlayInteractions() {
         findViewById(R.id.btnCloseCamera).setOnClickListener(v -> {
             triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
+            layoutCameraMode.animate().cancel();
             layoutCameraMode.animate().alpha(0f).setDuration(300).withEndAction(() -> {
                 layoutCameraMode.setVisibility(View.GONE);
+                layoutCameraMode.setAlpha(1f);
                 fragmentContainer().setVisibility(View.VISIBLE);
                 bottomNav.setVisibility(View.VISIBLE);
             }).start();
@@ -586,9 +687,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnFlipCamera).setOnClickListener(v -> {
             triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
             v.animate().rotationBy(180).setDuration(300).start();
-            lensFacing = (lensFacing == CameraSelector.LENS_FACING_FRONT)
-                    ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT;
-            startCamera();
+            if (cameraController != null) cameraController.flipCamera();
         });
 
         btnCloseBreath.setOnClickListener(v -> {
@@ -611,92 +710,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showSOSCountdown() {
-        final int[] count = {3};
-        final android.os.Handler handler = new android.os.Handler(getMainLooper());
-        final android.widget.TextView msgView = new android.widget.TextView(this);
-        msgView.setPadding(48, 32, 48, 16);
-        msgView.setTextSize(16);
-        msgView.setText(String.format(getString(R.string.sos_countdown_message), 3));
-
-        final androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.sos_countdown_title))
-                .setView(msgView)
-                .setNegativeButton(getString(R.string.sos_cancel_now), (d, w) -> {
-                    count[0] = -1; // 标记取消
-                })
-                .setCancelable(false)
-                .create();
-
-        final Runnable tick = new Runnable() {
-            @Override
-            public void run() {
-                if (count[0] < 0) return;
-                if (count[0] == 0) {
-                    if (dialog.isShowing()) dialog.dismiss();
-                    showBreathModeDialog();
-                    return;
-                }
-                msgView.setText(String.format(getString(R.string.sos_countdown_message), count[0]));
-                count[0]--;
-                handler.postDelayed(this, 1000);
-            }
-        };
-        dialog.show();
-        handler.postDelayed(tick, 0);
-    }
-
-    private void showBreathModeDialog() {
-        SharedPreferences prefs = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
-        breathMode = prefs.getInt(Constants.KEY_BREATH_MODE, Constants.BREATH_MODE_BOX);
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.breath_mode_title))
-                .setSingleChoiceItems(Constants.BREATH_MODE_NAMES, breathMode, (dialog, which) -> {
-                    breathMode = which;
-                    prefs.edit().putInt(Constants.KEY_BREATH_MODE, which).apply();
-                })
-                .setPositiveButton("开始", (dialog, which) -> startBreathingIntervention(breathMode))
-                .setNegativeButton(getString(R.string.dialog_cancel), null)
-                .show();
-    }
-
-    private void startBreathingIntervention(int mode) {
-        if (breathingEngine.isRunning()) return;
-        triggerHaptic(getWindow().getDecorView(), HapticFeedbackConstants.LONG_PRESS);
-        sendEmergencySMS();
-        layoutBreathing.setVisibility(View.VISIBLE);
-        layoutBreathing.setAlpha(0f);
-        layoutBreathing.animate().alpha(1f).setDuration(500).start();
-        if (breathOverlay != null) {
-            breathOverlay.setVisibility(View.VISIBLE);
-            breathOverlay.startBreathing(Constants.BREATH_PHASES[mode][0]);
-        }
-        breathingEngine.start(mode);
+        if (sosController != null) sosController.showCountdown();
     }
 
     private void stopBreathingIntervention() {
-        hasSentSmsThisSession = false;
-        breathingEngine.stop();
         lastShakeTime = System.currentTimeMillis();
-        if (breathOverlay != null) breathOverlay.stopBreathing();
-        layoutBreathing.animate().alpha(0f).setDuration(500)
-                .withEndAction(() -> layoutBreathing.setVisibility(View.GONE)).start();
-        triggerSOSButton(false);
-    }
-
-    private void sendEmergencySMS() {
-        if (hasSentSmsThisSession) return;
-        if (System.currentTimeMillis() - lastSmsTime < Constants.SOS_SMS_COOLDOWN_MS) return;
-        String contact = secureStorage().get(Constants.KEY_CONTACT, "");
-        if (contact.trim().isEmpty()) return;
-        if (!checkSmsPermission()) { requestSmsPermission(); return; }
-        try {
-            SmsManager.getDefault().sendTextMessage(contact, null,
-                    getString(R.string.sos_sms_body), null, null);
-            hasSentSmsThisSession = true;
-            lastSmsTime = System.currentTimeMillis();
-        } catch (Exception e) {
-            Log.e(Constants.TAG, "SOS SMS failed", e);
-        }
+        if (sosController != null) sosController.stopBreathingIntervention();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -704,6 +723,7 @@ public class MainActivity extends AppCompatActivity
     // ═══════════════════════════════════════════════════════════════
     public void onTtsSettingChanged(boolean enabled) { updateTtsState(enabled); }
     public void onApiKeyChanged(String newKey) { deepSeekClient.setApiKey(newKey); }
+    public void onPrivacyModeChanged() { applyPrivacyMode(); }
 
     /** B1: 为手动记录提供 AI 情绪解读 */
     public void requestManualMoodAnalysis(String moodDetail) {
@@ -788,159 +808,19 @@ public class MainActivity extends AppCompatActivity
     // 相机 + 面容分析
     // ═══════════════════════════════════════════════════════════════
     private void setupVisualEngine() {
-        try {
-            BaseOptions base = BaseOptions.builder()
-                    .setModelAssetPath(Constants.FACELANDMARKER_MODEL).build();
-            FaceLandmarker.FaceLandmarkerOptions ops = FaceLandmarker.FaceLandmarkerOptions.builder()
-                    .setBaseOptions(base).setRunningMode(RunningMode.LIVE_STREAM)
-                    .setResultListener(this::onFaceAnalyzed).setNumFaces(1)
-                    .setOutputFaceBlendshapes(true).build();
-            faceLandmarker = FaceLandmarker.createFromOptions(this, ops);
-        } catch (Throwable t) {
-            Log.e(Constants.TAG, "FaceLandmarker init failed", t);
-        }
+        if (cameraController != null) cameraController.setupVisualEngine();
     }
 
     private void startCamera() {
-        ListenableFuture<ProcessCameraProvider> future = ProcessCameraProvider.getInstance(this);
-        future.addListener(() -> {
-            try {
-                if (cameraProvider != null) cameraProvider.unbindAll();
-                cameraProvider = future.get();
-                Preview preview = new Preview.Builder().build();
-                preview.setSurfaceProvider(viewFinder.getSurfaceProvider());
-
-                ImageAnalysis analysis = new ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-                        .build();
-
-                analysis.setAnalyzer(backgroundExecutor, proxy -> {
-                    try {
-                        ByteBuffer buffer = proxy.getPlanes()[0].getBuffer();
-                        byte[] data = new byte[buffer.remaining()];
-                        buffer.get(data);
-                        int sampleStep = Constants.LUMINANCE_SAMPLE_STEP;
-                        long total = 0;
-                        int samples = data.length / sampleStep;
-                        for (int i = 0; i < data.length; i += sampleStep) {
-                            total += (data[i] & 0xFF);
-                        }
-                        int avgLuminance = (samples > 0) ? (int) (total / samples) : 128;
-
-                        int lightIcon = R.drawable.ic_light_cloud;
-                        String desc = "光照舒适";
-                        if (avgLuminance < Constants.LUMINANCE_LOW) {
-                            lightIcon = R.drawable.ic_light_moon;
-                            desc = "昏暗阴沉";
-                        } else if (avgLuminance > Constants.LUMINANCE_HIGH) {
-                            lightIcon = R.drawable.ic_light_sun;
-                            desc = "极度刺眼";
-                        }
-
-                        int finalIcon = lightIcon;
-                        String finalDesc = desc;
-                        runOnUiThread(() -> {
-                            currentLightDesc = finalDesc;
-                            radarVM.setLightState(finalIcon, finalDesc);
-                        });
-
-                        if (faceLandmarker != null) {
-                            Bitmap b = proxy.toBitmap();
-                            if (b != null) faceLandmarker.detectAsync(
-                                    new BitmapImageBuilder(b).build(),
-                                    proxy.getImageInfo().getTimestamp() / 1000000);
-                        }
-                    } finally { proxy.close(); }
-                });
-
-                cameraProvider.bindToLifecycle(this,
-                        new CameraSelector.Builder().requireLensFacing(lensFacing).build(),
-                        preview, analysis);
-            } catch (Exception e) {
-                Log.e(Constants.TAG, "Camera bind failed", e);
-            }
-        }, ContextCompat.getMainExecutor(this));
-    }
-
-    private void onFaceAnalyzed(FaceLandmarkerResult result, MPImage inputImage) {
-        if (!result.faceBlendshapes().isPresent() || result.faceBlendshapes().get().isEmpty()) {
-            runOnUiThread(() -> faceAnalyzer.analyze(null, 0));
-            return;
-        }
-        List<List<Category>> shapes = result.faceBlendshapes().get();
-        long ts = System.currentTimeMillis();
-        runOnUiThread(() -> faceAnalyzer.analyze(shapes, ts));
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // 语音识别 — Android 内置 SpeechRecognizer（稳定、免费、中文好）
-    // ═══════════════════════════════════════════════════════════════
-    private boolean isAndroidRecognizerAvailable() {
-        return android.speech.SpeechRecognizer.isRecognitionAvailable(this);
+        if (cameraController != null) cameraController.startCamera();
     }
 
     private void startVoiceRecognition() {
-        partialText.setLength(0);
-        if (!isAndroidRecognizerAvailable()) {
-            runOnUiThread(() -> radarVM.setVoiceNotHeard());
-            return;
-        }
-        if (androidRecognizer != null) androidRecognizer.destroy();
-        androidRecognizer = android.speech.SpeechRecognizer.createSpeechRecognizer(this);
-        androidRecognizer.setRecognitionListener(new android.speech.RecognitionListener() {
-            @Override public void onReadyForSpeech(Bundle params) {
-                runOnUiThread(() -> radarVM.setVoiceListening());
-            }
-            @Override public void onBeginningOfSpeech() {}
-            @Override public void onRmsChanged(float rmsdB) {}
-            @Override public void onBufferReceived(byte[] buffer) {}
-            @Override public void onEndOfSpeech() {
-                runOnUiThread(() -> radarVM.setVoiceButtonText("处理中..."));
-            }
-            @Override public void onError(int error) {
-                runOnUiThread(() -> radarVM.setVoiceNotHeard());
-            }
-            @Override public void onResults(Bundle results) {
-                java.util.ArrayList<String> matches = results.getStringArrayList(
-                        android.speech.SpeechRecognizer.RESULTS_RECOGNITION);
-                if (matches != null && !matches.isEmpty()) {
-                    final String text = matches.get(0).trim();
-                    runOnUiThread(() -> handleVoiceResult(text));
-                } else {
-                    runOnUiThread(() -> radarVM.setVoiceNotHeard());
-                }
-            }
-            @Override public void onPartialResults(Bundle partialResults) {
-                java.util.ArrayList<String> matches = partialResults.getStringArrayList(
-                        android.speech.SpeechRecognizer.RESULTS_RECOGNITION);
-                if (matches != null && !matches.isEmpty()) {
-                    final String text = matches.get(0).trim();
-                    runOnUiThread(() -> {
-                        partialText.setLength(0);
-                        partialText.append(text);
-                        radarVM.setVoiceText("\"" + text + "\"");
-                    });
-                }
-            }
-            @Override public void onEvent(int eventType, Bundle params) {}
-        });
-
-        Intent intent = new Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
-        intent.putExtra(android.speech.RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-        intent.putExtra(android.speech.RecognizerIntent.EXTRA_MAX_RESULTS, 3);
-        androidRecognizer.startListening(intent);
+        if (voiceController != null) voiceController.start();
     }
 
     private void stopVoiceRecognition() {
-        if (androidRecognizer != null) {
-            try { androidRecognizer.stopListening(); } catch (Exception e) {}
-            try { androidRecognizer.destroy(); } catch (Exception e) {}
-            androidRecognizer = null;
-        }
+        if (voiceController != null) voiceController.stop();
     }
 
     private void handleVoiceResult(String text) {
@@ -977,6 +857,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void requestCorePermissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)
+                || ActivityCompat.shouldShowRequestPermissionRationale(
+                this, Manifest.permission.RECORD_AUDIO)) {
+            showCorePermissionDialog();
+            return;
+        }
+        requestCorePermissionsDirect();
+    }
+
+    private void requestCorePermissionsDirect() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
                 Constants.PERM_CORE);
@@ -1005,10 +895,14 @@ public class MainActivity extends AppCompatActivity
             if (results.length >= 2 && results[0] == PackageManager.PERMISSION_GRANTED
                     && results[1] == PackageManager.PERMISSION_GRANTED) {
                 setupVisualEngine(); startCamera();
+            } else {
+                showCorePermissionDeniedDialog();
             }
         } else if (requestCode == Constants.PERM_SMS && results.length > 0
                 && results[0] == PackageManager.PERMISSION_GRANTED) {
-            // SMS 权限已就绪
+            showUserMessage("SOS 短信权限已就绪，请再次触发 SOS 发送求助短信");
+        } else if (requestCode == Constants.PERM_SMS) {
+            showUserMessage("未获得短信权限，SOS 将只启动呼吸干预，不会发送短信");
         }
     }
 
@@ -1030,6 +924,35 @@ public class MainActivity extends AppCompatActivity
         breathOverlay = findViewById(R.id.breathOverlay);
         btnCloseBreath = findViewById(R.id.btnCloseBreath);
         btnCallHotline = findViewById(R.id.btnCallHotline);
+    }
+
+    private void showCorePermissionDialog() {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("需要相机和麦克风权限")
+                .setMessage("相机用于本地面部情绪分析，麦克风用于系统语音识别。不开启权限时，你仍可使用手动记录和历史查看。")
+                .setPositiveButton("继续授权", (d, w) -> requestCorePermissionsDirect())
+                .setNegativeButton("暂不授权", null)
+                .show();
+    }
+
+    private void showCorePermissionDeniedDialog() {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("部分核心功能不可用")
+                .setMessage("未获得相机或麦克风权限，面部分析和语音记录将暂停。你可以在系统设置中重新开启权限。")
+                .setPositiveButton("去系统设置", (d, w) -> openAppSettings())
+                .setNegativeButton("稍后再说", null)
+                .show();
+    }
+
+    private void openAppSettings() {
+        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
+    }
+
+    private void showUserMessage(String message) {
+        if (message == null || message.trim().isEmpty() || isFinishing()) return;
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private void setupVoiceButtonGradient() {
@@ -1067,18 +990,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void saveToDatabase(String type, String detail, boolean positive) {
-        backgroundExecutor.execute(() -> {
-            android.database.sqlite.SQLiteDatabase db = dbHelper.getWritableDatabase();
-            android.content.ContentValues values = new android.content.ContentValues();
-            values.put(Constants.COL_TIME,
-                    new java.text.SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
-                            .format(new java.util.Date()));
-            values.put(Constants.COL_TYPE, type);
-            values.put(Constants.COL_DETAIL, detail);
-            values.put(Constants.COL_POSITIVE, positive ? 1 : 0);
-            db.insert(Constants.TABLE_RECORDS, null, values);
-            db.close();
-        });
+        backgroundExecutor.execute(() -> dbHelper.saveRecord(type, detail, positive));
     }
 
     private int getEmotionIcon(String emoji) {
@@ -1104,8 +1016,34 @@ public class MainActivity extends AppCompatActivity
                         + "[记录] 对麦克风说话或手动记录，捕捉每一天的情绪瞬间\n\n"
                         + "[理解] AI 自动分析你的情绪模式、压力来源和开心时刻\n\n"
                         + "[成长] 持续记录，解锁成就徽章和成长等级\n\n"
-                        + "摇晃手机或在设置中配置 SOS 紧急求助。")
-                .setPositiveButton("开始体验", null)
+                        + "相机仅用于本地面部分析，麦克风用于系统语音识别。AI 解读会把必要文本发送到你配置的 AI 服务。\n\n"
+                        + "EmoScope 不提供医疗诊断，也不能替代心理咨询或紧急救援。摇晃手机或在“我的”页配置 SOS 紧急求助。")
+                .setPositiveButton("选择目标", (dialog, which) -> showFocusGoalDialog())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void showFocusGoalDialog() {
+        String[] goals = {"建立记录习惯", "减压", "睡眠前整理", "识别低落周期"};
+        SharedPreferences prefs = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
+        String current = prefs.getString(Constants.KEY_FOCUS_GOAL, Constants.DEFAULT_FOCUS_GOAL);
+        int checked = 0;
+        for (int i = 0; i < goals.length; i++) {
+            if (goals[i].equals(current)) {
+                checked = i;
+                break;
+            }
+        }
+
+        final int[] selected = {checked};
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("这段时间你更想关注什么？")
+                .setSingleChoiceItems(goals, checked, (dialog, which) -> selected[0] = which)
+                .setPositiveButton("开始", (dialog, which) -> {
+                    prefs.edit().putString(Constants.KEY_FOCUS_GOAL, goals[selected[0]]).apply();
+                    if (radarFragment != null) radarFragment.refreshDailyLoop();
+                    showUserMessage("已设置目标：" + goals[selected[0]]);
+                })
                 .setCancelable(false)
                 .show();
     }
@@ -1115,8 +1053,8 @@ public class MainActivity extends AppCompatActivity
         if (breathingEngine != null) breathingEngine.stop();
         if (tts != null) { tts.stop(); tts.shutdown(); }
         if (backgroundExecutor != null) backgroundExecutor.shutdown();
-        if (faceLandmarker != null) faceLandmarker.close();
-        if (androidRecognizer != null) { androidRecognizer.destroy(); }
+        if (cameraController != null) cameraController.release();
+        if (voiceController != null) voiceController.stop();
         if (sensorManager != null) sensorManager.unregisterListener(this);
     }
 }

@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -16,8 +18,11 @@ import java.util.Locale;
 public class EmoDatabaseHelper extends SQLiteOpenHelper {
 
     private static final SimpleDateFormat SDF_DB = new SimpleDateFormat("MM-dd HH:mm", Locale.getDefault());
+    private static final SimpleDateFormat SDF_DAY = new SimpleDateFormat("MM-dd", Locale.getDefault());
+    private static final SimpleDateFormat SDF_LEGACY_DAY = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private static final SimpleDateFormat SDF_LEGACY_DB = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
-    EmoDatabaseHelper(Context ctx) {
+    public EmoDatabaseHelper(Context ctx) {
         super(ctx, Constants.DB_NAME, null, Constants.DB_VERSION);
     }
 
@@ -51,6 +56,74 @@ public class EmoDatabaseHelper extends SQLiteOpenHelper {
         values.put(Constants.COL_DETAIL, detail);
         values.put(Constants.COL_POSITIVE, positive ? 1 : 0);
         db.insert(Constants.TABLE_RECORDS, null, values);
+        db.close();
+    }
+
+    public static String dayPrefix(Date date) {
+        synchronized (SDF_DAY) {
+            return SDF_DAY.format(date);
+        }
+    }
+
+    public static String legacyDayPrefix(Date date) {
+        synchronized (SDF_LEGACY_DAY) {
+            return SDF_LEGACY_DAY.format(date);
+        }
+    }
+
+    public static String[] dayLikeArgs(Date date) {
+        return new String[]{dayPrefix(date) + "%", legacyDayPrefix(date) + "%"};
+    }
+
+    public static boolean isWithinLastDays(String storedTime, int days) {
+        Date parsed = parseStoredTime(storedTime);
+        if (parsed == null) return false;
+        Calendar min = Calendar.getInstance();
+        min.add(Calendar.DAY_OF_YEAR, -days);
+        return !parsed.before(min.getTime());
+    }
+
+    public static boolean isAtOrAfter(String storedTime, Date start) {
+        Date parsed = parseStoredTime(storedTime);
+        return parsed != null && !parsed.before(start);
+    }
+
+    public static boolean isSameDay(String storedTime, Date date) {
+        if (storedTime == null) return false;
+        return storedTime.startsWith(dayPrefix(date))
+                || storedTime.startsWith(legacyDayPrefix(date));
+    }
+
+    private static Date parseStoredTime(String storedTime) {
+        if (storedTime == null || storedTime.trim().isEmpty()) return null;
+        synchronized (SDF_LEGACY_DB) {
+            try {
+                if (storedTime.length() >= 16 && storedTime.charAt(4) == '-') {
+                    return SDF_LEGACY_DB.parse(storedTime);
+                }
+            } catch (ParseException ignored) {
+            }
+        }
+        synchronized (SDF_DB) {
+            try {
+                Date date = SDF_DB.parse(storedTime);
+                if (date == null) return null;
+                Calendar parsed = Calendar.getInstance();
+                Calendar now = Calendar.getInstance();
+                parsed.setTime(date);
+                parsed.set(Calendar.YEAR, now.get(Calendar.YEAR));
+                if (parsed.after(now)) parsed.add(Calendar.YEAR, -1);
+                return parsed.getTime();
+            } catch (ParseException ignored) {
+                return null;
+            }
+        }
+    }
+
+    /** Delete all locally stored emotion records. */
+    public void clearAllRecords() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(Constants.TABLE_RECORDS, null, null);
         db.close();
     }
 }

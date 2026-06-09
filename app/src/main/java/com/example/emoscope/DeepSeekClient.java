@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -137,14 +138,14 @@ public class DeepSeekClient {
                     });
                 } else {
                     isInProgress = false;
-                    callback.onAiError(context.getString(R.string.ai_request_failed));
+                    callback.onAiError(networkErrorMessage(e));
                 }
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 try {
-                    String respStr = response.body().string();
+                    String respStr = response.body() != null ? response.body().string() : "";
                     if (!response.isSuccessful()) {
                         Log.e(Constants.TAG, "DeepSeek HTTP " + response.code() + ": " + respStr);
                         if (attempt < Constants.AI_MAX_RETRIES - 1 && response.code() >= 500) {
@@ -160,7 +161,7 @@ public class DeepSeekClient {
                             return;
                         }
                         isInProgress = false;
-                        callback.onAiError(context.getString(R.string.ai_request_failed));
+                        callback.onAiError(httpErrorMessage(response.code()));
                         return;
                     }
                     JSONObject respJson = new JSONObject(respStr);
@@ -180,6 +181,26 @@ public class DeepSeekClient {
                 }
             }
         });
+    }
+
+    private String networkErrorMessage(IOException e) {
+        if (e instanceof SocketTimeoutException) {
+            return "AI 连接超时，请稍后重试";
+        }
+        return "AI 连接失败，请检查网络后重试";
+    }
+
+    private String httpErrorMessage(int code) {
+        if (code == 401 || code == 403) {
+            return "AI API Key 无效或权限不足，请在“我的”页重新配置";
+        }
+        if (code == 429) {
+            return "AI 请求过于频繁或额度不足，请稍后再试";
+        }
+        if (code >= 500) {
+            return "AI 服务暂时繁忙，请稍后重试";
+        }
+        return "AI 请求失败，请检查网络或 API Key";
     }
 
     /** 查询最近 3 条数据库记忆 */

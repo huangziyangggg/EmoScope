@@ -67,7 +67,6 @@ public class HistoryFragment extends Fragment {
     private ImageView filterPos, filterWarn;
     private TextView tvNotifyTime; // 可能为 null（在 settings 中）
 
-    private static final SimpleDateFormat SDF_DB = new SimpleDateFormat("MM-dd HH:mm", Locale.getDefault());
     private static final SimpleDateFormat SDF_DAY = new SimpleDateFormat("MM-dd", Locale.getDefault());
     private static final Object SDF_LOCK = new Object();
 
@@ -424,18 +423,7 @@ public class HistoryFragment extends Fragment {
     // 数据库操作
     // ═══════════════════════════════════════════════════════════════
     private void saveToDatabase(String type, String detail, boolean positive) {
-        executor.execute(() -> {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            synchronized (SDF_LOCK) {
-                values.put(Constants.COL_TIME, SDF_DB.format(new Date()));
-            }
-            values.put(Constants.COL_TYPE, type);
-            values.put(Constants.COL_DETAIL, detail);
-            values.put(Constants.COL_POSITIVE, positive ? 1 : 0);
-            db.insert(Constants.TABLE_RECORDS, null, values);
-            db.close();
-        });
+        executor.execute(() -> dbHelper.saveRecord(type, detail, positive));
     }
 
     public void loadHistoryData() {
@@ -447,54 +435,15 @@ public class HistoryFragment extends Fragment {
                 int dateFilter = vm.getDateFilter().getValue() != null ? vm.getDateFilter().getValue() : 0;
                 int moodFilter = vm.getMoodFilter().getValue() != null ? vm.getMoodFilter().getValue() : 0;
 
-                String dateWhere;
-                String[] dateArgs;
-                String today;
-                synchronized (SDF_LOCK) { today = SDF_DAY.format(new Date()); }
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DAY_OF_MONTH, 1);
-                String tomorrow;
-                synchronized (SDF_LOCK) { tomorrow = SDF_DAY.format(cal.getTime()); }
-
-                if (dateFilter == 1) {
-                    dateWhere = Constants.COL_TIME + " >= ? AND " + Constants.COL_TIME + " < ?";
-                    dateArgs = new String[]{today, tomorrow};
-                } else if (dateFilter == 2) {
-                    cal = Calendar.getInstance();
-                    cal.add(Calendar.DAY_OF_MONTH, -7);
-                    String weekAgo;
-                    synchronized (SDF_LOCK) { weekAgo = SDF_DAY.format(cal.getTime()); }
-                    dateWhere = Constants.COL_TIME + " >= ?";
-                    dateArgs = new String[]{weekAgo};
-                } else if (dateFilter == 3) {
-                    cal = Calendar.getInstance();
-                    cal.add(Calendar.DAY_OF_MONTH, -30);
-                    String monthAgo;
-                    synchronized (SDF_LOCK) { monthAgo = SDF_DAY.format(cal.getTime()); }
-                    dateWhere = Constants.COL_TIME + " >= ?";
-                    dateArgs = new String[]{monthAgo};
-                } else {
-                    dateWhere = "1=1";
-                    dateArgs = new String[]{};
+                String whereClause = "1=1";
+                String[] whereArgs = new String[]{};
+                if (moodFilter == 1) whereClause = Constants.COL_POSITIVE + " = ?";
+                else if (moodFilter == 2) whereClause = Constants.COL_POSITIVE + " = ?";
+                if (moodFilter == 1 || moodFilter == 2) {
+                    whereArgs = new String[]{moodFilter == 1 ? "1" : "0"};
                 }
 
-                String moodWhere = "";
-                if (moodFilter == 1) moodWhere = " AND " + Constants.COL_POSITIVE + " = 1";
-                else if (moodFilter == 2) moodWhere = " AND " + Constants.COL_POSITIVE + " = 0";
-
-                String whereClause = dateWhere + moodWhere;
-                String[] whereArgs = dateArgs.length > 0 ? dateArgs : new String[]{};
-
-                statCursor = db.rawQuery("SELECT " + Constants.COL_POSITIVE + ", COUNT(*) FROM "
-                        + Constants.TABLE_RECORDS + " WHERE " + whereClause
-                        + " GROUP BY " + Constants.COL_POSITIVE, whereArgs);
                 int posCount = 0, negCount = 0;
-                while (statCursor.moveToNext()) {
-                    if (statCursor.getInt(0) == 1) posCount = statCursor.getInt(1);
-                    else negCount = statCursor.getInt(1);
-                }
-                statCursor.close(); statCursor = null;
-
                 cursor = db.rawQuery("SELECT * FROM " + Constants.TABLE_RECORDS
                         + " WHERE " + whereClause + " ORDER BY " + Constants.COL_ID + " DESC", whereArgs);
                 List<Float> chartData = new ArrayList<>();
@@ -505,6 +454,8 @@ public class HistoryFragment extends Fragment {
                     String type = cursor.getString(2);
                     String detail = cursor.getString(3);
                     boolean isPos = cursor.getInt(4) == 1;
+                    if (!matchesDateFilter(time, dateFilter)) continue;
+                    if (isPos) posCount++; else negCount++;
                     float moodScore = calculateMoodScore(detail, isPos);
                     chartData.add(moodScore);
                     rows.add(new String[]{time, type, detail, String.valueOf(isPos)});
@@ -566,6 +517,19 @@ public class HistoryFragment extends Fragment {
         return Math.max(5f, Math.min(95f, score));
     }
 
+    private boolean matchesDateFilter(String time, int dateFilter) {
+        if (dateFilter == 1) {
+            return EmoDatabaseHelper.isSameDay(time, new Date());
+        }
+        if (dateFilter == 2) {
+            return EmoDatabaseHelper.isWithinLastDays(time, 7);
+        }
+        if (dateFilter == 3) {
+            return EmoDatabaseHelper.isWithinLastDays(time, 30);
+        }
+        return true;
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // 导出
     // ═══════════════════════════════════════════════════════════════
@@ -595,23 +559,17 @@ public class HistoryFragment extends Fragment {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor = null;
             try {
-                String whereClause = "";
-                String[] whereArgs = new String[]{};
-                if (days > 0) {
-                    Calendar cal = Calendar.getInstance();
-                    cal.add(Calendar.DAY_OF_MONTH, -days);
-                    String dayAgo;
-                    synchronized (SDF_LOCK) { dayAgo = SDF_DAY.format(cal.getTime()); }
-                    whereClause = " WHERE " + Constants.COL_TIME + " >= ?";
-                    whereArgs = new String[]{dayAgo};
-                }
-                cursor = db.rawQuery("SELECT * FROM " + Constants.TABLE_RECORDS + whereClause
-                        + " ORDER BY " + Constants.COL_ID + " DESC", whereArgs);
+                cursor = db.rawQuery("SELECT * FROM " + Constants.TABLE_RECORDS
+                        + " ORDER BY " + Constants.COL_ID + " DESC", null);
 
                 List<String[]> rows = new ArrayList<>();
                 while (cursor.moveToNext()) {
+                    String time = cursor.getString(1);
+                    if (days > 0 && !EmoDatabaseHelper.isWithinLastDays(time, days)) {
+                        continue;
+                    }
                     rows.add(new String[]{
-                            cursor.getString(1), cursor.getString(2),
+                            time, cursor.getString(2),
                             cursor.getString(3), cursor.getString(4)
                     });
                 }

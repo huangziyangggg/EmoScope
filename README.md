@@ -89,11 +89,17 @@ Manual      Insights       Meditate     Reports
 - **Smart notifications**: daily reminders with mood-based personalization
 - **Weekly report push** via AlarmManager + BootReceiver
 
+### Daily Care
+- **Focus goal system**: selectable personal growth goals (habit building, stress reduction, emotional awareness)
+- **Homepage care card**: dynamic daily status + one-tap action based on current emotional trend
+- **Privacy center**: centralized data clearing — one tap wipes all local data (DB, prefs, keys, notifications)
+
 ### Security
 - **Biometric lock**: fingerprint/face unlock via AndroidX Biometric
 - **All data local**: SQLite + SharedPreferences, zero cloud dependency
 - **SecureStorage**: KeyChain-encrypted API key and contacts
 - **DeepSeek API**: HTTPS encrypted
+- **Privacy mode**: FLAG_SECURE blocks screenshots, auto-returns to home on background
 
 ---
 
@@ -123,7 +129,7 @@ Manual      Insights       Meditate     Reports
 
 | File | Role |
 |------|------|
-| `MainActivity.java` | Central hub — camera, voice recognition, SOS, database, fragment navigation |
+| `MainActivity.java` | Central hub — delegates Camera/Voice/SOS to dedicated controllers, fragment navigation |
 | `Constants.java` | All global constants: SharedPreferences keys, API params, emotion labels, level thresholds |
 
 #### Engines
@@ -135,6 +141,9 @@ Manual      Insights       Meditate     Reports
 | `BreathingEngine.java` | Sequence-based breath animation: Box Breathing & 4-7-8, vibrate on phase change |
 | `DeepSeekClient.java` | OkHttp client: exponential backoff retry, streaming typewriter effect, structured prompt |
 | `EmoLineChartView.java` | Custom Canvas chart: gradient emotion zones, dotted reference lines, date-labeled X-axis |
+| `CameraEmotionController.java` | CameraX + MediaPipe lifecycle, light sampling, face inference throttling |
+| `VoiceRecognitionController.java` | Android SpeechRecognizer lifecycle and transcription callbacks |
+| `SosInterventionController.java` | SOS countdown, emergency SMS throttling, breathing overlay orchestration |
 
 #### Custom Animation Views
 
@@ -157,16 +166,17 @@ Manual      Insights       Meditate     Reports
 | `NotificationHelper.java` | AlarmManager scheduler: daily reminders, weekly summaries, custom message builder |
 | `ReminderReceiver.java` | BroadcastReceiver for alarm triggers |
 | `BootReceiver.java` | Re-registers all alarms after device reboot |
+| `LocalDataManager.java` | Centralized local data clearing: DB, SharedPreferences, SecureStorage, notifications |
 | `CrashHandler.java` | Global uncaught exception handler |
 
 #### Fragments (MVVM)
 
 | File | Tab | Content |
 |------|-----|---------|
-| `RadarFragment.java` | 首页 (Home) | Face analysis card, today's mood score, 7-day trend, AI observation, voice button |
+| `RadarFragment.java` | 首页 (Home) | Face analysis, mood score, 7-day trend, daily care card with focus goal, AI observation, voice button |
 | `WorkshopFragment.java` | 成长 (Growth) | AI insight, level card, journal, meditation, gratitude, weekly report, badges |
 | `HistoryFragment.java` | 记录 (Timeline) | Emotion chart, stat capsules, filter chips, timeline feed with date headers |
-| `SettingsFragment.java` | 我的 (Profile) | Safety, interaction, notification, engine settings |
+| `SettingsFragment.java` | 我的 (Profile) | Focus goal, privacy center, data clearing, biometric lock, notification & engine config |
 
 #### ViewModels
 
@@ -210,11 +220,14 @@ A dominance of "joy" (weight 95) is very different from "fear" (weight 10). The 
 ### Why local-first?
 Facial expression data is extremely personal. Everything stores locally. The AI memory engine runs fully offline. Only the user-initiated DeepSeek call goes over the network.
 
-### Why remove Vosk?
-Vosk's Chinese small model had reliability issues and added 50MB. Android's built-in SpeechRecognizer is more accurate for Chinese, works offline on modern devices, and adds zero dependencies.
+### Why Android SpeechRecognizer?
+Android's built-in SpeechRecognizer keeps voice recognition dependency-free, supports zh-CN, and avoids bundling a large offline model in the APK.
+
+### Why controller extraction?
+MainActivity originally contained all camera, voice, and SOS logic inline (~1000 lines). Extracting `CameraEmotionController`, `VoiceRecognitionController`, and `SosInterventionController` achieves single-responsibility isolation, making each subsystem independently testable and the activity lean.
 
 ### Why Material 3 with custom shapes?
-Unified `shapeAppearance`: Small=12dp, Medium=16dp, Large=24dp. All MaterialCardView instances use these tokens, ensuring visual consistency across all 60+ cards.
+Unified `shapeAppearance`: Small=8dp, Medium=12dp, Large=16dp. All MaterialCardView instances use these tokens, keeping the interface consistent, dense, and easy to scan.
 
 ---
 
@@ -254,6 +267,46 @@ adb -s emulator-5554 shell am start -n com.example.emoscope/.MainActivity
 2. Tap "Start Face Analysis" on the homepage
 3. Hold the voice button at the bottom to speak
 4. Explore Growth, Timeline, and Profile tabs
+
+---
+
+## Privacy and Compliance Notes
+
+EmoScope is an emotion journaling and self-support tool. It is not a medical
+diagnosis product and does not replace doctors, therapists, emergency services,
+or professional crisis intervention.
+
+- Camera: used for on-device face emotion analysis. Camera frames are not
+  uploaded by the current implementation.
+- Microphone: used with Android SpeechRecognizer to convert speech into text.
+- SMS: used only by the SOS flow to send a help message to the emergency contact
+  configured by the user.
+- AI analysis: when AI interpretation is used, the user's text and the minimum
+  required context may be sent to DeepSeek.
+- Local records: emotion records are stored in the local SQLite database.
+- Sensitive settings: the DeepSeek API key and emergency contact are encrypted
+  with Android Keystore through `SecureStorage`.
+- User control: Profile -> Privacy and Security Center explains data use, and
+  Profile -> Clear Local Data deletes local records, preferences, reminders,
+  API key, and emergency contact.
+
+For Google Play release preparation, complete the Health apps declaration, Data
+safety form, permission declarations, and provide a public privacy policy URL
+that matches the behavior above.
+
+---
+
+## Daily Engagement Loop
+
+EmoScope now includes a lightweight daily loop for retention and habit building:
+
+- First launch asks the user to choose a focus goal: build a recording habit,
+  reduce stress, wind down before sleep, or identify low-mood cycles.
+- The home screen shows a "Today" care card with the selected goal, completion
+  state, and a direct quick-record action.
+- After a quick mood record, the home mood score, streak chip, 7-day trend,
+  history list, and growth page refresh automatically.
+- The focus goal can be changed later in Profile -> Focus Goal.
 
 ---
 

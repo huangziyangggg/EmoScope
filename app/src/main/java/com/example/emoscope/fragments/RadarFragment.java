@@ -42,6 +42,7 @@ public class RadarFragment extends Fragment {
         void onVoiceButtonPressed();
         void onVoiceButtonReleased();
         void onQuickMoodClicked();
+        void onDailyCareSecondaryClicked();
     }
 
     private Callback callback;
@@ -51,7 +52,9 @@ public class RadarFragment extends Fragment {
     private ImageView tvMoodEmoji, tvTtsIcon, ivGreetingIcon;
     private TextView tvDateTop, tvDynamicGreeting, tvStreak, tvMoodLabel;
     private TextView tvMoodScore, tvMoodChange, tvAiTyping, btnSpeakMain;
+    private TextView tvDailyGoal, tvDailyStatus, tvDailyAction;
     private CardView cvSOS, cvStreak, cvAiResponse;
+    private View btnDailyPrimary, btnDailySecondary;
     private FrameLayout miniChartContainer;
 
     private static final SimpleDateFormat SDF_DATE_TOP = new SimpleDateFormat("M月d日 EEEE", Locale.CHINESE);
@@ -80,6 +83,7 @@ public class RadarFragment extends Fragment {
         setDynamicGreetingAndDate();
         loadMoodScore();
         loadMiniChart();
+        updateDailyCare();
         animateCardsEntrance(view);
     }
 
@@ -106,6 +110,11 @@ public class RadarFragment extends Fragment {
         cvSOS = v.findViewById(R.id.cvSOS);
         cvAiResponse = v.findViewById(R.id.cvAiResponse);
         miniChartContainer = v.findViewById(R.id.miniChartContainer);
+        tvDailyGoal = v.findViewById(R.id.tvDailyGoal);
+        tvDailyStatus = v.findViewById(R.id.tvDailyStatus);
+        tvDailyAction = v.findViewById(R.id.tvDailyAction);
+        btnDailyPrimary = v.findViewById(R.id.btnDailyPrimary);
+        btnDailySecondary = v.findViewById(R.id.btnDailySecondary);
     }
 
     // ═══════════════════════════ ViewModel ═══════════════════════════
@@ -153,6 +162,17 @@ public class RadarFragment extends Fragment {
         v.findViewById(R.id.btnQuickMood).setOnClickListener(view -> {
             if (callback != null) callback.onQuickMoodClicked();
         });
+
+        if (btnDailyPrimary != null) {
+            btnDailyPrimary.setOnClickListener(view -> {
+                if (callback != null) callback.onQuickMoodClicked();
+            });
+        }
+        if (btnDailySecondary != null) {
+            btnDailySecondary.setOnClickListener(view -> {
+                if (callback != null) callback.onDailyCareSecondaryClicked();
+            });
+        }
 
         tvAiTyping.setOnLongClickListener(view -> {
             ClipboardManager clipboard = (ClipboardManager) requireContext()
@@ -217,19 +237,18 @@ public class RadarFragment extends Fragment {
             android.database.sqlite.SQLiteDatabase db = dbHelper.getReadableDatabase();
             android.database.Cursor cursor = null;
             try {
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DAY_OF_MONTH, -7);
-                SimpleDateFormat sdf = new SimpleDateFormat("MM-dd", Locale.getDefault());
-                String weekAgo = sdf.format(cal.getTime());
-
-                cursor = db.rawQuery("SELECT " + Constants.COL_POSITIVE + " FROM "
-                        + Constants.TABLE_RECORDS + " WHERE " + Constants.COL_TIME
-                        + " >= ? ORDER BY " + Constants.COL_ID, new String[]{weekAgo});
+                cursor = db.rawQuery("SELECT " + Constants.COL_TIME + ", "
+                        + Constants.COL_POSITIVE + " FROM " + Constants.TABLE_RECORDS
+                        + " ORDER BY " + Constants.COL_ID + " DESC LIMIT 80", null);
 
                 java.util.List<Float> data = new java.util.ArrayList<>();
                 while (cursor.moveToNext()) {
-                    data.add(cursor.getInt(0) == 1 ? 75f : 25f);
+                    if (!com.example.emoscope.EmoDatabaseHelper.isWithinLastDays(cursor.getString(0), 7)) {
+                        continue;
+                    }
+                    data.add(cursor.getInt(1) == 1 ? 75f : 25f);
                 }
+                java.util.Collections.reverse(data);
 
                 if (data.isEmpty()) {
                     for (int i = 0; i < 7; i++) data.add(50f);
@@ -247,6 +266,57 @@ public class RadarFragment extends Fragment {
                 db.close();
             }
         });
+    }
+
+    private void updateDailyCare() {
+        if (getActivity() == null || tvDailyStatus == null) return;
+        android.content.SharedPreferences prefs = requireActivity()
+                .getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        String goal = prefs.getString(Constants.KEY_FOCUS_GOAL, Constants.DEFAULT_FOCUS_GOAL);
+        if (tvDailyGoal != null) tvDailyGoal.setText(goal);
+
+        com.example.emoscope.EmoDatabaseHelper dbHelper =
+                ((com.example.emoscope.MainActivity) requireActivity()).getDbHelper();
+        java.util.concurrent.ExecutorService executor =
+                ((com.example.emoscope.MainActivity) requireActivity()).getBackgroundExecutor();
+
+        executor.execute(() -> {
+            android.database.sqlite.SQLiteDatabase db = dbHelper.getReadableDatabase();
+            android.database.Cursor cursor = null;
+            try {
+                cursor = db.rawQuery("SELECT COUNT(*) FROM " + Constants.TABLE_RECORDS
+                        + " WHERE " + Constants.COL_TIME + " LIKE ? OR "
+                        + Constants.COL_TIME + " LIKE ?", com.example.emoscope.EmoDatabaseHelper.dayLikeArgs(new Date()));
+                int count = 0;
+                if (cursor.moveToFirst()) count = cursor.getInt(0);
+                final int todayCount = count;
+                requireActivity().runOnUiThread(() -> renderDailyCare(goal, todayCount));
+            } finally {
+                if (cursor != null) cursor.close();
+                db.close();
+            }
+        });
+    }
+
+    private void renderDailyCare(String goal, int todayCount) {
+        if (todayCount > 0) {
+            tvDailyStatus.setText("今天已完成 " + todayCount + " 次记录。保持这种轻轻照看自己的节奏。");
+            if (tvDailyAction != null) tvDailyAction.setText("再记一条");
+            return;
+        }
+
+        String prompt;
+        if ("减压".equals(goal)) {
+            prompt = "今天还没有记录。先给压力打个小标签，再决定要不要做 3 分钟呼吸。";
+        } else if ("睡眠前整理".equals(goal)) {
+            prompt = "今天还没有记录。睡前花 30 秒整理一下情绪，会更容易放下白天。";
+        } else if ("识别低落周期".equals(goal)) {
+            prompt = "今天还没有记录。连续记录能帮助你看见低落出现的时间和触发点。";
+        } else {
+            prompt = "今天还没有记录，花 30 秒给自己一个情绪快照。";
+        }
+        tvDailyStatus.setText(prompt);
+        if (tvDailyAction != null) tvDailyAction.setText("快速记录");
     }
 
     // ═══════════════════════════ 公开方法 ═══════════════════════════
@@ -280,16 +350,14 @@ public class RadarFragment extends Fragment {
             android.database.sqlite.SQLiteDatabase db = helper.getReadableDatabase();
             android.database.Cursor cursor = null;
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("MM-dd", Locale.getDefault());
-                String today = sdf.format(new Date());
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.DAY_OF_MONTH, -1);
-                String yesterday = sdf.format(cal.getTime());
 
                 // 今日数据
                 cursor = db.rawQuery("SELECT " + Constants.COL_POSITIVE
                         + " FROM " + Constants.TABLE_RECORDS
-                        + " WHERE " + Constants.COL_TIME + " LIKE '" + today + "%'", null);
+                        + " WHERE " + Constants.COL_TIME + " LIKE ? OR "
+                        + Constants.COL_TIME + " LIKE ?", com.example.emoscope.EmoDatabaseHelper.dayLikeArgs(new Date()));
                 int todayTotal = cursor.getCount();
                 int todayPos = 0;
                 while (cursor.moveToNext()) {
@@ -300,7 +368,8 @@ public class RadarFragment extends Fragment {
                 // 昨日数据
                 cursor = db.rawQuery("SELECT " + Constants.COL_POSITIVE
                         + " FROM " + Constants.TABLE_RECORDS
-                        + " WHERE " + Constants.COL_TIME + " LIKE '" + yesterday + "%'", null);
+                        + " WHERE " + Constants.COL_TIME + " LIKE ? OR "
+                        + Constants.COL_TIME + " LIKE ?", com.example.emoscope.EmoDatabaseHelper.dayLikeArgs(cal.getTime()));
                 int yesterdayTotal = cursor.getCount();
                 int yesterdayPos = 0;
                 while (cursor.moveToNext()) {
@@ -381,4 +450,11 @@ public class RadarFragment extends Fragment {
     }
 
     public RadarViewModel getViewModel() { return vm; }
+
+    public void refreshDailyLoop() {
+        setDynamicGreetingAndDate();
+        loadMoodScore();
+        loadMiniChart();
+        updateDailyCare();
+    }
 }

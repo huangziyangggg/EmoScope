@@ -1,7 +1,6 @@
 package com.example.emoscope.fragments;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,7 +46,6 @@ public class WorkshopFragment extends Fragment {
     private EmoDatabaseHelper dbHelper;
     private java.util.concurrent.ExecutorService executor;
     private static final SimpleDateFormat SDF_DAY = new SimpleDateFormat("MM-dd", Locale.getDefault());
-    private static final SimpleDateFormat SDF_FULL = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     private TextView tvAiInsight, tvJournalPreview, tvGratitudeContent;
     private TextView tvBadgeSummary, tvReportHint;
@@ -179,8 +177,13 @@ public class WorkshopFragment extends Fragment {
                 String today;
                 synchronized (SDF_DAY) { today = SDF_DAY.format(new Date()); }
                 cursor = db.rawQuery("SELECT " + Constants.COL_DETAIL + " FROM " + Constants.TABLE_RECORDS
-                        + " WHERE " + Constants.COL_TIME + " LIKE '" + today + "%' AND "
-                        + Constants.COL_TYPE + " = '心灵日记' ORDER BY " + Constants.COL_ID + " DESC LIMIT 1", null);
+                        + " WHERE (" + Constants.COL_TIME + " LIKE ? OR "
+                        + Constants.COL_TIME + " LIKE ?) AND "
+                        + Constants.COL_TYPE + " = ? ORDER BY " + Constants.COL_ID + " DESC LIMIT 1",
+                        new String[]{
+                                today + "%",
+                                EmoDatabaseHelper.legacyDayPrefix(new Date()) + "%",
+                                "心灵日记"});
                 final String preview;
                 if (cursor.moveToFirst()) preview = cursor.getString(0);
                 else preview = "今天还没写日记，点击开始记录...";
@@ -209,8 +212,13 @@ public class WorkshopFragment extends Fragment {
                 String today;
                 synchronized (SDF_DAY) { today = SDF_DAY.format(new Date()); }
                 cursor = db.rawQuery("SELECT " + Constants.COL_DETAIL + " FROM " + Constants.TABLE_RECORDS
-                        + " WHERE " + Constants.COL_TIME + " LIKE '" + today + "%' AND "
-                        + Constants.COL_TYPE + " = '心灵日记' ORDER BY " + Constants.COL_ID + " DESC LIMIT 1", null);
+                        + " WHERE (" + Constants.COL_TIME + " LIKE ? OR "
+                        + Constants.COL_TIME + " LIKE ?) AND "
+                        + Constants.COL_TYPE + " = ? ORDER BY " + Constants.COL_ID + " DESC LIMIT 1",
+                        new String[]{
+                                today + "%",
+                                EmoDatabaseHelper.legacyDayPrefix(new Date()) + "%",
+                                "心灵日记"});
                 final String existing;
                 if (cursor.moveToFirst()) existing = cursor.getString(0);
                 else existing = "";
@@ -237,18 +245,12 @@ public class WorkshopFragment extends Fragment {
 
     private void saveJournal(String content) {
         executor.execute(() -> {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            synchronized (SDF_FULL) { values.put(Constants.COL_TIME, SDF_FULL.format(new Date())); }
-            values.put(Constants.COL_TYPE, "心灵日记");
-            values.put(Constants.COL_DETAIL, content);
-            values.put(Constants.COL_POSITIVE, 1);
-            db.insert(Constants.TABLE_RECORDS, null, values);
-            db.close();
+            dbHelper.saveRecord("心灵日记", content, true);
             requireActivity().runOnUiThread(() -> {
                 showSnackbar("日记已保存");
                 loadJournalPreview();
                 loadBadges();
+                loadLevel();
             });
         });
     }
@@ -355,14 +357,11 @@ public class WorkshopFragment extends Fragment {
 
     private void saveMeditationLog(int minutes) {
         executor.execute(() -> {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            synchronized (SDF_FULL) { values.put(Constants.COL_TIME, SDF_FULL.format(new Date())); }
-            values.put(Constants.COL_TYPE, "正念冥想");
-            values.put(Constants.COL_DETAIL, "完成 " + minutes + " 分钟正念冥想练习");
-            values.put(Constants.COL_POSITIVE, 1);
-            db.insert(Constants.TABLE_RECORDS, null, values);
-            db.close();
+            dbHelper.saveRecord("正念冥想", "完成 " + minutes + " 分钟正念冥想练习", true);
+            requireActivity().runOnUiThread(() -> {
+                loadBadges();
+                loadLevel();
+            });
         });
     }
 
@@ -426,21 +425,19 @@ public class WorkshopFragment extends Fragment {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor = null;
             try {
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DAY_OF_MONTH, -7);
-                String weekAgo;
-                synchronized (SDF_DAY) { weekAgo = SDF_DAY.format(cal.getTime()); }
+                cursor = db.rawQuery("SELECT " + Constants.COL_TIME + ", "
+                        + Constants.COL_POSITIVE + ", " + Constants.COL_DETAIL
+                        + " FROM " + Constants.TABLE_RECORDS
+                        + " ORDER BY " + Constants.COL_ID + " DESC LIMIT 80", null);
 
-                cursor = db.rawQuery("SELECT " + Constants.COL_POSITIVE + ", " + Constants.COL_DETAIL
-                        + " FROM " + Constants.TABLE_RECORDS + " WHERE " + Constants.COL_TIME
-                        + " >= ?", new String[]{weekAgo});
-
-                int total = cursor.getCount();
+                int total = 0;
                 int pos = 0, neg = 0;
                 List<String> details = new ArrayList<>();
                 while (cursor.moveToNext()) {
-                    if (cursor.getInt(0) == 1) pos++; else neg++;
-                    String d = cursor.getString(1);
+                    if (!EmoDatabaseHelper.isWithinLastDays(cursor.getString(0), 7)) continue;
+                    total++;
+                    if (cursor.getInt(1) == 1) pos++; else neg++;
+                    String d = cursor.getString(2);
                     if (d != null && details.size() < 20) details.add(d);
                 }
 

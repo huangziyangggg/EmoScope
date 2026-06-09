@@ -3,14 +3,11 @@ package com.example.emoscope;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -121,39 +118,29 @@ public final class AiMemoryEngine {
     public static MemoryResult analyze(SQLiteDatabase db) {
         MemoryResult result = new MemoryResult();
 
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, -30);
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd", Locale.getDefault());
-        String thirtyDaysAgo = sdf.format(cal.getTime());
-
         Cursor cursor = null;
         try {
             cursor = db.rawQuery("SELECT " + Constants.COL_TIME + ", "
                     + Constants.COL_DETAIL + ", " + Constants.COL_POSITIVE
                     + " FROM " + Constants.TABLE_RECORDS
-                    + " WHERE " + Constants.COL_TIME + " >= ?"
-                    + " ORDER BY " + Constants.COL_ID,
-                    new String[]{thirtyDaysAgo});
-
-            if (cursor.getCount() < 3) {
-                result.totalRecords = cursor.getCount();
-                return result;
-            }
-
-            result.totalRecords = cursor.getCount();
+                    + " ORDER BY " + Constants.COL_ID + " DESC LIMIT 300", null);
 
             Map<String, Integer> stressCount = new HashMap<>();
             Map<String, Integer> joyCount = new HashMap<>();
             Map<String, Float> dayScores = new HashMap<>();
+            Map<String, Integer> dayRecordCounts = new HashMap<>();
 
             float totalScore = 0;
             int posCount = 0;
 
             while (cursor.moveToNext()) {
                 String time = cursor.getString(0);
+                if (!EmoDatabaseHelper.isWithinLastDays(time, 30)) continue;
+
                 String detail = cursor.getString(1);
                 boolean isPos = cursor.getInt(2) == 1;
 
+                result.totalRecords++;
                 if (isPos) posCount++;
                 float score = isPos ? 75f : 25f;
 
@@ -162,11 +149,11 @@ public final class AiMemoryEngine {
                 totalScore += score;
 
                 // 提取日期（MM-dd）
-                if (time != null && time.length() >= 5) {
-                    String day = time.substring(0, 5);
+                String day = normalizeDayKey(time);
+                if (day != null) {
                     float currentSum = dayScores.containsKey(day) ? dayScores.get(day) : 0;
-                    int dayCount = 1;
                     dayScores.put(day, currentSum + score);
+                    dayRecordCounts.put(day, dayRecordCounts.getOrDefault(day, 0) + 1);
                 }
 
                 if (detail == null) continue;
@@ -185,6 +172,10 @@ public final class AiMemoryEngine {
                 }
             }
 
+            if (result.totalRecords < 3) {
+                return result;
+            }
+
             result.positivityRatio = (float) posCount / result.totalRecords * 100;
             result.avgScore = totalScore / result.totalRecords;
 
@@ -194,6 +185,10 @@ public final class AiMemoryEngine {
 
             // 找最低谷和最高峰
             if (!dayScores.isEmpty()) {
+                for (String day : new ArrayList<>(dayScores.keySet())) {
+                    int count = dayRecordCounts.getOrDefault(day, 1);
+                    dayScores.put(day, dayScores.get(day) / count);
+                }
                 Map.Entry<String, Float> low = Collections.min(dayScores.entrySet(),
                         Comparator.comparing(Map.Entry::getValue));
                 Map.Entry<String, Float> high = Collections.max(dayScores.entrySet(),
@@ -219,6 +214,17 @@ public final class AiMemoryEngine {
             result.add(new KeywordCount(list.get(i).getKey(), list.get(i).getValue()));
         }
         return result;
+    }
+
+    private static String normalizeDayKey(String time) {
+        if (time == null) return null;
+        if (time.length() >= 10 && time.charAt(4) == '-') {
+            return time.substring(5, 10);
+        }
+        if (time.length() >= 5) {
+            return time.substring(0, 5);
+        }
+        return null;
     }
 
     private static float parseMoodScore(String detail, float fallback) {

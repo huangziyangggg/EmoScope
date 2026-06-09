@@ -2,7 +2,6 @@ package com.example.emoscope.fragments;
 
 import android.Manifest;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -27,32 +26,42 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.emoscope.Constants;
+import com.example.emoscope.LocalDataManager;
 import com.example.emoscope.MainActivity;
 import com.example.emoscope.NotificationHelper;
 import com.example.emoscope.R;
 import com.example.emoscope.SecureStorage;
 import com.example.emoscope.viewmodels.RadarViewModel;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
-/**
- * 控制中枢页 — 所有设置项的 UI 与交互逻辑。
- * 直接操作 SharedPreferences / SecureStorage，无需额外 ViewModel。
- */
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences prefs;
     private SecureStorage secureStorage;
 
-    // ── 视图 ──
-    private TextView tvCurrentContact, tvCurrentSensitivity, tvCurrentApiKey;
-    private MaterialSwitch switchHaptic, switchTts, switchBiometric;
-    private MaterialSwitch switchNotifyDaily, switchNotifyWeekly;
-    private MaterialSwitch switchVoiceMode, switchPrivacy;
+    private TextView tvCurrentContact;
+    private TextView tvCurrentSensitivity;
+    private TextView tvCurrentApiKey;
+    private TextView tvCurrentGoal;
     private TextView tvNotifyTime;
-    private View btnNotifyTime, btnSetContact, btnSetSensitivity, btnSetApiKey;
+    private MaterialSwitch switchHaptic;
+    private MaterialSwitch switchTts;
+    private MaterialSwitch switchBiometric;
+    private MaterialSwitch switchNotifyDaily;
+    private MaterialSwitch switchNotifyWeekly;
+    private MaterialSwitch switchVoiceMode;
+    private MaterialSwitch switchPrivacy;
+    private View btnNotifyTime;
+    private View btnSetContact;
+    private View btnSetSensitivity;
+    private View btnSetApiKey;
+    private View btnPrivacyCenter;
+    private View btnClearLocalData;
+    private View btnFocusGoal;
 
     private boolean isRestoringUI = false;
     private boolean isBiometricEnabled = false;
@@ -89,18 +98,22 @@ public class SettingsFragment extends Fragment {
         tvCurrentContact = v.findViewById(R.id.tvCurrentContact);
         tvCurrentSensitivity = v.findViewById(R.id.tvCurrentSensitivity);
         tvCurrentApiKey = v.findViewById(R.id.tvCurrentApiKey);
+        tvCurrentGoal = v.findViewById(R.id.tvCurrentGoal);
+        tvNotifyTime = v.findViewById(R.id.tvNotifyTime);
         switchHaptic = v.findViewById(R.id.switchHaptic);
         switchTts = v.findViewById(R.id.switchTts);
         switchBiometric = v.findViewById(R.id.switchBiometric);
         switchNotifyDaily = v.findViewById(R.id.switchNotifyDaily);
         switchNotifyWeekly = v.findViewById(R.id.switchNotifyWeekly);
-        tvNotifyTime = v.findViewById(R.id.tvNotifyTime);
+        switchVoiceMode = v.findViewById(R.id.switchVoiceMode);
+        switchPrivacy = v.findViewById(R.id.switchPrivacy);
         btnNotifyTime = v.findViewById(R.id.btnNotifyTime);
         btnSetContact = v.findViewById(R.id.btnSetContact);
         btnSetSensitivity = v.findViewById(R.id.btnSetSensitivity);
         btnSetApiKey = v.findViewById(R.id.btnSetApiKey);
-        switchVoiceMode = v.findViewById(R.id.switchVoiceMode);
-        switchPrivacy = v.findViewById(R.id.switchPrivacy);
+        btnPrivacyCenter = v.findViewById(R.id.btnPrivacyCenter);
+        btnClearLocalData = v.findViewById(R.id.btnClearLocalData);
+        btnFocusGoal = v.findViewById(R.id.btnFocusGoal);
     }
 
     private void loadPreferences() {
@@ -113,126 +126,141 @@ public class SettingsFragment extends Fragment {
     }
 
     private void updateUI() {
-        tvCurrentContact.setText(emergencyContact);
+        isRestoringUI = true;
+        tvCurrentContact.setText(emergencyContact.isEmpty() ? "未设置" : emergencyContact);
         switchTts.setChecked(isTtsEnabled);
         switchHaptic.setChecked(isHapticEnabled);
 
-        if (shakeThreshold > 3.0f) tvCurrentSensitivity.setText(R.string.sensitivity_low);
-        else if (shakeThreshold < 2.0f) tvCurrentSensitivity.setText(R.string.sensitivity_high);
-        else tvCurrentSensitivity.setText(R.string.sensitivity_medium);
+        if (shakeThreshold > 3.0f) {
+            tvCurrentSensitivity.setText("低");
+        } else if (shakeThreshold < 2.0f) {
+            tvCurrentSensitivity.setText("高");
+        } else {
+            tvCurrentSensitivity.setText("中等");
+        }
 
         if (deepseekApiKey.length() > 10) {
             tvCurrentApiKey.setText(deepseekApiKey.substring(0, 5) + "..."
                     + deepseekApiKey.substring(deepseekApiKey.length() - 4));
         } else {
-            tvCurrentApiKey.setText(R.string.api_key_unset);
+            tvCurrentApiKey.setText("未配置");
+        }
+        if (tvCurrentGoal != null) {
+            tvCurrentGoal.setText(prefs.getString(
+                    Constants.KEY_FOCUS_GOAL, Constants.DEFAULT_FOCUS_GOAL));
         }
 
-        // 通知设置同步
-        isRestoringUI = true;
         switchNotifyDaily.setChecked(prefs.getBoolean(Constants.KEY_NOTIFY_DAILY, false));
         switchNotifyWeekly.setChecked(prefs.getBoolean(Constants.KEY_NOTIFY_WEEKLY, false));
-        isRestoringUI = false;
         int h = prefs.getInt(Constants.KEY_NOTIFY_HOUR, Constants.DEFAULT_NOTIFY_HOUR);
         int m = prefs.getInt(Constants.KEY_NOTIFY_MINUTE, Constants.DEFAULT_NOTIFY_MINUTE);
         tvNotifyTime.setText(String.format(Locale.getDefault(), "%02d:%02d", h, m));
-
         switchBiometric.setChecked(isBiometricEnabled);
+        switchVoiceMode.setChecked(prefs.getBoolean(
+                Constants.KEY_VOICE_CLICK_MODE, Constants.DEFAULT_VOICE_CLICK_MODE));
+        switchPrivacy.setChecked(prefs.getBoolean(
+                Constants.KEY_PRIVACY_MODE, Constants.DEFAULT_PRIVACY_MODE));
+        isRestoringUI = false;
 
-        // 语音模式 & 隐私
-        switchVoiceMode.setChecked(prefs.getBoolean(Constants.KEY_VOICE_CLICK_MODE, Constants.DEFAULT_VOICE_CLICK_MODE));
-        switchPrivacy.setChecked(prefs.getBoolean(Constants.KEY_PRIVACY_MODE, Constants.DEFAULT_PRIVACY_MODE));
-
-        // 同步 TTS 图标到 RadarViewModel
         syncTtsIcon();
     }
 
-    /** 将 TTS 状态同步到 RadarViewModel 以更新首页图标 */
     private void syncTtsIcon() {
         RadarViewModel rvm = new ViewModelProvider(requireActivity()).get(RadarViewModel.class);
         rvm.setTtsIcon(isTtsEnabled ? R.drawable.ic_tts_on : R.drawable.ic_tts_off);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // 交互设置
-    // ═══════════════════════════════════════════════════════════════
     private void setupInteractions() {
-        // 触觉反馈
+        btnPrivacyCenter.setOnClickListener(v -> {
+            v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+            showPrivacyCenter();
+        });
+
+        btnClearLocalData.setOnClickListener(v -> {
+            v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+            confirmClearLocalData();
+        });
+
+        if (btnFocusGoal != null) {
+            btnFocusGoal.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                showFocusGoalDialog();
+            });
+        }
+
         switchHaptic.setOnCheckedChangeListener((btn, checked) -> {
+            if (isRestoringUI) return;
             isHapticEnabled = checked;
             prefs.edit().putBoolean(Constants.KEY_HAPTIC, checked).apply();
             if (checked) btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         });
 
-        // AI 语音播报
         switchTts.setOnCheckedChangeListener((btn, checked) -> {
+            if (isRestoringUI) return;
             isTtsEnabled = checked;
             prefs.edit().putBoolean(Constants.KEY_TTS, isTtsEnabled).apply();
             syncTtsIcon();
             btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-            // 通知 Activity 更新 TTS 状态
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).onTtsSettingChanged(isTtsEnabled);
             }
         });
 
-        // 生物识别
         switchBiometric.setOnCheckedChangeListener((btn, checked) -> {
+            if (isRestoringUI) return;
             btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             KeyguardManager km = (KeyguardManager) requireContext()
                     .getSystemService(Context.KEYGUARD_SERVICE);
             if (checked && (km == null || !km.isKeyguardSecure())) {
                 switchBiometric.setChecked(false);
-                showSnackbar(getString(R.string.biometric_not_available));
+                showSnackbar("此设备未设置系统锁屏，暂不能开启应用锁");
                 return;
             }
             isBiometricEnabled = checked;
             prefs.edit().putBoolean(Constants.KEY_BIOMETRIC, checked).apply();
-            showSnackbar(checked ? getString(R.string.biometric_lock_enabled)
-                    : getString(R.string.biometric_lock_disabled));
+            showSnackbar(checked ? "应用锁已开启" : "应用锁已关闭");
         });
 
-        // 语音点击切换模式
         switchVoiceMode.setOnCheckedChangeListener((btn, checked) -> {
+            if (isRestoringUI) return;
             btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             prefs.edit().putBoolean(Constants.KEY_VOICE_CLICK_MODE, checked).apply();
             showSnackbar(checked ? "点击切换模式已开启" : "已切换为长按录音模式");
         });
 
-        // 隐私模式
         switchPrivacy.setOnCheckedChangeListener((btn, checked) -> {
+            if (isRestoringUI) return;
             btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             prefs.edit().putBoolean(Constants.KEY_PRIVACY_MODE, checked).apply();
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).onPrivacyModeChanged();
+            }
             showSnackbar(checked ? "隐私模式已开启" : "隐私模式已关闭");
         });
 
-        // 每日提醒
+        setupNotificationControls();
+        setupEditableRows();
+    }
+
+    private void setupNotificationControls() {
         switchNotifyDaily.setOnCheckedChangeListener((btn, checked) -> {
             if (isRestoringUI) return;
             btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             prefs.edit().putBoolean(Constants.KEY_NOTIFY_DAILY, checked).apply();
             if (checked) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(requireContext(),
-                            Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(requireActivity(),
-                                new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                                Constants.PERM_NOTIFY);
-                    }
-                }
+                requestNotificationPermissionIfNeeded();
                 checkExactAlarmPermission();
                 int hour = prefs.getInt(Constants.KEY_NOTIFY_HOUR, Constants.DEFAULT_NOTIFY_HOUR);
                 int minute = prefs.getInt(Constants.KEY_NOTIFY_MINUTE, Constants.DEFAULT_NOTIFY_MINUTE);
                 NotificationHelper.scheduleDailyReminder(requireContext(), hour, minute);
                 showSnackbar(String.format(Locale.getDefault(),
-                        getString(R.string.notify_daily_on), hour, minute));
+                        "每日提醒已开启（%02d:%02d）", hour, minute));
             } else {
                 NotificationHelper.cancelDailyReminder(requireContext());
-                showSnackbar(getString(R.string.notify_daily_off));
+                showSnackbar("每日提醒已关闭");
             }
         });
 
-        // 每周报告
         switchNotifyWeekly.setOnCheckedChangeListener((btn, checked) -> {
             if (isRestoringUI) return;
             btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
@@ -240,14 +268,13 @@ public class SettingsFragment extends Fragment {
             if (checked) {
                 checkExactAlarmPermission();
                 NotificationHelper.scheduleWeeklySummary(requireContext());
-                showSnackbar(getString(R.string.notify_weekly_on));
+                showSnackbar("每周报告已开启");
             } else {
                 NotificationHelper.cancelWeeklySummary(requireContext());
-                showSnackbar(getString(R.string.notify_weekly_off));
+                showSnackbar("每周报告已关闭");
             }
         });
 
-        // 提醒时间
         btnNotifyTime.setOnClickListener(v -> {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             int h = prefs.getInt(Constants.KEY_NOTIFY_HOUR, Constants.DEFAULT_NOTIFY_HOUR);
@@ -261,79 +288,147 @@ public class SettingsFragment extends Fragment {
                 }
             }, h, m, true).show();
         });
+    }
 
-        // 紧急联系人
+    private void setupEditableRows() {
         btnSetContact.setOnClickListener(v -> {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             EditText input = new EditText(requireContext());
             input.setInputType(InputType.TYPE_CLASS_PHONE);
             input.setText(emergencyContact);
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.dialog_contact_title)
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("设置紧急联系人")
+                    .setMessage("SOS 会在你确认后向此号码发送求助短信。")
                     .setView(input)
-                    .setPositiveButton(R.string.dialog_save, (d, w) -> {
-                        String val = input.getText().toString().trim();
-                        if (!val.isEmpty()) {
-                            emergencyContact = val;
-                            secureStorage.put(Constants.KEY_CONTACT, val);
-                            updateUI();
-                        }
+                    .setPositiveButton("保存", (d, w) -> {
+                        emergencyContact = input.getText().toString().trim();
+                        secureStorage.put(Constants.KEY_CONTACT, emergencyContact);
+                        updateUI();
                     })
-                    .setNegativeButton(getString(R.string.dialog_cancel), null).show();
+                    .setNegativeButton("取消", null)
+                    .show();
         });
 
-        // API Key
         btnSetApiKey.setOnClickListener(v -> {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             EditText input = new EditText(requireContext());
+            input.setInputType(InputType.TYPE_CLASS_TEXT
+                    | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
             input.setText(deepseekApiKey);
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.dialog_api_title)
-                    .setMessage(R.string.dialog_api_message)
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("配置 DeepSeek API Key")
+                    .setMessage("API Key 会加密保存在本机。使用 AI 解读时，文本可能发送到 DeepSeek 服务。")
                     .setView(input)
-                    .setPositiveButton(R.string.dialog_bind, (d, w) -> {
-                        String val = input.getText().toString().trim();
-                        if (!val.isEmpty()) {
-                            deepseekApiKey = val;
-                            secureStorage.put(Constants.KEY_API_KEY, val);
-                            updateUI();
-                            // 通知 Activity 更新 API Key
-                            if (getActivity() instanceof MainActivity) {
-                                ((MainActivity) getActivity()).onApiKeyChanged(val);
-                            }
+                    .setPositiveButton("确认", (d, w) -> {
+                        deepseekApiKey = input.getText().toString().trim();
+                        secureStorage.put(Constants.KEY_API_KEY, deepseekApiKey);
+                        updateUI();
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).onApiKeyChanged(deepseekApiKey);
                         }
                     })
-                    .setNegativeButton(getString(R.string.dialog_cancel), null).show();
+                    .setNegativeButton("取消", null)
+                    .show();
         });
 
-        // 灵敏度
         btnSetSensitivity.setOnClickListener(v -> {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-            String[] options = {getString(R.string.dialog_sensitivity_opt_high),
-                    getString(R.string.dialog_sensitivity_opt_medium),
-                    getString(R.string.dialog_sensitivity_opt_low)};
+            String[] options = {"高：更容易触发 SOS", "中等：推荐", "低：更少误触"};
             int checked = shakeThreshold < 2.0f ? 0 : (shakeThreshold > 3.0f ? 2 : 1);
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.dialog_sensitivity_title)
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("应激阻断灵敏度")
                     .setSingleChoiceItems(options, checked, (dialog, which) -> {
                         if (which == 0) shakeThreshold = 1.5f;
                         else if (which == 1) shakeThreshold = 2.5f;
-                        else if (which == 2) shakeThreshold = 3.5f;
+                        else shakeThreshold = 3.5f;
                         prefs.edit().putFloat(Constants.KEY_SHAKE_THRESH, shakeThreshold).apply();
                         updateUI();
                         dialog.dismiss();
-                    }).show();
+                    })
+                    .show();
         });
+    }
+
+    private void showPrivacyCenter() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("隐私与安全中心")
+                .setMessage("EmoScope 是情绪记录和自助支持工具，不提供医疗诊断，也不能替代医生、心理咨询师或紧急救援。\n\n"
+                        + "相机：仅用于本地面部情绪分析，当前版本不上传相机画面。\n\n"
+                        + "麦克风：用于 Android 系统语音识别，把你的语音转成文本输入。\n\n"
+                        + "短信：仅在 SOS 流程中向你设置的紧急联系人发送求助短信。\n\n"
+                        + "AI 解读：当你使用 AI 功能时，输入文本和必要上下文可能发送到 DeepSeek 服务。\n\n"
+                        + "本机数据：情绪记录保存在本地数据库；API Key 和紧急联系人通过 Android Keystore 加密保存。你可以随时清除本机数据。")
+                .setPositiveButton("我知道了", null)
+                .show();
+    }
+
+    private void showFocusGoalDialog() {
+        String[] goals = {"建立记录习惯", "减压", "睡眠前整理", "识别低落周期"};
+        String current = prefs.getString(Constants.KEY_FOCUS_GOAL, Constants.DEFAULT_FOCUS_GOAL);
+        int checked = 0;
+        for (int i = 0; i < goals.length; i++) {
+            if (goals[i].equals(current)) {
+                checked = i;
+                break;
+            }
+        }
+        final int[] selected = {checked};
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("关注目标")
+                .setSingleChoiceItems(goals, checked, (dialog, which) -> selected[0] = which)
+                .setPositiveButton("保存", (dialog, which) -> {
+                    prefs.edit().putString(Constants.KEY_FOCUS_GOAL, goals[selected[0]]).apply();
+                    updateUI();
+                    showSnackbar("已更新目标：" + goals[selected[0]]);
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void confirmClearLocalData() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("清除本机数据？")
+                .setMessage("这会删除本机情绪记录、偏好设置、提醒计划、API Key 和紧急联系人。操作完成后无法恢复。")
+                .setPositiveButton("确认清除", (dialog, which) -> clearLocalData())
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void clearLocalData() {
+        Context appContext = requireContext().getApplicationContext();
+        LocalDataManager.clearAllLocalData(appContext);
+
+        prefs = requireContext().getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        secureStorage = new SecureStorage(requireContext());
+        loadPreferences();
+        updateUI();
+
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.onApiKeyChanged(Constants.DEFAULT_API_KEY);
+            activity.onTtsSettingChanged(Constants.DEFAULT_TTS);
+            activity.onPrivacyModeChanged();
+        }
+        showSnackbar("本机数据已清除");
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    Constants.PERM_NOTIFY);
+        }
     }
 
     private void checkExactAlarmPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             AlarmManager am = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
             if (am != null && !am.canScheduleExactAlarms()) {
-                new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("需要精确闹钟权限")
-                        .setMessage("定时提醒需要「闹钟和提醒」权限才能准时触发。\n\n"
-                                + "请在系统设置中允许 EmoScope 的此权限。")
+                        .setMessage("定时提醒需要系统允许 EmoScope 使用闹钟和提醒权限。")
                         .setPositiveButton("去设置", (d, w) -> {
                             Intent intent = new Intent(
                                     android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
@@ -352,17 +447,30 @@ public class SettingsFragment extends Fragment {
         if (v != null) Snackbar.make(v, msg, Snackbar.LENGTH_SHORT).show();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // 公开 getter — 供 Activity 读取当前设置
-    // ═══════════════════════════════════════════════════════════════
-    public String getEmergencyContact() { return emergencyContact; }
-    public String getApiKey() { return deepseekApiKey; }
-    public boolean isTtsEnabled() { return isTtsEnabled; }
-    public boolean isHapticEnabled() { return isHapticEnabled; }
-    public float getShakeThreshold() { return shakeThreshold; }
-    public boolean isBiometricEnabled() { return isBiometricEnabled; }
+    public String getEmergencyContact() {
+        return emergencyContact;
+    }
 
-    /** Activity 调用以在 view 创建后恢复 UI 状态 */
+    public String getApiKey() {
+        return deepseekApiKey;
+    }
+
+    public boolean isTtsEnabled() {
+        return isTtsEnabled;
+    }
+
+    public boolean isHapticEnabled() {
+        return isHapticEnabled;
+    }
+
+    public float getShakeThreshold() {
+        return shakeThreshold;
+    }
+
+    public boolean isBiometricEnabled() {
+        return isBiometricEnabled;
+    }
+
     public void refreshUI() {
         loadPreferences();
         updateUI();

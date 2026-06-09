@@ -130,4 +130,9 @@ public final class SecureStorage {
         String decrypted = decrypt(encrypted);
         return decrypted.isEmpty() ? defaultValue : decrypted;
     }
+
+    /** Clear all encrypted values stored by EmoScope. */
+    public void clear() {
+        prefs.edit().clear().apply();
+    }
 }

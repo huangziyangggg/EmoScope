@@ -7,19 +7,19 @@
     <!-- Small: 芯片、小按钮、工具栏图标 -->
     <style name="ShapeAppearance.EmoScope.Small" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">12dp</item>
+        <item name="cornerSize">8dp</item>
     </style>
 
     <!-- Medium: 标准卡片、对话框、设置项 -->
     <style name="ShapeAppearance.EmoScope.Medium" parent="ShapeAppearance.Material3.MediumComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">20dp</item>
+        <item name="cornerSize">12dp</item>
     </style>
 
     <!-- Large: 大卡片 — 更柔和的圆角 -->
     <style name="ShapeAppearance.EmoScope.Large" parent="ShapeAppearance.Material3.LargeComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">24dp</item>
+        <item name="cornerSize">16dp</item>
     </style>
 
     <!-- 导航栏选中指示器 — 胶囊形状 -->

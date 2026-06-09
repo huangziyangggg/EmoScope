@@ -65,11 +65,6 @@ public final class Constants {
 
     // ── 模型路径 ────────────────────────────────────────────────
     public static final String FACELANDMARKER_MODEL = "face_landmarker.task";
-    public static final String VOSK_MODEL_DIR = "model-cn";
-    public static final String VOSK_MODEL_NAME = "model";
-
-    // ── 语音 ────────────────────────────────────────────────────
-    public static final float VOSK_SAMPLE_RATE = 16000.0f;
 
     // ── 情绪检测 ────────────────────────────────────────────────
     public static final String[] EMOTION_NAMES = { "愉悦", "低落", "紧绷", "惊恐", "疲惫", "平静" };
@@ -80,6 +75,8 @@ public final class Constants {
     public static final float FACE_EMA_ALPHA = 0.3f;
     /** 面容 UI 更新最小间隔 (毫秒), 降低更新频率避免抖动 */
     public static final long FACE_UPDATE_INTERVAL_MS = 200;
+    /** FaceLandmarker 推理最小间隔 (毫秒), 降低相机分析链路的 CPU/GPU 压力 */
+    public static final long FACE_DETECTION_INTERVAL_MS = 250;
     /** 面容检测最小置信度, 低于此值保留上一帧 */
     public static final float MIN_FACE_CONFIDENCE = 0.5f;
 
@@ -162,4 +159,7 @@ public final class Constants {
     public static final int PERM_NOTIFY = 102;
     /** 首次启动引导 */
     public static final String KEY_FIRST_LAUNCH = "first_launch_done";
+    /** 用户选择的关注目标 */
+    public static final String KEY_FOCUS_GOAL = "focus_goal";
+    public static final String DEFAULT_FOCUS_GOAL = "建立记录习惯";
 }

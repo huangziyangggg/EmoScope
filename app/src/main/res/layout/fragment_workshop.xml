@@ -1,696 +1,654 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="?attr/colorSurfaceContainerLowest"
+    android:clipToPadding="false"
+    android:paddingStart="16dp"
+    android:paddingTop="40dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="96dp"
+    android:scrollbars="none">
 
-    <View
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:background="@drawable/bg_radar_gradient"
-        app:layout_constraintTop_toTopOf="parent"
-        android:importantForAccessibility="no" />
-
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:scrollbars="none"
-        android:paddingBottom="96dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <!-- Hero -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="成长"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="长期理解自己的情绪节律"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnWorkshopMore"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:clickable="true"
+                android:contentDescription="更多"
+                android:focusable="true"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardElevation="0dp"
+                app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="更多"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_more" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
+            app:cardElevation="1dp"
+            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="1dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingTop="40dp"
-                android:paddingBottom="8dp">
+                android:orientation="horizontal"
+                android:padding="18dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    app:cardBackgroundColor="?attr/colorPrimary"
+                    app:cardElevation="0dp"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent">
+
+                    <TextView
+                        android:id="@+id/tvLevelBadge"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="Lv1"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="成长"
-                        android:textSize="26sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="理解情绪，持续成长"
-                        android:textSize="13sp"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:fontFamily="sans-serif"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btnWorkshopMore"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="更多操作"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
-                    app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                    app:cardElevation="0dp">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="11dp"
-                        android:src="@drawable/ic_more"
-                        android:contentDescription="更多操作" />
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
 
-            <!-- 成长等级 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cvLevel"
+                    <TextView
+                        android:id="@+id/tvLevelName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="情绪观察者"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvLevelProgress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="继续记录，积累自己的情绪地图"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:textSize="12sp"
+                        android:alpha="0.76" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvAiInsight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardElevation="1dp"
+            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                app:cardElevation="1dp"
-                app:strokeColor="?attr/colorPrimary"
-                app:strokeWidth="0.5dp">
+                android:orientation="vertical"
+                android:padding="18dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="14dp"
-                    android:gravity="center_vertical">
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        app:cardBackgroundColor="?attr/colorPrimary"
-                        app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
-                        app:cardElevation="0dp">
-                        <TextView
-                            android:id="@+id/tvLevelBadge"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:text="Lv1"
-                            android:textColor="?attr/colorOnPrimary"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </com.google.android.material.card.MaterialCardView>
-                    <LinearLayout
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="12dp"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/tvLevelName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="情绪观察者"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:id="@+id/tvLevelProgress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="3/5 条记录 · 升级还需 2 条"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="11sp"
-                            android:alpha="0.7" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        android:text="AI 长期观察"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-            <!-- AI 长期观察 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cvAiInsight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                app:cardElevation="2dp"
-                app:strokeColor="?attr/colorPrimary"
-                app:strokeWidth="0.5dp">
-                <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnRefreshInsight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="?attr/colorPrimary"
+                        app:cardElevation="0dp"
+                        app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:text="刷新"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvAiInsight"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="4dp"
-                        android:background="?attr/colorPrimary"
-                        android:importantForAccessibility="no" />
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:gravity="center_vertical">
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical">
-                                <View
-                                    android:layout_width="8dp"
-                                    android:layout_height="8dp"
-                                    android:layout_marginEnd="6dp"
-                                    android:background="@drawable/dot_primary"
-                                    android:importantForAccessibility="no" />
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="AI 长期观察"
-                                    android:textColor="?attr/colorOnPrimaryContainer"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold" />
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
-                                    android:text="最近 30 天"
-                                    android:textColor="?attr/colorOnPrimaryContainer"
-                                    android:textSize="10sp"
-                                    android:alpha="0.6" />
-                            </LinearLayout>
-                            <TextView
-                                android:id="@+id/tvAiInsight"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="记录更多情绪，AI 将为你生成长期观察报告..."
-                                android:textColor="?attr/colorOnPrimaryContainer"
-                                android:textSize="12sp"
-                                android:lineSpacingExtra="4dp" />
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/btnRefreshInsight"
-                                android:layout_width="wrap_content"
-                                android:layout_height="28dp"
-                                android:layout_marginTop="8dp"
-                                app:cardBackgroundColor="?attr/colorPrimary"
-                                app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                                app:cardElevation="0dp">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center"
-                                    android:paddingHorizontal="12dp"
-                                    android:text="刷新分析"
-                                    android:textColor="?attr/colorOnPrimary"
-                                    android:textSize="11sp"
-                                    android:textStyle="bold" />
-                            </com.google.android.material.card.MaterialCardView>
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- ════════════════════ 工具卡片 ════════════════════ -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
-
-                <!-- 情绪日记 -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cvJournal"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="5dp"
-                    android:clickable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                    app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                    app:cardElevation="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="0.5dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="14dp">
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:padding="6dp"
-                                android:src="@drawable/ic_workshop_journal"
-                                android:contentDescription="日记"
-                                android:tint="@color/cat_journal" />
-                        </com.google.android.material.card.MaterialCardView>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="情绪日记"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:id="@+id/tvJournalPreview"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="今天还没写日记..."
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="11sp"
-                            android:maxLines="2"
-                            android:ellipsize="end" />
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/btnWriteJournal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="30dp"
-                            android:layout_marginTop="10dp"
-                            app:cardBackgroundColor="?attr/colorPrimary"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:paddingHorizontal="14dp"
-                                android:text="写日记"
-                                android:textColor="?attr/colorOnPrimary"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- 正念冥想 -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cvMeditation"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="5dp"
-                    android:clickable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                    app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                    app:cardElevation="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="0.5dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="14dp">
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:padding="6dp"
-                                android:src="@drawable/ic_workshop_meditation"
-                                android:contentDescription="冥想"
-                                android:tint="@color/cat_meditation" />
-                        </com.google.android.material.card.MaterialCardView>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="正念冥想"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:orientation="horizontal">
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/btnMeditate3"
-                                android:layout_width="0dp"
-                                android:layout_height="30dp"
-                                android:layout_weight="1"
-                                app:cardBackgroundColor="?attr/colorPrimary"
-                                app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                                app:cardElevation="0dp">
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center"
-                                    android:text="3 分钟"
-                                    android:textColor="?attr/colorOnPrimary"
-                                    android:textSize="10sp"
-                                    android:textStyle="bold" />
-                            </com.google.android.material.card.MaterialCardView>
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/btnMeditate5"
-                                android:layout_width="0dp"
-                                android:layout_height="30dp"
-                                android:layout_weight="1"
-                                android:layout_marginHorizontal="3dp"
-                                app:cardBackgroundColor="?attr/colorPrimary"
-                                app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                                app:cardElevation="0dp">
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center"
-                                    android:text="5 分钟"
-                                    android:textColor="?attr/colorOnPrimary"
-                                    android:textSize="10sp"
-                                    android:textStyle="bold" />
-                            </com.google.android.material.card.MaterialCardView>
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/btnMeditate10"
-                                android:layout_width="0dp"
-                                android:layout_height="30dp"
-                                android:layout_weight="1"
-                                app:cardBackgroundColor="?attr/colorPrimary"
-                                app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                                app:cardElevation="0dp">
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center"
-                                    android:text="10 分钟"
-                                    android:textColor="?attr/colorOnPrimary"
-                                    android:textSize="10sp"
-                                    android:textStyle="bold" />
-                            </com.google.android.material.card.MaterialCardView>
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    android:layout_marginTop="12dp"
+                    android:lineSpacingExtra="5dp"
+                    android:text="记录更多情绪后，这里会生成你的长期模式、压力来源与高光时刻。"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp" />
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- ════════════════════ 面容 + 感恩 ════════════════════ -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
-                <!-- 面容分析 -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cvFaceAnalysis"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="5dp"
-                    android:clickable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                    app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                    app:cardElevation="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="0.5dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="14dp">
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:padding="6dp"
-                                android:src="@drawable/ic_face_scan"
-                                android:contentDescription="面容分析"
-                                android:tint="?attr/colorPrimary" />
-                        </com.google.android.material.card.MaterialCardView>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="面容分析"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="摄像头实时微表情识别"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="11sp" />
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/btnOpenFaceCamera"
-                            android:layout_width="wrap_content"
-                            android:layout_height="30dp"
-                            android:layout_marginTop="8dp"
-                            app:cardBackgroundColor="?attr/colorPrimary"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:paddingHorizontal="14dp"
-                                android:text="打开相机"
-                                android:textColor="?attr/colorOnPrimary"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-            </LinearLayout>
-
-            <!-- ════════════════════ 感恩 + 周报 ════════════════════ -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
-
-                <!-- 感恩清单 -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cvGratitude"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="5dp"
-                    android:clickable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                    app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                    app:cardElevation="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="0.5dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="14dp">
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:padding="6dp"
-                                android:src="@drawable/ic_workshop_gratitude"
-                                android:contentDescription="感恩"
-                                android:tint="@color/cat_gratitude" />
-                        </com.google.android.material.card.MaterialCardView>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="感恩清单"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:id="@+id/tvGratitudeContent"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="记录今天值得感恩的事"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="11sp"
-                            android:maxLines="2"
-                            android:ellipsize="end" />
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/btnEditGratitude"
-                            android:layout_width="wrap_content"
-                            android:layout_height="30dp"
-                            android:layout_marginTop="10dp"
-                            app:cardBackgroundColor="?attr/colorPrimary"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:paddingHorizontal="14dp"
-                                android:text="记录感恩"
-                                android:textColor="?attr/colorOnPrimary"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- AI 周报 -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cvWeeklyReport"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="5dp"
-                    android:clickable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                    app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                    app:cardElevation="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="0.5dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="14dp">
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:padding="6dp"
-                                android:src="@drawable/ic_workshop_prediction"
-                                android:contentDescription="报告"
-                                android:tint="?attr/colorPrimary" />
-                        </com.google.android.material.card.MaterialCardView>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="AI 情绪周报"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:id="@+id/tvReportHint"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="每周自动生成情绪总结"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="11sp" />
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/btnGenerateReport"
-                            android:layout_width="wrap_content"
-                            android:layout_height="30dp"
-                            android:layout_marginTop="10dp"
-                            app:cardBackgroundColor="?attr/colorPrimary"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:cardElevation="0dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:paddingHorizontal="14dp"
-                                android:text="生成本周报告"
-                                android:textColor="?attr/colorOnPrimary"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- 彩带特效层 -->
-            <com.example.emoscope.ConfettiView
-                android:id="@+id/confettiView"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="-100dp" />
-
-            <!-- 成就徽章 -->
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+                android:id="@+id/cvJournal"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="?attr/colorSurface"
                 app:cardElevation="1dp"
+                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="?attr/colorOutlineVariant"
-                app:strokeWidth="0.5dp">
+                app:strokeWidth="1dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="成就徽章"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:id="@+id/tvBadgeSummary"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0/12"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="11sp"
-                            android:fontFamily="sans-serif" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:id="@+id/llBadges"
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:contentDescription="日记"
+                        android:src="@drawable/ic_workshop_journal"
+                        android:tint="@color/cat_journal" />
+
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:orientation="horizontal"
-                        android:gravity="center" />
+                        android:text="情绪日记"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvJournalPreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:text="今天还没有写日记"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnWriteJournal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        app:cardBackgroundColor="@color/cat_journal_container"
+                        app:cardElevation="0dp"
+                        app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:text="书写"
+                            android:textColor="@color/cat_journal_on_container"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvMeditation"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardElevation="1dp"
+                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:contentDescription="冥想"
+                        android:src="@drawable/ic_workshop_meditation"
+                        android:tint="@color/cat_meditation" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="正念冥想"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_weight="1"
+                        android:gravity="bottom"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnMeditate3"
+                            android:layout_width="0dp"
+                            android:layout_height="30dp"
+                            android:layout_weight="1"
+                            app:cardBackgroundColor="@color/cat_meditation_container"
+                            app:cardElevation="0dp"
+                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="3"
+                                android:textColor="@color/cat_meditation_on_container"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnMeditate5"
+                            android:layout_width="0dp"
+                            android:layout_height="30dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            app:cardBackgroundColor="@color/cat_meditation_container"
+                            app:cardElevation="0dp"
+                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="5"
+                                android:textColor="@color/cat_meditation_on_container"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnMeditate10"
+                            android:layout_width="0dp"
+                            android:layout_height="30dp"
+                            android:layout_weight="1"
+                            app:cardBackgroundColor="@color/cat_meditation_container"
+                            app:cardElevation="0dp"
+                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="10"
+                                android:textColor="@color/cat_meditation_on_container"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvGratitude"
+                android:layout_width="0dp"
+                android:layout_height="144dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardElevation="1dp"
+                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:contentDescription="感恩"
+                        android:src="@drawable/ic_workshop_gratitude"
+                        android:tint="@color/cat_gratitude" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="感恩清单"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvGratitudeContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:text="记录值得感谢的事"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnEditGratitude"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        app:cardBackgroundColor="@color/cat_gratitude_container"
+                        app:cardElevation="0dp"
+                        app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:text="记录"
+                            android:textColor="@color/cat_gratitude_on_container"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvWeeklyReport"
+                android:layout_width="0dp"
+                android:layout_height="144dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardElevation="1dp"
+                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:contentDescription="周报"
+                        android:src="@drawable/ic_workshop_prediction"
+                        android:tint="@color/cat_prediction" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="AI 情绪周报"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvReportHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:text="生成本周总结"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnGenerateReport"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        app:cardBackgroundColor="@color/cat_prediction_container"
+                        app:cardElevation="0dp"
+                        app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:text="生成"
+                            android:textColor="@color/cat_prediction_on_container"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvFaceAnalysis"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginTop="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardElevation="1dp"
+            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:contentDescription="面容分析"
+                    android:src="@drawable/ic_face_scan"
+                    android:tint="?attr/colorPrimary" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:text="打开面容分析"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnOpenFaceCamera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    app:cardBackgroundColor="?attr/colorPrimary"
+                    app:cardElevation="0dp"
+                    app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:text="相机"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.example.emoscope.ConfettiView
+            android:id="@+id/confettiView"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginTop="-30dp"
+            android:importantForAccessibility="no" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-26dp"
+            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardElevation="1dp"
+            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="成就徽章"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvBadgeSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0/12"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llBadges"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
