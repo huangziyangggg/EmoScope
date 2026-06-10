@@ -216,4 +216,12 @@
     <color name="glass_violet">#A78BFA</color>
     <color name="glass_violet_soft">#EDE7FD</color>
     <color name="glass_shadow">#0A0B1220</color>
+
+    <!-- Home entry accents — balanced, low-saturation functional colors -->
+    <color name="home_entry_record">#D98C2B</color>
+    <color name="home_entry_record_soft">#FFF4E5</color>
+    <color name="home_entry_voice">#4F8DEB</color>
+    <color name="home_entry_voice_soft">#EAF3FF</color>
+    <color name="home_entry_face">#2FAE91</color>
+    <color name="home_entry_face_soft">#E8F8F3</color>
 </resources>

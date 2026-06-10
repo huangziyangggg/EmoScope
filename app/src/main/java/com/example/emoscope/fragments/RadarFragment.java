@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,19 +17,16 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.emoscope.Constants;
-import com.example.emoscope.EmoLineChartView;
 import com.example.emoscope.R;
 import com.example.emoscope.viewmodels.RadarViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
- * 首页 — 语音优先、今日状态、情绪指数、趋势小图、AI 观察。
+ * 首页 — 只保留快速记录、语音倾诉、面容分析三个核心入口。
  */
 public class RadarFragment extends Fragment {
 
@@ -48,13 +44,9 @@ public class RadarFragment extends Fragment {
     private RadarViewModel vm;
 
     // ── 视图 ──
-    private ImageView tvMoodEmoji, tvTtsIcon, ivGreetingIcon;
-    private TextView tvDateTop, tvDynamicGreeting, tvStreak, tvMoodLabel;
-    private TextView tvMoodScore, tvMoodChange, tvAiTyping, btnSpeakMain;
-    private TextView tvDailyGoal, tvDailyStatus, tvDailyAction;
-    private CardView cvSOS, cvStreak, cvAiResponse;
-    private View btnDailyPrimary, btnDailySecondary;
-    private FrameLayout miniChartContainer;
+    private ImageView tvTtsIcon, ivGreetingIcon;
+    private TextView tvDateTop, tvDynamicGreeting, tvAiTyping, btnSpeakMain;
+    private CardView cvSOS, cvAiResponse;
 
     private static final SimpleDateFormat SDF_DATE_TOP = new SimpleDateFormat("M月d日 EEEE", Locale.CHINESE);
 
@@ -80,9 +72,6 @@ public class RadarFragment extends Fragment {
         observeViewModel();
         setupClickListeners(view);
         setDynamicGreetingAndDate();
-        loadMoodScore();
-        loadMiniChart();
-        updateDailyCare();
         animateCardsEntrance(view);
     }
 
@@ -97,29 +86,15 @@ public class RadarFragment extends Fragment {
         tvDateTop = v.findViewById(R.id.tvDateTop);
         tvDynamicGreeting = v.findViewById(R.id.tvDynamicGreeting);
         ivGreetingIcon = v.findViewById(R.id.ivGreetingIcon);
-        tvStreak = v.findViewById(R.id.tvStreak);
-        cvStreak = v.findViewById(R.id.cvStreak);
-        tvMoodEmoji = v.findViewById(R.id.tvMoodEmoji);
-        tvMoodLabel = v.findViewById(R.id.tvMoodLabel);
-        tvMoodScore = v.findViewById(R.id.tvMoodScore);
-        tvMoodChange = v.findViewById(R.id.tvMoodChange);
         tvAiTyping = v.findViewById(R.id.tvAiTyping);
         btnSpeakMain = v.findViewById(R.id.btnSpeakMain);
         tvTtsIcon = v.findViewById(R.id.tvTtsIcon);
         cvSOS = v.findViewById(R.id.cvSOS);
         cvAiResponse = v.findViewById(R.id.cvAiResponse);
-        miniChartContainer = v.findViewById(R.id.miniChartContainer);
-        tvDailyGoal = v.findViewById(R.id.tvDailyGoal);
-        tvDailyStatus = v.findViewById(R.id.tvDailyStatus);
-        tvDailyAction = v.findViewById(R.id.tvDailyAction);
-        btnDailyPrimary = v.findViewById(R.id.btnDailyPrimary);
-        btnDailySecondary = v.findViewById(R.id.btnDailySecondary);
     }
 
     // ═══════════════════════════ ViewModel ═══════════════════════════
     private void observeViewModel() {
-        // 首页不再从面容分析获取情绪，改为从数据库计算
-
         vm.getAiResponse().observe(getViewLifecycleOwner(), text -> {
             if (text != null && !text.isEmpty()) {
                 tvAiTyping.setText(text);
@@ -163,17 +138,6 @@ public class RadarFragment extends Fragment {
             if (callback != null) callback.onQuickMoodClicked();
         });
 
-        if (btnDailyPrimary != null) {
-            btnDailyPrimary.setOnClickListener(view -> {
-                if (callback != null) callback.onQuickMoodClicked();
-            });
-        }
-        if (btnDailySecondary != null) {
-            btnDailySecondary.setOnClickListener(view -> {
-                if (callback != null) callback.onDailyCareSecondaryClicked();
-            });
-        }
-
         tvAiTyping.setOnLongClickListener(view -> {
             ClipboardManager clipboard = (ClipboardManager) requireContext()
                     .getSystemService(Context.CLIPBOARD_SERVICE);
@@ -209,121 +173,6 @@ public class RadarFragment extends Fragment {
         else { greeting = getString(R.string.greeting_default); iconRes = R.drawable.ic_time_afternoon; }
         tvDynamicGreeting.setText(greeting);
         if (ivGreetingIcon != null) ivGreetingIcon.setImageResource(iconRes);
-
-        if (getActivity() != null) {
-            android.content.SharedPreferences prefs = requireActivity()
-                    .getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
-            int streak = prefs.getInt(Constants.KEY_STREAK_COUNT, 0);
-            if (streak > 1) {
-                tvStreak.setText(String.format(getString(R.string.streak_format), streak));
-                cvStreak.setVisibility(View.VISIBLE);
-            } else {
-                cvStreak.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    // ═══════════════════════════ 7日迷你图 ═══════════════════════════
-    private void loadMiniChart() {
-        if (getActivity() == null || miniChartContainer == null) return;
-        miniChartContainer.removeAllViews();
-
-        // 从 Activity 获取数据库
-        com.example.emoscope.EmoDatabaseHelper dbHelper =
-                ((com.example.emoscope.MainActivity) requireActivity()).getDbHelper();
-        java.util.concurrent.ExecutorService executor =
-                ((com.example.emoscope.MainActivity) requireActivity()).getBackgroundExecutor();
-
-        executor.execute(() -> {
-            android.database.sqlite.SQLiteDatabase db = dbHelper.getReadableDatabase();
-            android.database.Cursor cursor = null;
-            try {
-                cursor = db.rawQuery("SELECT " + Constants.COL_TIME + ", "
-                        + Constants.COL_POSITIVE + " FROM " + Constants.TABLE_RECORDS
-                        + " ORDER BY " + Constants.COL_ID + " DESC LIMIT 80", null);
-
-                java.util.List<Float> data = new java.util.ArrayList<>();
-                while (cursor.moveToNext()) {
-                    if (!com.example.emoscope.EmoDatabaseHelper.isWithinLastDays(cursor.getString(0), 7)) {
-                        continue;
-                    }
-                    data.add(cursor.getInt(1) == 1 ? 75f : 25f);
-                }
-                java.util.Collections.reverse(data);
-
-                if (data.isEmpty()) {
-                    for (int i = 0; i < 7; i++) data.add(50f);
-                }
-
-                final java.util.List<Float> chartData = data;
-                requireActivity().runOnUiThread(() -> {
-                    if (miniChartContainer != null) {
-                        miniChartContainer.addView(new EmoLineChartView(
-                                requireContext(), chartData, new java.util.ArrayList<>()));
-                    }
-                });
-            } finally {
-                if (cursor != null) cursor.close();
-                db.close();
-            }
-        });
-    }
-
-    private void updateDailyCare() {
-        if (getActivity() == null || tvDailyStatus == null) return;
-        android.content.SharedPreferences prefs = requireActivity()
-                .getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
-        String goal = prefs.getString(Constants.KEY_FOCUS_GOAL, Constants.DEFAULT_FOCUS_GOAL);
-        if (tvDailyGoal != null) tvDailyGoal.setText(goal);
-
-        com.example.emoscope.EmoDatabaseHelper dbHelper =
-                ((com.example.emoscope.MainActivity) requireActivity()).getDbHelper();
-        java.util.concurrent.ExecutorService executor =
-                ((com.example.emoscope.MainActivity) requireActivity()).getBackgroundExecutor();
-
-        executor.execute(() -> {
-            android.database.sqlite.SQLiteDatabase db = dbHelper.getReadableDatabase();
-            android.database.Cursor cursor = null;
-            try {
-                cursor = db.rawQuery("SELECT COUNT(*) FROM " + Constants.TABLE_RECORDS
-                        + " WHERE " + Constants.COL_TIME + " LIKE ? OR "
-                        + Constants.COL_TIME + " LIKE ?", com.example.emoscope.EmoDatabaseHelper.dayLikeArgs(new Date()));
-                int count = 0;
-                if (cursor.moveToFirst()) count = cursor.getInt(0);
-                final int todayCount = count;
-                requireActivity().runOnUiThread(() -> renderDailyCare(goal, todayCount));
-            } finally {
-                if (cursor != null) cursor.close();
-                db.close();
-            }
-        });
-    }
-
-    private void renderDailyCare(String goal, int todayCount) {
-        if (todayCount > 0) {
-            tvDailyStatus.setText("今天已完成 " + todayCount + " 次记录。保持这种轻轻照看自己的节奏。");
-            if (btnDailyPrimary instanceof TextView) {
-                ((TextView) btnDailyPrimary).setText("再记一条");
-            }
-            if (tvDailyAction != null) tvDailyAction.setText("已完成");
-            return;
-        }
-
-        String prompt;
-        if ("减压".equals(goal)) {
-            prompt = "今天还没有记录。先给压力打个小标签，再决定要不要做 3 分钟呼吸。";
-        } else if ("睡眠前整理".equals(goal)) {
-            prompt = "今天还没有记录。睡前花 30 秒整理一下情绪，会更容易放下白天。";
-        } else if ("识别低落周期".equals(goal)) {
-            prompt = "今天还没有记录。连续记录能帮助你看见低落出现的时间和触发点。";
-        } else {
-            prompt = "今天还没有记录，花 30 秒给自己一个情绪快照。";
-        }
-        tvDailyStatus.setText(prompt);
-        if (btnDailyPrimary instanceof TextView) {
-            ((TextView) btnDailyPrimary).setText("快速记录");
-        }
-        if (tvDailyAction != null) tvDailyAction.setText("待记录");
     }
 
     // ═══════════════════════════ 公开方法 ═══════════════════════════
@@ -345,90 +194,9 @@ public class RadarFragment extends Fragment {
         });
     }
 
-    /** 从数据库加载今日和昨日的情绪分 */
-    public void loadMoodScore() {
-        if (getActivity() == null) return;
-        com.example.emoscope.EmoDatabaseHelper helper =
-                ((com.example.emoscope.MainActivity) requireActivity()).getDbHelper();
-        java.util.concurrent.ExecutorService exec =
-                ((com.example.emoscope.MainActivity) requireActivity()).getBackgroundExecutor();
-
-        exec.execute(() -> {
-            android.database.sqlite.SQLiteDatabase db = helper.getReadableDatabase();
-            android.database.Cursor cursor = null;
-            try {
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DAY_OF_MONTH, -1);
-
-                // 今日数据
-                cursor = db.rawQuery("SELECT " + Constants.COL_POSITIVE
-                        + " FROM " + Constants.TABLE_RECORDS
-                        + " WHERE " + Constants.COL_TIME + " LIKE ? OR "
-                        + Constants.COL_TIME + " LIKE ?", com.example.emoscope.EmoDatabaseHelper.dayLikeArgs(new Date()));
-                int todayTotal = cursor.getCount();
-                int todayPos = 0;
-                while (cursor.moveToNext()) {
-                    if (cursor.getInt(0) == 1) todayPos++;
-                }
-                cursor.close();
-
-                // 昨日数据
-                cursor = db.rawQuery("SELECT " + Constants.COL_POSITIVE
-                        + " FROM " + Constants.TABLE_RECORDS
-                        + " WHERE " + Constants.COL_TIME + " LIKE ? OR "
-                        + Constants.COL_TIME + " LIKE ?", com.example.emoscope.EmoDatabaseHelper.dayLikeArgs(cal.getTime()));
-                int yesterdayTotal = cursor.getCount();
-                int yesterdayPos = 0;
-                while (cursor.moveToNext()) {
-                    if (cursor.getInt(0) == 1) yesterdayPos++;
-                }
-
-                final float todayScore = todayTotal > 0 ? (float) todayPos / todayTotal * 100 : -1;
-                final float yesterdayScore = yesterdayTotal > 0 ? (float) yesterdayPos / yesterdayTotal * 100 : -1;
-                final int fTodayTotal = todayTotal;
-
-                requireActivity().runOnUiThread(() -> {
-                    if (tvMoodScore != null && todayScore >= 0) {
-                        // 计数动画：从0跳到实际值
-                        animateScore(tvMoodScore, 0, (int) todayScore);
-                    }
-
-                    // 根据分数更换图标
-                    if (tvMoodEmoji != null) {
-                        if (todayScore >= 70) {
-                            tvMoodEmoji.setImageResource(R.drawable.ic_emotion_joy);
-                            if (tvMoodLabel != null) tvMoodLabel.setText("开心");
-                        } else if (todayScore >= 40) {
-                            tvMoodEmoji.setImageResource(R.drawable.ic_emotion_calm);
-                            if (tvMoodLabel != null) tvMoodLabel.setText("平静");
-                        } else if (todayScore >= 0) {
-                            tvMoodEmoji.setImageResource(R.drawable.ic_emotion_sad);
-                            if (tvMoodLabel != null) tvMoodLabel.setText("低落");
-                        }
-                    }
-
-                    // 昨日对比
-                    if (tvMoodChange != null && todayScore >= 0 && yesterdayScore >= 0) {
-                        float change = todayScore - yesterdayScore;
-                        String arrow = change >= 0 ? "↑" : "↓";
-                        int color = change >= 0 ? R.color.positive_green : R.color.danger_red;
-                        tvMoodChange.setText(String.format(Locale.getDefault(),
-                                "较昨日 %s %.0f%%", arrow, Math.abs(change)));
-                        tvMoodChange.setTextColor(androidx.core.content.ContextCompat.getColor(
-                                requireContext(), color));
-                        tvMoodChange.setVisibility(View.VISIBLE);
-                    }
-                });
-            } finally {
-                if (cursor != null) cursor.close();
-                db.close();
-            }
-        });
-    }
-
     private void animateCardsEntrance(View root) {
         int[] cardIds = {
-            R.id.cvStreak, R.id.cvAiResponse, R.id.miniChartContainer
+            R.id.btnQuickMood, R.id.btnContainerMain, R.id.cvFaceAnalysis
         };
         for (int i = 0; i < cardIds.length; i++) {
             View card = root.findViewById(cardIds[i]);
@@ -446,22 +214,9 @@ public class RadarFragment extends Fragment {
         }
     }
 
-    private void animateScore(TextView tv, int from, int to) {
-        if (to <= 0) { tv.setText("--"); return; }
-        final int duration = Math.min(800, Math.abs(to - from) * 20);
-        final android.animation.ValueAnimator anim = android.animation.ValueAnimator.ofInt(from, to);
-        anim.setDuration(duration);
-        anim.setInterpolator(new android.view.animation.DecelerateInterpolator());
-        anim.addUpdateListener(a -> tv.setText(String.valueOf(a.getAnimatedValue())));
-        anim.start();
-    }
-
     public RadarViewModel getViewModel() { return vm; }
 
     public void refreshDailyLoop() {
         setDynamicGreetingAndDate();
-        loadMoodScore();
-        loadMiniChart();
-        updateDailyCare();
     }
 }

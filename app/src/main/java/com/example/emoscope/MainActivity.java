@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity
     private TextView tvCaptureScore, tvCaptureEmotions;
 
     // ── UI 辅助 ───────────────────────────────────────────────────
-    private GradientDrawable btnMainBg;
     private android.os.Handler countdownHandler;
     private Runnable countdownRunnable;
     private int voiceCountdownSec = 0;
@@ -317,8 +316,7 @@ public class MainActivity extends AppCompatActivity
         // 设置叠加层交互
         setupOverlayInteractions();
 
-        // 语音按钮梯度
-        setupVoiceButtonGradient();
+        setupBreathingCircleBackground();
 
         // 首次启动引导
         showFirstLaunchGuide();
@@ -446,11 +444,6 @@ public class MainActivity extends AppCompatActivity
                 voiceRecordStartTime = System.currentTimeMillis();
                 startVoiceRecognition();
                 animateVoiceButton(true);
-                if (btnMainBg != null) {
-                    btnMainBg.setColors(new int[]{
-                            ContextCompat.getColor(this, R.color.grad_btn_recording_start),
-                            ContextCompat.getColor(this, R.color.grad_btn_recording_end)});
-                }
                 if (tts != null && tts.isSpeaking()) tts.stop();
                 radarVM.setRecording(true);
                 radarVM.setVoiceListening();
@@ -473,11 +466,6 @@ public class MainActivity extends AppCompatActivity
 
         // 按钮动画
         animateVoiceButton(true);
-        if (btnMainBg != null) {
-            btnMainBg.setColors(new int[]{
-                    ContextCompat.getColor(this, R.color.grad_btn_recording_start),
-                    ContextCompat.getColor(this, R.color.grad_btn_recording_end)});
-        }
         if (tts != null && tts.isSpeaking()) tts.stop();
         radarVM.setRecording(true);
         radarVM.setVoiceListening();
@@ -488,11 +476,14 @@ public class MainActivity extends AppCompatActivity
         View container = findViewById(R.id.btnContainerMain);
         if (container == null) return;
         if (pressed) {
+            if (!isVoiceRecording) return;
             // 缩小 + 启动脉冲循环
             container.animate().scaleX(0.92f).scaleY(0.92f).setDuration(120)
                     .withEndAction(() -> {
+                        if (!isVoiceRecording) return;
                         container.animate().scaleX(1.03f).scaleY(1.03f).setDuration(600)
                                 .withEndAction(() -> {
+                                    if (!isVoiceRecording) return;
                                     container.animate().scaleX(0.97f).scaleY(0.97f)
                                             .setDuration(600)
                                             .withEndAction(() -> animateVoiceButton(true))
@@ -680,11 +671,6 @@ public class MainActivity extends AppCompatActivity
         stopVoiceRecognition();
 
         animateVoiceButton(false);
-        if (btnMainBg != null) {
-            btnMainBg.setColors(new int[]{
-                    ContextCompat.getColor(this, R.color.grad_btn_start),
-                    ContextCompat.getColor(this, R.color.grad_btn_end)});
-        }
         radarVM.setRecording(false);
     }
 
@@ -1067,19 +1053,7 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
-    private void setupVoiceButtonGradient() {
-        btnMainBg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
-                new int[]{ContextCompat.getColor(this, R.color.grad_btn_start),
-                        ContextCompat.getColor(this, R.color.grad_btn_end)});
-        btnMainBg.setCornerRadius(1000f);
-
-        // 延迟设置 — 等待 RadarFragment 视图创建完成后应用
-        findViewById(android.R.id.content).post(() -> {
-            View btnContainer = findViewById(R.id.btnContainerMain);
-            if (btnContainer != null) btnContainer.setBackground(btnMainBg);
-        });
-
-        // 呼吸圆背景
+    private void setupBreathingCircleBackground() {
         GradientDrawable bthBg = new GradientDrawable();
         bthBg.setShape(GradientDrawable.OVAL);
         bthBg.setColor(ContextCompat.getColor(this, R.color.overlay_white));
