@@ -49,7 +49,7 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             app:cardBackgroundColor="?attr/colorSurface"
-            app:cardElevation="1dp"
+            app:cardElevation="0dp"
             app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">
@@ -108,7 +108,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             app:cardBackgroundColor="?attr/colorSurface"
-            app:cardElevation="1dp"
+            app:cardElevation="0dp"
             app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">
@@ -358,7 +358,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             app:cardBackgroundColor="?attr/colorSurface"
-            app:cardElevation="1dp"
+            app:cardElevation="0dp"
             app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">
@@ -475,7 +475,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             app:cardBackgroundColor="?attr/colorSurface"
-            app:cardElevation="1dp"
+            app:cardElevation="0dp"
             app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">
@@ -589,7 +589,7 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             app:cardBackgroundColor="?attr/colorSurface"
-            app:cardElevation="1dp"
+            app:cardElevation="0dp"
             app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">

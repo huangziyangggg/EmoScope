@@ -65,7 +65,7 @@
                     android:contentDescription="切换语音播报"
                     android:focusable="true"
                     app:cardBackgroundColor="@color/glass_panel"
-                    app:cardElevation="8dp"
+                    app:cardElevation="0dp"
                     app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
                     app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
@@ -89,7 +89,7 @@
                 android:focusable="true"
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/glass_rose_soft"
-                app:cardElevation="8dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
                 app:strokeColor="@color/glass_rose"
                 app:strokeWidth="1dp">
@@ -126,7 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
                 app:cardBackgroundColor="@android:color/transparent"
-                app:cardElevation="14dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeWidth="0dp">
 
@@ -217,7 +217,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/glass_panel"
-                    app:cardElevation="8dp"
+                    app:cardElevation="0dp"
                     app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
                     app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
@@ -257,7 +257,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     app:cardBackgroundColor="@color/glass_mint_soft"
-                    app:cardElevation="8dp"
+                    app:cardElevation="0dp"
                     app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
                     app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
@@ -294,7 +294,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/glass_panel"
-                app:cardElevation="8dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
@@ -404,7 +404,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     app:cardBackgroundColor="@color/glass_peach_soft"
-                    app:cardElevation="8dp"
+                    app:cardElevation="0dp"
                     app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
                     app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
@@ -447,7 +447,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/glass_violet_soft"
-                    app:cardElevation="8dp"
+                    app:cardElevation="0dp"
                     app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
                     app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
@@ -491,7 +491,7 @@
                 android:layout_marginTop="16dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/glass_panel"
-                app:cardElevation="8dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
@@ -552,7 +552,7 @@
         android:clickable="true"
         android:focusable="true"
         app:cardBackgroundColor="@color/glass_ink"
-        app:cardElevation="16dp"
+        app:cardElevation="2dp"
         app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
         app:strokeColor="#33FFFFFF"
         app:strokeWidth="1dp"

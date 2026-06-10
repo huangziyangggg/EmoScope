@@ -46,7 +46,7 @@
             android:contentDescription="更多"
             android:focusable="true"
             app:cardBackgroundColor="@color/glass_panel"
-            app:cardElevation="8dp"
+            app:cardElevation="0dp"
             app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
             app:strokeColor="@color/glass_stroke"
             app:strokeWidth="1dp">
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="22dp"
         app:cardBackgroundColor="@color/glass_panel"
-        app:cardElevation="10dp"
+        app:cardElevation="0dp"
         app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
         app:strokeColor="@color/glass_stroke"
         app:strokeWidth="1dp">

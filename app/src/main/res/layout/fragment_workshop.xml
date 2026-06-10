@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
                 app:cardBackgroundColor="@color/glass_panel"
-                app:cardElevation="10dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
@@ -99,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/glass_panel"
-                app:cardElevation="10dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
@@ -173,7 +173,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     app:cardBackgroundColor="@color/glass_peach_soft"
-                    app:cardElevation="8dp"
+                    app:cardElevation="0dp"
                     app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                     app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
@@ -215,7 +215,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     app:cardBackgroundColor="@color/glass_mint_soft"
-                    app:cardElevation="8dp"
+                    app:cardElevation="0dp"
                     app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                     app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
@@ -254,7 +254,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/glass_panel"
-                app:cardElevation="8dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
@@ -354,7 +354,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/glass_panel"
-                app:cardElevation="8dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
@@ -410,7 +410,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/glass_panel"
-                app:cardElevation="8dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
@@ -447,7 +447,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@color/glass_panel"
-                app:cardElevation="6dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
                 app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
