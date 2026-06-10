@@ -303,7 +303,10 @@ public class RadarFragment extends Fragment {
     private void renderDailyCare(String goal, int todayCount) {
         if (todayCount > 0) {
             tvDailyStatus.setText("今天已完成 " + todayCount + " 次记录。保持这种轻轻照看自己的节奏。");
-            if (tvDailyAction != null) tvDailyAction.setText("再记一条");
+            if (btnDailyPrimary instanceof TextView) {
+                ((TextView) btnDailyPrimary).setText("再记一条");
+            }
+            if (tvDailyAction != null) tvDailyAction.setText("已完成");
             return;
         }
 
@@ -318,7 +321,10 @@ public class RadarFragment extends Fragment {
             prompt = "今天还没有记录，花 30 秒给自己一个情绪快照。";
         }
         tvDailyStatus.setText(prompt);
-        if (tvDailyAction != null) tvDailyAction.setText("快速记录");
+        if (btnDailyPrimary instanceof TextView) {
+            ((TextView) btnDailyPrimary).setText("快速记录");
+        }
+        if (tvDailyAction != null) tvDailyAction.setText("待记录");
     }
 
     // ═══════════════════════════ 公开方法 ═══════════════════════════

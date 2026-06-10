@@ -3,117 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurfaceContainerLowest">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="210dp"
-        android:background="@drawable/bg_radar_gradient"
-        android:importantForAccessibility="no"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/topToolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="20dp"
-        android:paddingTop="40dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="8dp"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cvSOS"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:visibility="gone"
-            app:cardBackgroundColor="?attr/colorErrorContainer"
-            app:cardElevation="0dp"
-            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-            app:strokeColor="?attr/colorError"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:contentDescription="紧急干预"
-                    android:src="@drawable/ic_sos" />
-
-                <TextView
-                    android:id="@+id/btnSOS"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="需要帮助"
-                    android:textColor="?attr/colorError"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/btnTtsToggle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:clickable="true"
-            android:contentDescription="切换语音播报"
-            android:focusable="true"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:cardElevation="0dp"
-            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="1dp">
-
-            <ImageView
-                android:id="@+id/tvTtsIcon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:contentDescription="切换语音播报"
-                android:padding="8dp"
-                android:src="@drawable/ic_tts_on" />
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+    android:background="@drawable/bg_liquid_canvas">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/radarScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="112dp"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="132dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topToolbar">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/llScrollContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingTop="42dp">
 
             <LinearLayout
+                android:id="@+id/topToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingTop="4dp">
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -126,77 +42,100 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="今天"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textColor="@color/glass_ink_muted"
                         android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/tvDynamicGreeting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:lineSpacingExtra="4dp"
                         android:text="@string/greeting_default"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="27sp"
+                        android:textColor="@color/glass_ink"
+                        android:textSize="31sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    app:cardBackgroundColor="?attr/colorSurface"
-                    app:cardElevation="0dp"
+                    android:id="@+id/btnTtsToggle"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:clickable="true"
+                    android:contentDescription="切换语音播报"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_panel"
+                    app:cardElevation="8dp"
                     app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
-                    app:strokeColor="?attr/colorOutlineVariant"
+                    app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
 
                     <ImageView
-                        android:id="@+id/ivGreetingIcon"
+                        android:id="@+id/tvTtsIcon"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:contentDescription="时段"
-                        android:padding="10dp"
-                        android:src="@drawable/ic_time_afternoon" />
+                        android:contentDescription="切换语音播报"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_tts_on" />
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cvStreak"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:visibility="gone"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                app:cardElevation="0dp"
-                app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
-
-                <TextView
-                    android:id="@+id/tvStreak"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:textColor="?attr/colorOnPrimaryContainer"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvSOS"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginTop="18dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:cardElevation="1dp"
-                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                app:strokeColor="?attr/colorOutlineVariant"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/glass_rose_soft"
+                app:cardElevation="8dp"
+                app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                app:strokeColor="@color/glass_rose"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="紧急干预"
+                        android:src="@drawable/ic_sos" />
+
+                    <TextView
+                        android:id="@+id/btnSOS"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:text="需要帮助"
+                        android:textColor="@color/danger_red"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvMoodHero"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="14dp"
+                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_liquid_mood"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="22dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -204,21 +143,13 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
-                            app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                            app:cardElevation="0dp"
-                            app:shapeAppearance="?attr/shapeAppearanceMediumComponent">
-
-                            <ImageView
-                                android:id="@+id/tvMoodEmoji"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:contentDescription="当前情绪"
-                                android:padding="14dp"
-                                android:src="@drawable/ic_emotion_calm" />
-                        </com.google.android.material.card.MaterialCardView>
+                        <ImageView
+                            android:id="@+id/tvMoodEmoji"
+                            android:layout_width="68dp"
+                            android:layout_height="68dp"
+                            android:contentDescription="今日情绪"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_mood_neutral" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -228,199 +159,234 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/tvMoodLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="今日状态"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:text="正在整理今日状态"
+                                android:textColor="@color/glass_ink_soft"
+                                android:textSize="14sp" />
 
                             <TextView
-                                android:id="@+id/tvMoodLabel"
-                                android:layout_width="match_parent"
+                                android:id="@+id/tvMoodScore"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="@string/mood_loading"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textSize="17sp"
+                                android:layout_marginTop="2dp"
+                                android:text="--"
+                                android:textColor="@color/glass_ink"
+                                android:textSize="52sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/ivGreetingIcon"
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:contentDescription="时段"
+                            android:alpha="0.76"
+                            android:src="@drawable/ic_time_afternoon" />
                     </LinearLayout>
 
-                    <LinearLayout
+                    <TextView
+                        android:id="@+id/tvMoodChange"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
-                        android:gravity="bottom"
-                        android:orientation="horizontal">
+                        android:layout_marginTop="12dp"
+                        android:text="记录一点感受后，我会帮你看见变化。"
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="14sp" />
 
-                        <TextView
-                            android:id="@+id/tvMoodScore"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="--"
-                            android:textColor="?attr/colorPrimary"
-                            android:textSize="46sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:layout_marginBottom="9dp"
-                            android:text="/100"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:id="@+id/tvMoodChange"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_marginBottom="10dp"
-                            android:textColor="@color/positive_green"
-                            android:textSize="13sp"
-                            android:visibility="gone" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/btnQuickMood"
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            app:cardBackgroundColor="?attr/colorPrimary"
-                            app:cardElevation="0dp"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:paddingStart="14dp"
-                                android:paddingEnd="14dp"
-                                android:text="记录"
-                                android:textColor="?attr/colorOnPrimary"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
+                    <FrameLayout
+                        android:id="@+id/miniChartContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="96dp"
+                        android:layout_marginTop="16dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cvDailyCare"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                app:cardElevation="1dp"
+                android:layout_marginTop="16dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cvStreak"
+                    android:layout_width="0dp"
+                    android:layout_height="92dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/glass_panel"
+                    app:cardElevation="8dp"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                    app:strokeColor="@color/glass_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="连续记录"
+                            android:textColor="@color/glass_ink_muted"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvStreak"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="0 天"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="23sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnQuickMood"
+                    android:layout_width="0dp"
+                    android:layout_height="92dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_mint_soft"
+                    app:cardElevation="8dp"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                    app:strokeColor="@color/glass_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="快速记录"
+                            android:textColor="@color/glass_ink_muted"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="30 秒"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="23sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dailyCarePanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/glass_panel"
+                app:cardElevation="8dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                app:strokeColor="?attr/colorPrimary"
-                app:strokeWidth="0.5dp">
+                app:strokeColor="@color/glass_stroke"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="18dp">
+                    android:padding="20dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvDailyGoal"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="今日照顾自己"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvDailyGoal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="28dp"
-                            android:background="@drawable/filter_pill_selected"
-                            android:gravity="center"
-                            android:paddingHorizontal="12dp"
-                            android:text="建立记录习惯"
-                            android:textColor="?attr/colorPrimary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                        android:background="@drawable/bg_glass_chip"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:text="日常觉察"
+                        android:textColor="@color/glass_blue"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvDailyStatus"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="12dp"
                         android:lineSpacingExtra="4dp"
                         android:text="今天还没有记录，花 30 秒给自己一个情绪快照。"
-                        android:textColor="?attr/colorOnPrimaryContainer"
-                        android:textSize="14sp" />
+                        android:textColor="@color/glass_ink"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
-                        android:gravity="center_vertical"
+                        android:layout_marginTop="16dp"
                         android:orientation="horizontal">
 
-                        <com.google.android.material.card.MaterialCardView
+                        <TextView
                             android:id="@+id/btnDailyPrimary"
                             android:layout_width="0dp"
-                            android:layout_height="40dp"
-                            android:layout_marginEnd="6dp"
+                            android:layout_height="44dp"
+                            android:layout_marginEnd="8dp"
                             android:layout_weight="1"
+                            android:background="@drawable/bg_glass_action_blue"
                             android:clickable="true"
                             android:focusable="true"
-                            app:cardBackgroundColor="?attr/colorPrimary"
-                            app:cardElevation="0dp"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent">
+                            android:gravity="center"
+                            android:text="快速记录"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/tvDailyAction"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:text="快速记录"
-                                android:textColor="?attr/colorOnPrimary"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/btnDailySecondary"
+                        <TextView
+                            android:id="@+id/tvDailyAction"
                             android:layout_width="0dp"
-                            android:layout_height="40dp"
-                            android:layout_marginStart="6dp"
+                            android:layout_height="44dp"
+                            android:layout_marginStart="8dp"
                             android:layout_weight="1"
-                            android:clickable="true"
-                            android:focusable="true"
-                            app:cardBackgroundColor="?attr/colorSurface"
-                            app:cardElevation="0dp"
-                            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-                            app:strokeColor="?attr/colorOutlineVariant"
-                            app:strokeWidth="1dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:text="去成长页"
-                                android:textColor="?attr/colorPrimary"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-                        </com.google.android.material.card.MaterialCardView>
+                            android:background="@drawable/bg_glass_chip"
+                            android:gravity="center"
+                            android:text="待记录"
+                            android:textColor="@color/glass_ink_soft"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/btnDailySecondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/bg_glass_chip"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:text="去照顾自己"
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="捕捉方式"
+                android:textColor="@color/glass_ink"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -432,16 +398,15 @@
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cvFaceAnalysis"
                     android:layout_width="0dp"
-                    android:layout_height="132dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_height="112dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="?attr/colorSurface"
-                    app:cardElevation="1dp"
-                    app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                    app:strokeColor="?attr/colorOutlineVariant"
+                    app:cardBackgroundColor="@color/glass_peach_soft"
+                    app:cardElevation="8dp"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                    app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -451,149 +416,98 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:id="@+id/ivFaceAnalysisIcon"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:contentDescription="面容分析"
-                            android:src="@drawable/ic_face_scan"
-                            android:tint="?attr/colorPrimary" />
+                            android:src="@drawable/ic_face_scan" />
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginTop="12dp"
                             android:text="面容分析"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="15sp"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:id="@+id/btnOpenFaceCamera"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:lineSpacingExtra="2dp"
-                            android:text="微表情与光照状态"
-                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:text="打开相机"
+                            android:textColor="@color/glass_ink_soft"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btnOpenFaceCamera"
                     android:layout_width="0dp"
-                    android:layout_height="132dp"
-                    android:layout_marginStart="6dp"
+                    android:layout_height="112dp"
+                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="?attr/colorPrimaryContainer"
-                    app:cardElevation="1dp"
-                    app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                    app:strokeColor="?attr/colorPrimary"
+                    app:cardBackgroundColor="@color/glass_violet_soft"
+                    app:cardElevation="8dp"
+                    app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+                    app:strokeColor="@color/glass_stroke"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center_vertical"
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="打开相机"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:contentDescription="AI 建议"
+                            android:src="@drawable/ic_workshop_prediction" />
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="实时检测"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:textSize="12sp"
-                            android:alpha="0.78" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:cardElevation="1dp"
-                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                app:strokeColor="?attr/colorOutlineVariant"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="近 7 天趋势"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:layout_marginTop="12dp"
+                            android:text="AI 陪伴"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="7D"
-                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:layout_marginTop="4dp"
+                            android:text="语音后生成"
+                            android:textColor="@color/glass_ink_soft"
                             android:textSize="12sp" />
                     </LinearLayout>
-
-                    <FrameLayout
-                        android:id="@+id/miniChartContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_weight="1" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvAiResponse"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:cardElevation="1dp"
+                app:cardBackgroundColor="@color/glass_panel"
+                app:cardElevation="8dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:id="@+id/llAiInner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="18dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="AI 观察"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:text="来自 EmoScope"
+                        android:textColor="@color/glass_ink_muted"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/tvAiTyping"
@@ -601,9 +515,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:lineSpacingExtra="5dp"
-                        android:text="记录你的状态后，AI 会给出更贴近此刻的观察。"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp" />
+                        android:textColor="@color/glass_ink"
+                        android:textSize="16sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
@@ -611,8 +524,8 @@
 
     <com.example.emoscope.SonarRippleView
         android:id="@+id/sonarRipple"
-        android:layout_width="280dp"
-        android:layout_height="280dp"
+        android:layout_width="132dp"
+        android:layout_height="132dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/btnContainerMain"
         app:layout_constraintEnd_toEndOf="@id/btnContainerMain"
@@ -621,51 +534,40 @@
 
     <com.example.emoscope.VoiceWaveView
         android:id="@+id/voiceWaveView"
-        android:layout_width="120dp"
-        android:layout_height="32dp"
-        android:layout_marginBottom="80dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@id/btnContainerMain"
+        app:layout_constraintEnd_toEndOf="@id/btnContainerMain"
+        app:layout_constraintStart_toStartOf="@id/btnContainerMain"
+        app:layout_constraintTop_toTopOf="@id/btnContainerMain" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/btnContainerMain"
-        android:layout_width="248dp"
-        android:layout_height="60dp"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginStart="34dp"
+        android:layout_marginEnd="34dp"
         android:layout_marginBottom="18dp"
         android:clickable="true"
         android:focusable="true"
-        app:cardBackgroundColor="@color/grad_btn_start"
-        app:cardElevation="10dp"
-        app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+        app:cardBackgroundColor="@color/glass_ink"
+        app:cardElevation="16dp"
+        app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+        app:strokeColor="#33FFFFFF"
+        app:strokeWidth="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/btnSpeakMain"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp">
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:contentDescription="麦克风"
-                android:src="@drawable/ic_mic" />
-
-            <TextView
-                android:id="@+id/btnSpeakMain"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="说说此刻"
-                android:textColor="#FFFFFF"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:text="按住说话"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold" />
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

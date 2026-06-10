@@ -183,9 +183,11 @@ public class HistoryFragment extends Fragment {
     }
 
     private void updateFilterUI(View selected, View... others) {
+        selected.setBackgroundResource(R.drawable.bg_glass_segment_selected);
         ((TextView) selected).setTextColor(MaterialColors.getColor(requireContext(),
                 com.google.android.material.R.attr.colorPrimary, 0));
         for (View v : others) {
+            v.setBackgroundColor(0x00000000);
             ((TextView) v).setTextColor(MaterialColors.getColor(requireContext(),
                     com.google.android.material.R.attr.colorOnSurfaceVariant, 0));
         }

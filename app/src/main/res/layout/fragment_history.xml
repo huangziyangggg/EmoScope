@@ -3,18 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurfaceContainerLowest"
-    android:orientation="vertical">
+    android:background="@drawable/bg_liquid_canvas"
+    android:orientation="vertical"
+    android:paddingStart="18dp"
+    android:paddingTop="42dp"
+    android:paddingEnd="18dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="20dp"
-        android:paddingTop="34dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="10dp">
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -26,38 +25,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="情绪记录"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="28sp"
+                android:textColor="@color/glass_ink"
+                android:textSize="31sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:text="用趋势看见自己的变化"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="13sp" />
+                android:layout_marginTop="4dp"
+                android:text="看见自己的节奏，而不是评判它"
+                android:textColor="@color/glass_ink_muted"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnHistoryMore"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
             android:clickable="true"
             android:contentDescription="更多"
             android:focusable="true"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-            app:cardElevation="0dp"
-            app:rippleColor="?attr/colorPrimary"
-            app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="0.5dp">
+            app:cardBackgroundColor="@color/glass_panel"
+            app:cardElevation="8dp"
+            app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+            app:strokeColor="@color/glass_stroke"
+            app:strokeWidth="1dp">
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:contentDescription="更多"
-                android:padding="11dp"
+                android:padding="12dp"
                 android:src="@drawable/ic_more" />
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
@@ -65,278 +63,188 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="4dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:cardElevation="1dp"
+        android:layout_marginTop="22dp"
+        app:cardBackgroundColor="@color/glass_panel"
+        app:cardElevation="10dp"
         app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-        app:strokeColor="?attr/colorOutlineVariant"
-        app:strokeWidth="0.5dp">
+        app:strokeColor="@color/glass_stroke"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp"
-                android:paddingBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="趋势曲线"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="28dp"
-                    android:background="@drawable/filter_pill"
-                    android:gravity="center"
-                    android:paddingHorizontal="12dp"
-                    android:text="近 30 天"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <FrameLayout
-                android:id="@+id/chartContainer"
-                android:layout_width="match_parent"
-                android:layout_height="188dp"
-                android:paddingHorizontal="8dp"
-                android:paddingBottom="6dp" />
+            android:padding="18dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:paddingStart="14dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="14dp">
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="76dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/filter_pill"
-                    android:gravity="center"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="记录"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="11sp" />
+                        android:text="总记录"
+                        android:textColor="@color/glass_ink_muted"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/tvStatTotal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="4dp"
                         android:text="0"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="23sp"
+                        android:textColor="@color/glass_ink"
+                        android:textSize="26sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="76dp"
-                    android:layout_marginHorizontal="3dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/filter_pill_selected"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="均分"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="11sp" />
-
-                    <TextView
-                        android:id="@+id/tvStatAvg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="--"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="23sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="76dp"
-                    android:layout_marginHorizontal="3dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_chip_green"
-                    android:gravity="center"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="积极"
-                        android:textColor="@color/positive_green"
-                        android:textSize="11sp" />
+                        android:textColor="@color/glass_ink_muted"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/tvStatPos"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="4dp"
                         android:text="0"
                         android:textColor="@color/positive_green"
-                        android:textSize="23sp"
+                        android:textSize="26sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="76dp"
-                    android:layout_marginStart="6dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_chip_red"
-                    android:gravity="center"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="预警"
-                        android:textColor="@color/danger_red"
-                        android:textSize="11sp" />
+                        android:textColor="@color/glass_ink_muted"
+                        android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/tvStatNeg"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="4dp"
                         android:text="0"
                         android:textColor="@color/danger_red"
-                        android:textSize="23sp"
+                        android:textSize="26sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="均值"
+                        android:textColor="@color/glass_ink_muted"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatAvg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="--"
+                        android:textColor="@color/glass_blue"
+                        android:textSize="26sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/chartContainer"
+                android:layout_width="match_parent"
+                android:layout_height="176dp"
+                android:layout_marginTop="16dp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <HorizontalScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="44dp"
         android:layout_marginTop="14dp"
-        android:clipToPadding="false"
-        android:overScrollMode="never"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:scrollbars="none">
+        android:background="@drawable/bg_glass_chip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+        <TextView
+            android:id="@+id/filterAll"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="全部"
+            android:textColor="@color/glass_ink"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/filterAll"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:background="@drawable/filter_pill_selected"
-                android:clickable="true"
-                android:contentDescription="筛选全部记录"
-                android:focusable="true"
-                android:gravity="center"
-                android:paddingHorizontal="16dp"
-                android:text="全部"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/filterWeek"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="7 天"
+            android:textColor="@color/glass_ink_soft"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/filterWeek"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/filter_pill"
-                android:clickable="true"
-                android:contentDescription="筛选近 7 天记录"
-                android:focusable="true"
-                android:gravity="center"
-                android:paddingHorizontal="16dp"
-                android:text="7 天"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="13sp" />
+        <TextView
+            android:id="@+id/filterMonth"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="30 天"
+            android:textColor="@color/glass_ink_soft"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/filterMonth"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/filter_pill"
-                android:clickable="true"
-                android:contentDescription="筛选近 30 天记录"
-                android:focusable="true"
-                android:gravity="center"
-                android:paddingHorizontal="16dp"
-                android:text="30 天"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="13sp" />
+        <ImageView
+            android:id="@+id/filterPositive"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:contentDescription="积极记录"
+            android:padding="10dp"
+            android:src="@drawable/ic_filter_positive" />
 
-            <ImageView
-                android:id="@+id/filterPositive"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_chip_green"
-                android:clickable="true"
-                android:contentDescription="筛选积极情绪"
-                android:focusable="true"
-                android:padding="8dp"
-                android:src="@drawable/ic_filter_positive" />
-
-            <ImageView
-                android:id="@+id/filterWarning"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_chip_red"
-                android:clickable="true"
-                android:contentDescription="筛选预警情绪"
-                android:focusable="true"
-                android:padding="8dp"
-                android:src="@drawable/ic_filter_warning" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <TextView
-        android:id="@+id/tvHistoryEmpty"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginHorizontal="28dp"
-        android:layout_marginTop="18dp"
-        android:layout_weight="1"
-        android:background="@drawable/filter_pill"
-        android:gravity="center"
-        android:lineSpacingExtra="8dp"
-        android:padding="28dp"
-        android:text="暂无情绪记录\n长按底部按钮记录第一条情绪快照"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textSize="14sp"
-        android:visibility="gone" />
+        <ImageView
+            android:id="@+id/filterWarning"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:contentDescription="预警记录"
+            android:padding="10dp"
+            android:src="@drawable/ic_filter_warning" />
+    </LinearLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeHistory"
@@ -345,14 +253,28 @@
         android:layout_marginTop="14dp"
         android:layout_weight="1">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvHistory"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="18dp"
-            android:scrollbars="none" />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvHistory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="48dp" />
+
+            <TextView
+                android:id="@+id/tvHistoryEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:text="还没有记录。\n第一次记录会从这里开始。"
+                android:textColor="@color/glass_ink_muted"
+                android:textSize="15sp"
+                android:visibility="gone" />
+        </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

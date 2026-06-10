@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="@drawable/bg_liquid_canvas">
 
     <!-- ═══════════════════════════════════════════════════════════
          Fragment 容器 — 承载 3 个页面 (Radar / History / Settings)
@@ -254,13 +254,16 @@
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        android:elevation="0dp"
+        android:background="@drawable/bg_glass_nav"
+        android:elevation="18dp"
         android:fitsSystemWindows="true"
+        android:paddingTop="8dp"
         android:paddingBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
+        app:itemIconTint="@color/bottom_nav_tint"
+        app:itemTextColor="@color/bottom_nav_tint"
         app:itemActiveIndicatorStyle="@style/Widget.EmoScope.NavIndicator" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
