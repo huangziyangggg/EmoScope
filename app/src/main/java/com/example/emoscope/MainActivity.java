@@ -412,14 +412,25 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override public void onVoiceButtonPressed() {
+        // 先检查录音权限 — 独立请求，不捆绑相机
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
-            showCorePermissionDialog();
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this, Manifest.permission.RECORD_AUDIO)) {
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                        .setTitle("需要麦克风权限")
+                        .setMessage("语音情绪识别需要访问麦克风，用于将你说的话转成文字。录音数据仅在本地处理。")
+                        .setPositiveButton("允许", (d, w) -> requestAudioPermission())
+                        .setNegativeButton("取消", null)
+                        .show();
+            } else {
+                requestAudioPermission();
+            }
             return;
         }
+        // 检查系统语音服务是否可用
         if (voiceController != null && !voiceController.isAvailable()) {
-            showUserMessage("当前设备没有可用的系统语音识别服务");
-            radarVM.setVoiceText("当前设备没有可用的系统语音识别服务");
+            showUserMessage("当前设备没有可用的语音识别服务，请安装 Google 语音搜索或 Google App");
             return;
         }
         boolean clickMode = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
@@ -954,6 +965,12 @@ public class MainActivity extends AppCompatActivity
                 Constants.PERM_CORE);
     }
 
+    private void requestAudioPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.RECORD_AUDIO},
+                Constants.PERM_AUDIO);
+    }
+
     private void requestSmsPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
             new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
@@ -979,6 +996,12 @@ public class MainActivity extends AppCompatActivity
                 setupVisualEngine(); startCamera();
             } else {
                 showCorePermissionDeniedDialog();
+            }
+        } else if (requestCode == Constants.PERM_AUDIO) {
+            if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) {
+                showUserMessage("麦克风权限已开启，现在可以对语音按钮说话了");
+            } else {
+                showUserMessage("需要麦克风权限才能使用语音功能，请在系统设置中开启");
             }
         } else if (requestCode == Constants.PERM_SMS && results.length > 0
                 && results[0] == PackageManager.PERMISSION_GRANTED) {

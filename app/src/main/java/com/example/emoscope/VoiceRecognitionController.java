@@ -37,13 +37,15 @@ public class VoiceRecognitionController {
     }
 
     public void start() {
-        if (!isAvailable()) {
-            callback.onNoSpeech();
+        stop();
+
+        try {
+            recognizer = SpeechRecognizer.createSpeechRecognizer(context);
+        } catch (Exception e) {
+            callback.onError("语音识别服务不可用，请安装 Google 语音搜索");
             return;
         }
 
-        stop();
-        recognizer = SpeechRecognizer.createSpeechRecognizer(context);
         recognizer.setRecognitionListener(new RecognitionListener() {
             @Override public void onReadyForSpeech(Bundle params) {
                 callback.onReady();

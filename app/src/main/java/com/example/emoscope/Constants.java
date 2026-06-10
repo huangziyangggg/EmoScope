@@ -157,6 +157,8 @@ public final class Constants {
     public static final int PERM_SMS = 101;
     /** 通知权限请求码 (Android 13+) */
     public static final int PERM_NOTIFY = 102;
+    /** 独立麦克风权限请求码 */
+    public static final int PERM_AUDIO = 103;
     /** 首次启动引导 */
     public static final String KEY_FIRST_LAUNCH = "first_launch_done";
     /** 用户选择的关注目标 */
