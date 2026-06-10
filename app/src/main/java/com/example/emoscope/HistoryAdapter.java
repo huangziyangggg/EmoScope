@@ -3,6 +3,7 @@ package com.example.emoscope;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -49,7 +50,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (!dateKey.equals(lastGroup)) {
                 // 生成日期标签
                 String label;
-                if (dateKey.equals(today)) label = "今天";
+                if (dateKey.equals(today)) label = "✦ 今天";
                 else if (dateKey.equals(yesterday)) label = "昨天";
                 else label = dateKey.substring(0, 2) + "月" + dateKey.substring(3, 5) + "日";
                 items.add(label);
@@ -71,8 +72,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType == TYPE_HEADER) {
             TextView tv = (TextView) LayoutInflater.from(parent.getContext())
                     .inflate(android.R.layout.simple_list_item_1, parent, false);
-            tv.setPadding(20, 20, 20, 8);
-            tv.setTextSize(13);
+            tv.setPadding(6, 12, 6, 10);
+            tv.setTextSize(16);
             tv.setTextColor(MaterialColors.getColor(tv, com.google.android.material.R.attr.colorPrimary, 0));
             tv.setTypeface(null, android.graphics.Typeface.BOLD);
             return new HeaderHolder(tv);
@@ -102,17 +103,42 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         // 只显示时间部分 HH:mm
         String timePart = time.length() >= 11 ? time.substring(6) : time;
         holder.tvTime.setText(timePart + "  ·  " + type);
-        holder.tvDetail.setText(detail);
+        holder.tvDetail.setText(formatMoodTitle(detail, isPos));
 
         int detailColor = MaterialColors.getColor(holder.itemView,
-                isPos ? com.google.android.material.R.attr.colorOnSurface
+                isPos ? com.google.android.material.R.attr.colorPrimary
                       : com.google.android.material.R.attr.colorError, 0);
+        if (isPos) detailColor = holder.itemView.getContext().getColor(R.color.positive_green);
         holder.tvDetail.setTextColor(detailColor);
 
         int dotColor = isPos ? holder.itemView.getContext().getColor(R.color.positive_green)
                 : MaterialColors.getColor(holder.itemView,
                         com.google.android.material.R.attr.colorError, 0);
-        holder.moodDot.getBackground().setTint(dotColor);
+        holder.moodDot.setBackgroundResource(isPos
+                ? R.drawable.bg_history_icon_positive
+                : R.drawable.bg_history_icon_warning);
+        holder.moodIcon.setImageResource(isPos ? R.drawable.ic_mood_smile : R.drawable.ic_mood_angry);
+        holder.moodIcon.setColorFilter(dotColor);
+        holder.moodStripe.setBackgroundColor(dotColor);
+    }
+
+    private String formatMoodTitle(String detail, boolean isPos) {
+        if (detail == null || detail.trim().isEmpty()) {
+            return isPos ? "心情：平静" : "心情：需要留意";
+        }
+        String compact = detail.replace('\n', ' ').trim();
+        int moodIndex = compact.indexOf("心情:");
+        if (moodIndex < 0) moodIndex = compact.indexOf("心情：");
+        if (moodIndex >= 0) {
+            String mood = compact.substring(moodIndex + 3).trim();
+            int hashIndex = mood.indexOf('#');
+            if (hashIndex >= 0) mood = mood.substring(0, hashIndex).trim();
+            int noteIndex = mood.indexOf("备注");
+            if (noteIndex >= 0) mood = mood.substring(0, noteIndex).trim();
+            if (!mood.isEmpty()) return "心情：" + mood;
+        }
+        if (compact.length() > 18) compact = compact.substring(0, 18) + "...";
+        return compact;
     }
 
     @Override
@@ -126,12 +152,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     static class ItemHolder extends RecyclerView.ViewHolder {
         TextView tvTime, tvDetail;
-        View moodDot;
+        View moodDot, moodStripe;
+        ImageView moodIcon;
         ItemHolder(View v) {
             super(v);
             tvTime = v.findViewById(R.id.tvHistoryTime);
             tvDetail = v.findViewById(R.id.tvHistoryDetail);
             moodDot = v.findViewById(R.id.moodDot);
+            moodIcon = v.findViewById(R.id.moodDot);
+            moodStripe = v.findViewById(R.id.moodStripe);
         }
     }
 }

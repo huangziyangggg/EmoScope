@@ -2,50 +2,77 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="86dp"
     android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="@color/glass_panel"
-    app:cardElevation="0dp"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardElevation="2dp"
     app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
-    app:strokeColor="@color/glass_stroke"
-    app:strokeWidth="1dp">
+    app:strokeWidth="0dp">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="top"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_history_item_card">
 
         <View
-            android:id="@+id/moodDot"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_marginTop="6dp"
-            android:background="@drawable/mood_dot" />
+            android:id="@+id/moodStripe"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="@color/positive_green" />
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="22dp"
+            android:paddingEnd="16dp">
 
-            <TextView
-                android:id="@+id/tvHistoryTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/glass_ink_muted"
-                android:textSize="12sp" />
+            <ImageView
+                android:id="@+id/moodDot"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_history_icon_positive"
+                android:contentDescription="情绪"
+                android:padding="12dp"
+                android:src="@drawable/ic_mood_smile"
+                app:tint="@color/positive_green" />
 
-            <TextView
-                android:id="@+id/tvHistoryDetail"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:lineSpacingExtra="4dp"
-                android:textColor="@color/glass_ink"
-                android:textSize="15sp" />
+                android:layout_marginStart="18dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvHistoryTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/glass_ink_muted"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvHistoryDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/positive_green"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="查看详情"
+                android:padding="4dp"
+                android:src="@drawable/ic_arrow_right"
+                app:tint="@color/glass_ink_muted" />
         </LinearLayout>
-    </LinearLayout>
+    </FrameLayout>
 </com.google.android.material.card.MaterialCardView>

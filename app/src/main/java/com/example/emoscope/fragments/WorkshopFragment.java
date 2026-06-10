@@ -50,7 +50,9 @@ public class WorkshopFragment extends Fragment {
     private TextView tvAiInsight, tvJournalPreview, tvGratitudeContent;
     private TextView tvBadgeSummary, tvReportHint;
     private TextView tvLevelBadge, tvLevelName, tvLevelProgress;
+    private TextView tvInsightSample, tvInsightAverage, tvInsightPositive, tvInsightLow, tvInsightHigh;
     private LinearLayout llBadges;
+    private View levelProgressFill;
     private MaterialCardView btnRefreshInsight, btnWriteJournal, btnEditGratitude;
     private MaterialCardView btnGenerateReport;
     private MaterialCardView btnMeditate3, btnMeditate5, btnMeditate10;
@@ -99,6 +101,7 @@ public class WorkshopFragment extends Fragment {
         tvLevelBadge = v.findViewById(R.id.tvLevelBadge);
         tvLevelName = v.findViewById(R.id.tvLevelName);
         tvLevelProgress = v.findViewById(R.id.tvLevelProgress);
+        levelProgressFill = v.findViewById(R.id.levelProgressFill);
         llBadges = v.findViewById(R.id.llBadges);
         btnRefreshInsight = v.findViewById(R.id.btnRefreshInsight);
         btnWriteJournal = v.findViewById(R.id.btnWriteJournal);
@@ -111,6 +114,42 @@ public class WorkshopFragment extends Fragment {
         cvWeeklyReport = v.findViewById(R.id.cvWeeklyReport);
         cvLevel = v.findViewById(R.id.cvLevel);
         confettiView = v.findViewById(R.id.confettiView);
+        bindMetricRow(v.findViewById(R.id.rowInsightSample), "分析样本",
+                R.drawable.ic_workshop_prediction, R.drawable.bg_workshop_icon_purple,
+                R.color.glass_violet);
+        tvInsightSample = metricValue(v.findViewById(R.id.rowInsightSample));
+        bindMetricRow(v.findViewById(R.id.rowInsightAverage), "情绪均值",
+                R.drawable.ic_mood_smile, R.drawable.bg_workshop_icon_green,
+                R.color.positive_green);
+        tvInsightAverage = metricValue(v.findViewById(R.id.rowInsightAverage));
+        bindMetricRow(v.findViewById(R.id.rowInsightPositive), "积极占比",
+                R.drawable.ic_workshop_quote, R.drawable.bg_workshop_icon_orange,
+                R.color.glass_peach);
+        tvInsightPositive = metricValue(v.findViewById(R.id.rowInsightPositive));
+        bindMetricRow(v.findViewById(R.id.rowInsightLow), "情绪最低谷",
+                R.drawable.ic_filter_warning, R.drawable.bg_workshop_icon_purple,
+                R.color.glass_violet);
+        tvInsightLow = metricValue(v.findViewById(R.id.rowInsightLow));
+        bindMetricRow(v.findViewById(R.id.rowInsightHigh), "情绪最高峰",
+                R.drawable.ic_workshop_prediction, R.drawable.bg_workshop_icon_green,
+                R.color.positive_green);
+        tvInsightHigh = metricValue(v.findViewById(R.id.rowInsightHigh));
+    }
+
+    private void bindMetricRow(View row, String label, int iconRes, int bgRes, int tintRes) {
+        if (row == null) return;
+        ImageView icon = row.findViewById(R.id.metricIcon);
+        TextView labelView = row.findViewById(R.id.metricLabel);
+        if (icon != null) {
+            icon.setImageResource(iconRes);
+            icon.setBackgroundResource(bgRes);
+            icon.setColorFilter(ContextCompat.getColor(requireContext(), tintRes));
+        }
+        if (labelView != null) labelView.setText(label);
+    }
+
+    private TextView metricValue(View row) {
+        return row == null ? null : row.findViewById(R.id.metricValue);
     }
 
     // ═══════════════════════════ 面容分析 ═══════════════════════════
@@ -135,29 +174,85 @@ public class WorkshopFragment extends Fragment {
     }
 
     private void loadAiInsight() {
-        tvAiInsight.setText("正在分析你的情绪模式...");
+        if (tvAiInsight != null) tvAiInsight.setText("正在分析你的情绪模式...");
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor cursor = null;
             try {
-                com.example.emoscope.AiMemoryEngine.MemoryResult result =
-                        com.example.emoscope.AiMemoryEngine.analyze(db);
+                cursor = db.rawQuery("SELECT " + Constants.COL_TIME + ", "
+                        + Constants.COL_POSITIVE + " FROM " + Constants.TABLE_RECORDS
+                        + " ORDER BY " + Constants.COL_ID + " DESC LIMIT 120", null);
 
-                if (result.totalRecords < 3) {
-                    requireActivity().runOnUiThread(() ->
-                            tvAiInsight.setText("记录更多情绪（至少 3 条），AI 将为你生成长期观察报告。\n\n试试对麦克风说说今天发生了什么吧。"));
-                    db.close();
-                    return;
+                int total = 0;
+                int positive = 0;
+                int scoreSum = 0;
+                int lowScore = Integer.MAX_VALUE;
+                int highScore = Integer.MIN_VALUE;
+                String lowTime = "--";
+                String highTime = "--";
+
+                while (cursor.moveToNext()) {
+                    String time = cursor.getString(0);
+                    if (!EmoDatabaseHelper.isWithinLastDays(time, 30)) continue;
+                    boolean isPositive = cursor.getInt(1) == 1;
+                    int score = isPositive ? 75 : 25;
+                    total++;
+                    if (isPositive) positive++;
+                    scoreSum += score;
+                    if (score < lowScore) {
+                        lowScore = score;
+                        lowTime = formatInsightDay(time);
+                    }
+                    if (score > highScore) {
+                        highScore = score;
+                        highTime = formatInsightDay(time);
+                    }
                 }
 
-                final String report = result.toString();
-                requireActivity().runOnUiThread(() -> tvAiInsight.setText(report));
+                final int fTotal = total;
+                final int avg = total == 0 ? 0 : Math.round((float) scoreSum / total);
+                final int positiveRate = total == 0 ? 0 : Math.round((float) positive / total * 100);
+                final String low = total == 0 ? "--" : lowTime + "（" + lowScore + "分）";
+                final String high = total == 0 ? "--" : highTime + "（" + highScore + "分）";
+
+                requireActivity().runOnUiThread(() -> {
+                    setTextIfReady(tvInsightSample, "最近 30 天，共 " + fTotal + " 条记录");
+                    setTextIfReady(tvInsightAverage, avg + " / 100");
+                    setTextIfReady(tvInsightPositive, positiveRate + "%");
+                    setTextIfReady(tvInsightLow, low);
+                    setTextIfReady(tvInsightHigh, high);
+                    if (tvAiInsight != null) {
+                        tvAiInsight.setText(fTotal < 3
+                                ? "记录达到 3 条后，洞察会更稳定。"
+                                : "近期洞察已更新");
+                    }
+                });
             } catch (Exception e) {
-                requireActivity().runOnUiThread(() ->
-                        tvAiInsight.setText("分析暂时不可用，请稍后再试"));
+                requireActivity().runOnUiThread(() -> {
+                    setTextIfReady(tvInsightSample, "最近 30 天，暂无记录");
+                    setTextIfReady(tvInsightAverage, "-- / 100");
+                    setTextIfReady(tvInsightPositive, "--");
+                    setTextIfReady(tvInsightLow, "--");
+                    setTextIfReady(tvInsightHigh, "--");
+                    if (tvAiInsight != null) tvAiInsight.setText("分析暂时不可用，请稍后再试");
+                });
             } finally {
+                if (cursor != null) cursor.close();
                 db.close();
             }
         });
+    }
+
+    private void setTextIfReady(TextView view, String text) {
+        if (view != null) view.setText(text);
+    }
+
+    private String formatInsightDay(String storedTime) {
+        if (storedTime == null || storedTime.length() < 5) return "--";
+        if (storedTime.length() >= 10 && storedTime.charAt(4) == '-') {
+            return storedTime.substring(5, 10);
+        }
+        return storedTime.substring(0, 5);
     }
 
     // ═══════════════════════════ 情绪日记 ═══════════════════════════
@@ -635,11 +730,32 @@ public class WorkshopFragment extends Fragment {
                             tvLevelProgress.setText(fTotal + " 条记录 · 已达最高等级");
                         }
                     }
+                    updateLevelProgress(fTotal, Constants.LEVEL_THRESHOLDS[fLevel], nextThreshold);
                 });
             } finally {
                 if (cursor != null) cursor.close();
                 db.close();
             }
+        });
+    }
+
+    private void updateLevelProgress(int totalRecords, int currentThreshold, int nextThreshold) {
+        if (levelProgressFill == null) return;
+        View parent = (View) levelProgressFill.getParent();
+        if (parent == null) return;
+        parent.post(() -> {
+            int trackWidth = parent.getWidth();
+            if (trackWidth <= 0) return;
+            float ratio;
+            if (nextThreshold <= currentThreshold) {
+                ratio = 1f;
+            } else {
+                ratio = (float) (totalRecords - currentThreshold) / (nextThreshold - currentThreshold);
+            }
+            ratio = Math.max(0.08f, Math.min(1f, ratio));
+            ViewGroup.LayoutParams lp = levelProgressFill.getLayoutParams();
+            lp.width = Math.max(8, Math.round(trackWidth * ratio));
+            levelProgressFill.setLayoutParams(lp);
         });
     }
 

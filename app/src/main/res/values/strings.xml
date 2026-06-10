@@ -2,12 +2,12 @@
     <string name="app_name">EmoScope</string>
 
     <!-- 问候语 -->
-    <string name="greeting_default">深呼吸，感受当下的平静</string>
-    <string name="greeting_night">夜深了，把烦恼清空再睡吧</string>
-    <string name="greeting_morning">早安！新的一天，拥抱微光</string>
-    <string name="greeting_noon">午后时光，让思绪放慢脚步</string>
-    <string name="greeting_afternoon">喝杯温水，缓解紧绷的神经</string>
-    <string name="greeting_evening">晚上好，今天辛苦了，向我倾诉吧</string>
+    <string name="greeting_default">片刻宁静，\n遇见更好的自己</string>
+    <string name="greeting_night">夜深了，\n把烦恼轻轻放下</string>
+    <string name="greeting_morning">早安，\n拥抱今天的微光</string>
+    <string name="greeting_noon">午后时光，\n让思绪放慢脚步</string>
+    <string name="greeting_afternoon">午后时光，\n让思绪放慢脚步</string>
+    <string name="greeting_evening">晚上好，\n今天辛苦了</string>
 
     <!-- 灵敏度 -->
     <string name="sensitivity_low">低（防误触）</string>

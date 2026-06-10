@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurfaceContainerLowest"
+    android:background="@drawable/bg_settings_canvas_soft"
     android:clipToPadding="false"
-    android:paddingStart="16dp"
-    android:paddingTop="40dp"
-    android:paddingEnd="16dp"
-    android:paddingBottom="80dp"
+    android:paddingStart="22dp"
+    android:paddingTop="54dp"
+    android:paddingEnd="22dp"
+    android:paddingBottom="136dp"
     android:scrollbars="none">
 
     <LinearLayout
@@ -16,106 +16,165 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="我的"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:layout_height="164dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0"
+                    android:text="我的"
+                    android:textColor="@color/glass_ink"
+                    android:textSize="36sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:letterSpacing="0"
+                    android:text="安全、轻盈与成长引擎"
+                    android:textColor="@color/glass_ink_soft"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="118dp"
+                android:layout_height="118dp"
+                android:layout_gravity="bottom|end"
+                android:gravity="center"
+                android:text="☻"
+                android:textColor="#9B7BFF"
+                android:textSize="58sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|end"
+                android:layout_marginEnd="120dp"
+                android:text="✦"
+                android:textColor="#B69AFF"
+                android:textSize="24sp" />
+        </FrameLayout>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="安全、提醒与底层引擎"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="13sp" />
-
-        <TextView
-            style="@style/TextAppearance.Material3.LabelLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:drawablePadding="8dp"
+            android:letterSpacing="0"
             android:text="体验"
-            android:textColor="?attr/colorPrimary" />
+            android:textColor="@color/glass_violet"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_mood_smile" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnFocusGoal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_height="82dp"
+            android:layout_marginTop="12dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardElevation="0dp"
-            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="1dp">
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="72dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_settings_goal_card"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp">
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_settings_icon_purple"
+                    android:contentDescription="@null"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_workshop_prediction"
+                    app:tint="@color/glass_violet" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:letterSpacing="0"
                         android:text="关注目标"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:textColor="@color/glass_ink"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvCurrentGoal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
+                        android:layout_marginTop="4dp"
+                        android:letterSpacing="0"
                         android:text="建立记录习惯"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="12sp" />
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="13sp" />
                 </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:letterSpacing="0"
                     android:text="修改"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="14sp"
+                    android:textColor="@color/glass_violet"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/glass_ink_muted" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            style="@style/TextAppearance.Material3.LabelLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="28dp"
+            android:drawablePadding="8dp"
+            android:letterSpacing="0"
             android:text="安全"
-            android:textColor="?attr/colorError" />
+            android:textColor="@color/danger_red"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_sos" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardElevation="0dp"
-            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="1dp">
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_settings_panel_glass"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -124,141 +183,211 @@
                     android:layout_height="76dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp">
 
-                    <TextView
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_red"
+                        android:contentDescription="@null"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_settings"
+                        app:tint="@color/danger_red" />
+
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="隐私与安全中心"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0"
+                            android:text="隐私与安全中心"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:letterSpacing="0"
+                            android:text="保护你的数据安全"
+                            android:textColor="@color/glass_ink_soft"
+                            android:textSize="13sp" />
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:letterSpacing="0"
                         android:text="查看"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="14sp"
+                        android:textColor="@color/glass_violet"
+                        android:textSize="15sp"
                         android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/glass_ink_muted" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:id="@+id/btnSetContact"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="66dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:contentDescription="紧急联系人"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_red"
+                        android:contentDescription="@null"
+                        android:padding="10dp"
                         android:src="@drawable/ic_phone"
-                        android:tint="?attr/colorError" />
+                        app:tint="@color/danger_red" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
+                        android:letterSpacing="0"
                         android:text="紧急联系人"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:textColor="@color/glass_ink"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvCurrentContact"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ellipsize="middle"
-                        android:maxWidth="130dp"
+                        android:maxWidth="118dp"
                         android:singleLine="true"
                         android:text="未设置"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="13sp" />
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/glass_ink_muted" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginStart="52dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:id="@+id/btnSetSensitivity"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="66dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:contentDescription="应激阻断灵敏度"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_red"
+                        android:contentDescription="@null"
+                        android:padding="10dp"
                         android:src="@drawable/ic_notification"
-                        android:tint="?attr/colorError" />
+                        app:tint="@color/danger_red" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="应激阻断灵敏度"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:letterSpacing="0"
+                        android:text="应激阈值灵敏度"
+                        android:textColor="@color/glass_ink"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvCurrentSensitivity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="中等"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="13sp" />
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/glass_ink_muted" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="66dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="12dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="14dp">
+
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_gray"
+                        android:contentDescription="@null"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_settings"
+                        app:tint="@color/glass_ink_muted" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
+                        android:letterSpacing="0"
                         android:text="生物识别应用锁"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:textColor="@color/glass_ink"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchBiometric"
@@ -269,36 +398,50 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="72dp"
+                    android:layout_height="76dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="12dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="14dp">
+
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_purple"
+                        android:contentDescription="@null"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_mood_smile"
+                        app:tint="@color/glass_violet" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:letterSpacing="0"
                             android:text="隐私模式"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="15sp" />
+                            android:textColor="@color/glass_ink"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:text="阻止截图，切换应用后回到首页"
-                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:layout_marginTop="4dp"
+                            android:letterSpacing="0"
+                            android:text="阻止截图、切换应用后隐藏内容"
+                            android:textColor="@color/glass_ink_soft"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -311,8 +454,9 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:id="@+id/btnClearLocalData"
@@ -320,69 +464,120 @@
                     android:layout_height="68dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp">
+
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_red"
+                        android:contentDescription="@null"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_close"
+                        app:tint="@color/danger_red" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
+                        android:letterSpacing="0"
                         android:text="清除本机数据"
-                        android:textColor="?attr/colorError"
-                        android:textSize="15sp"
+                        android:textColor="@color/danger_red"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:letterSpacing="0"
                         android:text="不可恢复"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="12sp" />
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="13sp" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/glass_ink_muted" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            style="@style/TextAppearance.Material3.LabelLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="28dp"
+            android:drawablePadding="8dp"
+            android:letterSpacing="0"
             android:text="交互"
-            android:textColor="?attr/colorTertiary" />
+            android:textColor="@color/glass_blue"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_mic" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardElevation="0dp"
-            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="1dp">
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:background="@drawable/bg_settings_panel_glass"
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="76dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="12dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="14dp">
 
-                    <TextView
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_blue"
+                        android:contentDescription="@null"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_settings"
+                        app:tint="@color/glass_blue" />
+
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="触觉反馈"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0"
+                            android:text="触觉反馈"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:letterSpacing="0"
+                            android:text="操作时给予振动反馈"
+                            android:textColor="@color/glass_ink_soft"
+                            android:textSize="12sp" />
+                    </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchHaptic"
@@ -393,24 +588,52 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="76dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="12dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="14dp">
 
-                    <TextView
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_blue"
+                        android:contentDescription="@null"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_tts_on"
+                        app:tint="@color/glass_blue" />
+
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="AI 语音播报"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0"
+                            android:text="AI 语音播报"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:letterSpacing="0"
+                            android:text="用语音播报情绪状态"
+                            android:textColor="@color/glass_ink_soft"
+                            android:textSize="12sp" />
+                    </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchTts"
@@ -421,36 +644,50 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="72dp"
+                    android:layout_height="76dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="12dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="14dp">
+
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_blue"
+                        android:contentDescription="@null"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_mic"
+                        app:tint="@color/glass_blue" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:letterSpacing="0"
                             android:text="语音点击切换"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="15sp" />
+                            android:textColor="@color/glass_ink"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:text="点击开始/停止，最多录制 30 秒"
-                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:layout_marginTop="4dp"
+                            android:letterSpacing="0"
+                            android:text="点击并长按开始，最多录制 30 秒"
+                            android:textColor="@color/glass_ink_soft"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -463,43 +700,75 @@
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            style="@style/TextAppearance.Material3.LabelLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="28dp"
+            android:drawablePadding="8dp"
+            android:letterSpacing="0"
             android:text="提醒"
-            android:textColor="@color/positive_green" />
+            android:textColor="@color/positive_green"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_notification" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardElevation="0dp"
-            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="1dp">
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:background="@drawable/bg_settings_panel_glass"
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="76dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="12dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="14dp">
 
-                    <TextView
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_green"
+                        android:contentDescription="@null"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_notification"
+                        app:tint="@color/positive_green" />
+
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="每日心情提醒"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0"
+                            android:text="每日心情提醒"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:letterSpacing="0"
+                            android:text="每天定时提醒记录情绪"
+                            android:textColor="@color/glass_ink_soft"
+                            android:textSize="12sp" />
+                    </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchNotifyDaily"
@@ -510,59 +779,108 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:id="@+id/btnNotifyTime"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="66dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp">
+
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_green"
+                        android:contentDescription="@null"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_time_afternoon"
+                        app:tint="@color/positive_green" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
+                        android:letterSpacing="0"
                         android:text="提醒时间"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:textColor="@color/glass_ink"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvNotifyTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="20:00"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="13sp" />
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/glass_ink_muted" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="?attr/colorOutlineVariant" />
+                    android:layout_marginStart="66dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="#E8EAF2" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="76dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="12dp">
+                    android:paddingStart="18dp"
+                    android:paddingEnd="14dp">
 
-                    <TextView
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_settings_icon_green"
+                        android:contentDescription="@null"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_history"
+                        app:tint="@color/positive_green" />
+
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:text="每周情绪报告"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0"
+                            android:text="每周情绪报告"
+                            android:textColor="@color/glass_ink"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:letterSpacing="0"
+                            android:text="每周生成情绪总结"
+                            android:textColor="@color/glass_ink_soft"
+                            android:textSize="12sp" />
+                    </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchNotifyWeekly"
@@ -573,70 +891,130 @@
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            style="@style/TextAppearance.Material3.LabelLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="28dp"
+            android:drawablePadding="8dp"
+            android:letterSpacing="0"
             android:text="引擎"
-            android:textColor="?attr/colorPrimary" />
+            android:textColor="@color/glass_violet"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_workshop_badge" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnSetApiKey"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_height="76dp"
+            android:layout_marginTop="12dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardElevation="0dp"
-            app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="1dp">
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="76dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_settings_panel_glass"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp">
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_settings_icon_purple"
+                    android:contentDescription="@null"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_settings"
+                    app:tint="@color/glass_violet" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:letterSpacing="0"
                         android:text="DeepSeek API Key"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp" />
+                        android:textColor="@color/glass_ink"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvCurrentApiKey"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
+                        android:layout_marginTop="4dp"
                         android:ellipsize="middle"
-                        android:maxWidth="220dp"
+                        android:maxWidth="180dp"
                         android:singleLine="true"
                         android:text="未配置"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="12sp" />
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="13sp" />
                 </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:letterSpacing="0"
                     android:text="修改"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="14sp"
+                    android:textColor="@color/glass_violet"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/glass_ink_muted" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="144dp"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/bg_settings_banner"
+            android:padding="18dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:letterSpacing="0"
+                    android:text="照顾自己，从每一次记录开始"
+                    android:textColor="@color/glass_ink"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:letterSpacing="0"
+                    android:text="你已经做得很好了 🌱"
+                    android:textColor="@color/glass_ink_soft"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </FrameLayout>
 
         <TextView
             android:layout_width="match_parent"
@@ -644,9 +1022,10 @@
             android:layout_marginTop="28dp"
             android:alpha="0.55"
             android:gravity="center"
+            android:letterSpacing="0"
             android:paddingBottom="24dp"
-            android:text="EmoScope"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:text="EmoScope · 1.0.0"
+            android:textColor="@color/glass_ink_muted"
             android:textSize="12sp" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

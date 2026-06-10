@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="44dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/metricIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@drawable/bg_workshop_icon_purple"
+        android:contentDescription="@null"
+        android:padding="8dp"
+        android:src="@drawable/ic_workshop_prediction"
+        app:tint="@color/glass_violet" />
+
+    <TextView
+        android:id="@+id/metricLabel"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:letterSpacing="0"
+        android:text="分析样本"
+        android:textColor="@color/glass_ink_soft"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/metricValue"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|end"
+        android:letterSpacing="0"
+        android:text="最近 30 天，共 0 条记录"
+        android:textColor="@color/glass_ink"
+        android:textSize="15sp" />
+</LinearLayout>

@@ -116,6 +116,10 @@ public class HistoryFragment extends Fragment {
         filterMonth = v.findViewById(R.id.filterMonth);
         filterPos = v.findViewById(R.id.filterPositive);
         filterWarn = v.findViewById(R.id.filterWarning);
+        filterPos.setColorFilter(MaterialColors.getColor(requireContext(),
+                com.google.android.material.R.attr.colorOnSurfaceVariant, 0));
+        filterWarn.setColorFilter(MaterialColors.getColor(requireContext(),
+                com.google.android.material.R.attr.colorOnSurfaceVariant, 0));
     }
 
     private void setupRecyclerView() {
@@ -167,8 +171,10 @@ public class HistoryFragment extends Fragment {
             int next = (current == 1) ? 0 : 1;
             vm.setMoodFilter(next);
             filterPos.setColorFilter(next == 1
-                    ? MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, 0)
+                    ? requireContext().getColor(R.color.positive_green)
                     : MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSurfaceVariant, 0));
+            filterWarn.setColorFilter(MaterialColors.getColor(requireContext(),
+                    com.google.android.material.R.attr.colorOnSurfaceVariant, 0));
             loadHistoryData();
         });
         filterWarn.setOnClickListener(view -> {
@@ -178,12 +184,14 @@ public class HistoryFragment extends Fragment {
             filterWarn.setColorFilter(next == 2
                     ? MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorError, 0)
                     : MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSurfaceVariant, 0));
+            filterPos.setColorFilter(MaterialColors.getColor(requireContext(),
+                    com.google.android.material.R.attr.colorOnSurfaceVariant, 0));
             loadHistoryData();
         });
     }
 
     private void updateFilterUI(View selected, View... others) {
-        selected.setBackgroundResource(R.drawable.bg_glass_segment_selected);
+        selected.setBackgroundResource(R.drawable.bg_history_filter_selected);
         ((TextView) selected).setTextColor(MaterialColors.getColor(requireContext(),
                 com.google.android.material.R.attr.colorPrimary, 0));
         for (View v : others) {
