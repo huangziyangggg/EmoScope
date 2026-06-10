@@ -30,8 +30,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * 首页 — V2.0 重构：语音优先、今日状态、情绪指数、趋势小图、AI 观察。
- * 面容分析和环境光感已从此页移除（降级到相机模式/工坊）。
+ * 首页 — 语音优先、今日状态、情绪指数、趋势小图、AI 观察。
  */
 public class RadarFragment extends Fragment {
 

@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * 成长页 — V2.0 改造：AI 今日洞察、情绪日记、正念冥想、感恩清单、AI 周报、成就系统。
+ * 成长页 — AI 今日洞察、情绪日记、正念冥想、感恩清单、AI 周报、成就系统。
  * 每日金句已删除（留存价值低），新增 AI 驱动的个性化洞察。
  */
 public class WorkshopFragment extends Fragment {

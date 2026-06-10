@@ -645,7 +645,7 @@
             android:alpha="0.55"
             android:gravity="center"
             android:paddingBottom="24dp"
-            android:text="EmoScope v2.0"
+            android:text="EmoScope"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="12sp" />
     </LinearLayout>
