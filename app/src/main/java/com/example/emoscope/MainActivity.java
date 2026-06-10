@@ -101,6 +101,11 @@ public class MainActivity extends AppCompatActivity
     // ── 数据缓存 ──────────────────────────────────────────────────
     private String currentFaceTop3Desc = "平静专注 100%";
     private String currentLightDesc = "感知中...";
+    private volatile FaceAnalyzer.EmotionResult latestEmotionResult = null;
+
+    // ── 拍照打分视图 ──────────────────────────────────────────────
+    private View btnCaptureFace, cardFaceResult, btnSaveCapture, btnDiscardCapture;
+    private TextView tvCaptureScore, tvCaptureEmotions;
 
     // ── UI 辅助 ───────────────────────────────────────────────────
     private GradientDrawable btnMainBg;
@@ -175,6 +180,7 @@ public class MainActivity extends AppCompatActivity
         // 面容分析器
         faceAnalyzer = new FaceAnalyzer(new FaceAnalyzer.FaceCallback() {
             @Override public void onEmotionResult(FaceAnalyzer.EmotionResult r) {
+                latestEmotionResult = r; // 缓存最新结果供拍照打分使用
                 currentFaceTop3Desc = r.cameraState;
                 radarVM.setFaceResult(R.drawable.ic_face_scan,
                         r.prob1, r.prob2, r.prob3,
@@ -383,6 +389,8 @@ public class MainActivity extends AppCompatActivity
             showCorePermissionDialog();
             return;
         }
+        latestEmotionResult = null;
+        cardFaceResult.setVisibility(View.GONE);
         fragmentContainer().setVisibility(View.GONE);
         bottomNav.setVisibility(View.GONE);
         layoutCameraMode.setAlpha(0f);
@@ -690,6 +698,15 @@ public class MainActivity extends AppCompatActivity
             if (cameraController != null) cameraController.flipCamera();
         });
 
+        // ══ 拍照打分按钮 ══
+        btnCaptureFace.setOnClickListener(v -> {
+            triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
+            captureFaceScore();
+        });
+
+        btnSaveCapture.setOnClickListener(v -> saveCaptureResult());
+        btnDiscardCapture.setOnClickListener(v -> discardCaptureResult());
+
         btnCloseBreath.setOnClickListener(v -> {
             triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
             stopBreathingIntervention();
@@ -700,6 +717,71 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(Intent.ACTION_DIAL,
                     Uri.parse("tel:" + Constants.HOTLINE_NUMBER)));
         });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 拍照打分 — 核心功能
+    // ═══════════════════════════════════════════════════════════════
+    private void captureFaceScore() {
+        FaceAnalyzer.EmotionResult r = latestEmotionResult;
+        if (r == null) {
+            showUserMessage("尚未检测到面部，请正对摄像头");
+            return;
+        }
+
+        // 显示结果卡片
+        tvCaptureScore.setText(String.valueOf(r.weightedScore));
+        tvCaptureEmotions.setText("① " + r.prob1 + "\n② " + r.prob2 + "\n③ " + r.prob3);
+        cardFaceResult.setVisibility(View.VISIBLE);
+        cardFaceResult.setAlpha(0f);
+        cardFaceResult.setScaleX(0.85f);
+        cardFaceResult.setScaleY(0.85f);
+        cardFaceResult.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(280)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+
+        // 拍照按钮视觉反馈
+        btnCaptureFace.animate()
+                .scaleX(1.15f).scaleY(1.15f)
+                .setDuration(120)
+                .withEndAction(() ->
+                    btnCaptureFace.animate().scaleX(1f).scaleY(1f).setDuration(150).start())
+                .start();
+    }
+
+    private void saveCaptureResult() {
+        FaceAnalyzer.EmotionResult r = latestEmotionResult;
+        if (r == null) return;
+
+        String detail = "面容快照 | 加权分: " + r.weightedScore
+                + " | ①" + r.prob1 + " ②" + r.prob2 + " ③" + r.prob3;
+        boolean positive = r.weightedScore >= 50;
+
+        backgroundExecutor.execute(() -> {
+            dbHelper.saveRecord("面容分析", detail, positive);
+            runOnUiThread(() -> {
+                showUserMessage("已保存 · 情绪分 " + r.weightedScore + "/100");
+                resetCaptureUI();
+                // 刷新首页数据
+                if (radarFragment != null) radarFragment.refreshDailyLoop();
+            });
+        });
+    }
+
+    private void discardCaptureResult() {
+        showUserMessage("已丢弃");
+        resetCaptureUI();
+    }
+
+    private void resetCaptureUI() {
+        cardFaceResult.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+            cardFaceResult.setVisibility(View.GONE);
+            cardFaceResult.setAlpha(1f);
+        }).start();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -924,6 +1006,13 @@ public class MainActivity extends AppCompatActivity
         breathOverlay = findViewById(R.id.breathOverlay);
         btnCloseBreath = findViewById(R.id.btnCloseBreath);
         btnCallHotline = findViewById(R.id.btnCallHotline);
+        // 拍照打分
+        btnCaptureFace = findViewById(R.id.btnCaptureFace);
+        cardFaceResult = findViewById(R.id.cardFaceResult);
+        btnSaveCapture = findViewById(R.id.btnSaveCapture);
+        btnDiscardCapture = findViewById(R.id.btnDiscardCapture);
+        tvCaptureScore = findViewById(R.id.tvCaptureScore);
+        tvCaptureEmotions = findViewById(R.id.tvCaptureEmotions);
     }
 
     private void showCorePermissionDialog() {
