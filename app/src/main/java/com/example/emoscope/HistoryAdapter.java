@@ -105,20 +105,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         holder.tvTime.setText(timePart + "  ·  " + type);
         holder.tvDetail.setText(formatMoodTitle(detail, isPos));
 
-        int detailColor = MaterialColors.getColor(holder.itemView,
-                isPos ? com.google.android.material.R.attr.colorPrimary
-                      : com.google.android.material.R.attr.colorError, 0);
-        if (isPos) detailColor = holder.itemView.getContext().getColor(R.color.positive_green);
-        holder.tvDetail.setTextColor(detailColor);
-
         int dotColor = isPos ? holder.itemView.getContext().getColor(R.color.positive_green)
-                : MaterialColors.getColor(holder.itemView,
-                        com.google.android.material.R.attr.colorError, 0);
+                : holder.itemView.getContext().getColor(R.color.danger_red);
+        holder.tvDetail.setTextColor(dotColor);
         holder.moodDot.setBackgroundResource(isPos
                 ? R.drawable.bg_history_icon_positive
                 : R.drawable.bg_history_icon_warning);
-        holder.moodIcon.setImageResource(isPos ? R.drawable.ic_mood_smile : R.drawable.ic_mood_angry);
-        holder.moodIcon.setColorFilter(dotColor);
+        holder.moodDot.setImageResource(isPos ? R.drawable.ic_mood_smile : R.drawable.ic_mood_angry);
+        holder.moodDot.setColorFilter(dotColor);
         holder.moodStripe.setBackgroundColor(dotColor);
     }
 
@@ -152,14 +146,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     static class ItemHolder extends RecyclerView.ViewHolder {
         TextView tvTime, tvDetail;
-        View moodDot, moodStripe;
-        ImageView moodIcon;
+        ImageView moodDot;
+        View moodStripe;
         ItemHolder(View v) {
             super(v);
             tvTime = v.findViewById(R.id.tvHistoryTime);
             tvDetail = v.findViewById(R.id.tvHistoryDetail);
             moodDot = v.findViewById(R.id.moodDot);
-            moodIcon = v.findViewById(R.id.moodDot);
             moodStripe = v.findViewById(R.id.moodStripe);
         }
     }

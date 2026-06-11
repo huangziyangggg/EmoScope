@@ -54,7 +54,7 @@
             android:contentDescription="更多"
             android:focusable="true"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardElevation="4dp"
+            app:cardElevation="0dp"
             app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
             app:strokeWidth="0dp">
 
@@ -71,9 +71,9 @@
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="320dp"
+        android:layout_height="332dp"
         app:cardBackgroundColor="@android:color/transparent"
-        app:cardElevation="4dp"
+        app:cardElevation="0dp"
         app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
         app:strokeWidth="0dp">
 
@@ -252,6 +252,16 @@
                     android:id="@+id/chartContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/tvChartEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp"
+                    android:text="记录满 3 次后\n这里会出现真实趋势"
+                    android:textColor="@color/glass_ink_muted"
+                    android:textSize="14sp" />
             </FrameLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -323,20 +333,11 @@
             app:tint="@color/glass_ink_soft" />
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:text="✦ 今天"
-        android:textColor="@color/glass_violet"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeHistory"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="14dp"
         android:layout_weight="1">
 
         <FrameLayout

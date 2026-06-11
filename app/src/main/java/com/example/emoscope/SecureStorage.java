@@ -117,16 +117,22 @@ public final class SecureStorage {
         }
     }
 
-    /** 安全存储字符串值 */
+    /** 安全存储字符串值。加密失败时不做写入，保持旧值。 */
     public void put(String key, String value) {
+        if (value == null || value.isEmpty()) {
+            prefs.edit().putString(key, "").apply();
+            return;
+        }
         String encrypted = encrypt(value);
-        prefs.edit().putString(key, encrypted).apply();
+        if (!encrypted.isEmpty()) {
+            prefs.edit().putString(key, encrypted).apply();
+        }
     }
 
-    /** 读取安全存储的字符串值 */
+    /** 读取安全存储的字符串值，解密失败返回默认值。 */
     public String get(String key, String defaultValue) {
         String encrypted = prefs.getString(key, null);
-        if (encrypted == null) return defaultValue;
+        if (encrypted == null || encrypted.isEmpty()) return defaultValue;
         String decrypted = decrypt(encrypted);
         return decrypted.isEmpty() ? defaultValue : decrypted;
     }

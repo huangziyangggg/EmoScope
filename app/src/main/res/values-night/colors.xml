@@ -57,4 +57,39 @@
     <color name="overlay_white_50">#80FFFFFF</color>
     <color name="overlay_white_20">#33FFFFFF</color>
     <color name="selection_highlight">#33A78BFA</color>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Glass 系列 — 暗色模式覆盖（浅色文字 → 深色背景可见）
+         ═══════════════════════════════════════════════════════════ -->
+    <color name="glass_canvas">#0F0F14</color>
+    <color name="glass_canvas_warm">#18181B</color>
+    <color name="glass_ink">#EAEAF0</color>
+    <color name="glass_ink_soft">#A0A0B0</color>
+    <color name="glass_ink_muted">#707080</color>
+    <color name="glass_panel">#1A1A22</color>
+    <color name="glass_panel_soft">#22222C</color>
+    <color name="glass_panel_strong">#2A2A36</color>
+    <color name="glass_stroke">#2E2E3A</color>
+    <color name="glass_stroke_cool">#2A2A3C</color>
+    <color name="glass_chip_bg">#2A2A36</color>
+    <color name="glass_selected_bg">#322D42</color>
+    <color name="glass_blue">#7CB8F5</color>
+    <color name="glass_blue_soft">#1A2A3C</color>
+    <color name="glass_mint">#5BD4B5</color>
+    <color name="glass_mint_soft">#1A2A2E</color>
+    <color name="glass_peach">#F5A878</color>
+    <color name="glass_peach_soft">#2A1E18</color>
+    <color name="glass_rose">#F090A8</color>
+    <color name="glass_rose_soft">#2A1E22</color>
+    <color name="glass_violet">#C4B5FD</color>
+    <color name="glass_violet_soft">#1E1A2E</color>
+    <color name="glass_shadow">#0A000000</color>
+
+    <!-- 首页入口色 — 暗色模式保持对比度 -->
+    <color name="home_entry_record">#E5A040</color>
+    <color name="home_entry_record_soft">#2A1E10</color>
+    <color name="home_entry_voice">#6BA0F0</color>
+    <color name="home_entry_voice_soft">#101A2A</color>
+    <color name="home_entry_face">#45C0A0</color>
+    <color name="home_entry_face_soft">#102820</color>
 </resources>

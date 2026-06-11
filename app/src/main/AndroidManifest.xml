@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 1. 明确声明硬件需求 -->
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
-    <uses-feature android:name="android.hardware.microphone" android:required="true" />
+    <!-- 硬件声明 — 非必须，无相机/麦克风的设备仍可使用手动记录等功能 -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <!-- 2. 补全系统级权限 (防闪退核心) -->
     <uses-permission android:name="android.permission.CAMERA" />

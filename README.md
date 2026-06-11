@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/files-234-silver?style=flat-square" alt="Files"/>
 </p>
 
-> 📖 [中文文档](README_CN.md)
+> 📖 [中文文档](README.zh-CN.md)
 
 ---
 

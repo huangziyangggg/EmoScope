@@ -44,19 +44,25 @@ public class EmoDatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * 统一写入记录方法。所有 Fragment 和 Activity 共用此入口。
-     * 线程安全：调用方应在后台线程执行。
+     * 调用方应在后台线程执行。方法内部保证异常安全和数据库正确关闭。
      */
     public void saveRecord(String type, String detail, boolean positive) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        synchronized (SDF_DB) {
-            values.put(Constants.COL_TIME, SDF_DB.format(new Date()));
+        SQLiteDatabase db = null;
+        try {
+            db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            synchronized (SDF_DB) {
+                values.put(Constants.COL_TIME, SDF_DB.format(new Date()));
+            }
+            values.put(Constants.COL_TYPE, type);
+            values.put(Constants.COL_DETAIL, detail);
+            values.put(Constants.COL_POSITIVE, positive ? 1 : 0);
+            db.insert(Constants.TABLE_RECORDS, null, values);
+        } catch (Exception e) {
+            android.util.Log.e(Constants.TAG, "saveRecord failed", e);
+        } finally {
+            if (db != null) db.close();
         }
-        values.put(Constants.COL_TYPE, type);
-        values.put(Constants.COL_DETAIL, detail);
-        values.put(Constants.COL_POSITIVE, positive ? 1 : 0);
-        db.insert(Constants.TABLE_RECORDS, null, values);
-        db.close();
     }
 
     public static String dayPrefix(Date date) {
@@ -122,8 +128,14 @@ public class EmoDatabaseHelper extends SQLiteOpenHelper {
 
     /** Delete all locally stored emotion records. */
     public void clearAllRecords() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.delete(Constants.TABLE_RECORDS, null, null);
-        db.close();
+        SQLiteDatabase db = null;
+        try {
+            db = getWritableDatabase();
+            db.delete(Constants.TABLE_RECORDS, null, null);
+        } catch (Exception e) {
+            android.util.Log.e(Constants.TAG, "clearAllRecords failed", e);
+        } finally {
+            if (db != null) db.close();
+        }
     }
 }

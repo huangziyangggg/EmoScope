@@ -61,7 +61,7 @@ public class HistoryFragment extends Fragment {
     private SwipeRefreshLayout swipeHistory;
     private RecyclerView rvHistory;
     private HistoryAdapter historyAdapter;
-    private TextView tvHistoryEmpty, tvStatTotal, tvStatPos, tvStatNeg, tvStatAvg;
+    private TextView tvHistoryEmpty, tvChartEmpty, tvStatTotal, tvStatPos, tvStatNeg, tvStatAvg;
     private FrameLayout chartContainer;
     private View filterAll, filterWeek, filterMonth;
     private ImageView filterPos, filterWarn;
@@ -106,6 +106,7 @@ public class HistoryFragment extends Fragment {
         swipeHistory = v.findViewById(R.id.swipeHistory);
         rvHistory = v.findViewById(R.id.rvHistory);
         tvHistoryEmpty = v.findViewById(R.id.tvHistoryEmpty);
+        tvChartEmpty = v.findViewById(R.id.tvChartEmpty);
         tvStatTotal = v.findViewById(R.id.tvStatTotal);
         tvStatPos = v.findViewById(R.id.tvStatPos);
         tvStatNeg = v.findViewById(R.id.tvStatNeg);
@@ -488,10 +489,15 @@ public class HistoryFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     vm.setHistoryData(rows, fPosCount + fNegCount, fPosCount, fNegCount,
                             fChartData, fAvgScore, isEmpty);
-                    if (!fChartData.isEmpty() && chartContainer != null) {
+                    boolean hasTrend = fChartData.size() >= 3;
+                    if (tvChartEmpty != null) {
+                        tvChartEmpty.setVisibility(hasTrend ? View.GONE : View.VISIBLE);
+                    }
+                    if (hasTrend && chartContainer != null) {
                         // 收集日期标签
                         List<String> dates = new ArrayList<>();
                         for (String[] row : rows) dates.add(row[0]);
+                        Collections.reverse(dates);
                         chartContainer.addView(new EmoLineChartView(requireContext(), fChartData, dates));
                     }
                     vm.setRefreshing(false);

@@ -154,7 +154,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@android:color/transparent"
-                app:cardElevation="4dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeWidth="0dp">
 
@@ -226,7 +226,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     app:cardBackgroundColor="@android:color/transparent"
-                    app:cardElevation="4dp"
+                    app:cardElevation="0dp"
                     app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                     app:strokeWidth="0dp">
 
@@ -307,7 +307,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@android:color/transparent"
-                app:cardElevation="4dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeWidth="0dp">
 
@@ -372,7 +372,7 @@
                 android:layout_marginTop="18dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="#F7FFFFFF"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/deco_outline_variant"
                 app:strokeWidth="1dp">

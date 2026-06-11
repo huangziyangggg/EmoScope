@@ -59,7 +59,15 @@ public class WorkshopFragment extends Fragment {
     private MaterialCardView cvAiInsight, cvWeeklyReport, cvLevel;
     private com.example.emoscope.ConfettiView confettiView;
     private View meditationOverlay;
+    private android.os.Handler meditationHandler;
     private int lastBadgeCount = 0;
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (meditationHandler != null) meditationHandler.removeCallbacksAndMessages(null);
+        meditationHandler = null;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
