@@ -1,6 +1,4 @@
 # Android
-*.apk
-*.aab
 *.dex
 *.class
 bin/
@@ -28,8 +26,9 @@ keystore.properties
 *.jks
 *.keystore
 
-# Screenshots
-screenshots/
+# Releases (APK files force-added)
+*.apk
+*.aab
 
 # Vosk model (too large)
 app/src/main/assets/model-cn/
