@@ -18,7 +18,7 @@ public class VoiceRecognitionController {
         void onReady();
         void onProcessing();
         void onPartialText(String text);
-        void onFinalText(String text);
+        void onFinalText(String text, VoiceFeatureAnalyzer.Result features);
         void onNoSpeech();
         void onError(String message);
     }
@@ -26,6 +26,11 @@ public class VoiceRecognitionController {
     private final Context context;
     private final Callback callback;
     private SpeechRecognizer recognizer;
+    private long recordingStartedAt;
+    private float rmsTotal;
+    private float rmsPeak;
+    private int rmsSamples;
+    private boolean listening;
 
     public VoiceRecognitionController(Context context, Callback callback) {
         this.context = context.getApplicationContext();
@@ -37,7 +42,13 @@ public class VoiceRecognitionController {
     }
 
     public void start() {
+        if (listening) return;
         stop();
+        listening = true;
+        recordingStartedAt = System.currentTimeMillis();
+        rmsTotal = 0f;
+        rmsPeak = 0f;
+        rmsSamples = 0;
 
         try {
             recognizer = SpeechRecognizer.createSpeechRecognizer(context);
@@ -48,18 +59,27 @@ public class VoiceRecognitionController {
 
         recognizer.setRecognitionListener(new RecognitionListener() {
             @Override public void onReadyForSpeech(Bundle params) {
+                if (!listening) return;
                 callback.onReady();
             }
 
             @Override public void onBeginningOfSpeech() {}
-            @Override public void onRmsChanged(float rmsdB) {}
+            @Override public void onRmsChanged(float rmsdB) {
+                if (rmsdB <= 0f) return;
+                rmsTotal += rmsdB;
+                rmsPeak = Math.max(rmsPeak, rmsdB);
+                rmsSamples++;
+            }
             @Override public void onBufferReceived(byte[] buffer) {}
 
             @Override public void onEndOfSpeech() {
+                if (!listening) return;
                 callback.onProcessing();
             }
 
             @Override public void onError(int error) {
+                if (!listening) return;
+                listening = false;
                 if (error == SpeechRecognizer.ERROR_NO_MATCH
                         || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
                     callback.onNoSpeech();
@@ -69,16 +89,20 @@ public class VoiceRecognitionController {
             }
 
             @Override public void onResults(Bundle results) {
+                if (!listening) return;
+                listening = false;
                 ArrayList<String> matches = results.getStringArrayList(
                         SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
-                    callback.onFinalText(matches.get(0).trim());
+                    String text = matches.get(0).trim();
+                    callback.onFinalText(text, buildVoiceFeatures(text));
                 } else {
                     callback.onNoSpeech();
                 }
             }
 
             @Override public void onPartialResults(Bundle partialResults) {
+                if (!listening) return;
                 ArrayList<String> matches = partialResults.getStringArrayList(
                         SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
@@ -96,6 +120,13 @@ public class VoiceRecognitionController {
         intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
         recognizer.startListening(intent);
+    }
+
+    private VoiceFeatureAnalyzer.Result buildVoiceFeatures(String text) {
+        float durationSec = Math.max(0.5f,
+                (System.currentTimeMillis() - recordingStartedAt) / 1000f);
+        float averageRms = rmsSamples == 0 ? 0f : rmsTotal / rmsSamples;
+        return VoiceFeatureAnalyzer.analyze(text, durationSec, averageRms, rmsPeak, rmsSamples);
     }
 
     private String errorMessage(int error) {
@@ -119,6 +150,7 @@ public class VoiceRecognitionController {
     }
 
     public void stop() {
+        listening = false;
         if (recognizer == null) return;
         try { recognizer.stopListening(); } catch (Exception ignored) {}
         try { recognizer.destroy(); } catch (Exception ignored) {}

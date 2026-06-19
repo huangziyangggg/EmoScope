@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.emoscope.AppBrand;
 import com.example.emoscope.Constants;
 import com.example.emoscope.EmoDatabaseHelper;
 import com.example.emoscope.MainActivity;
@@ -796,7 +797,7 @@ public class WorkshopFragment extends Fragment {
         titlePaint.setColor(0xFF18181B);
         titlePaint.setTextSize(22 * density);
         titlePaint.setFakeBoldText(true);
-        canvas.drawText("EmoScope 情绪周报", padding, padding + 24 * density, titlePaint);
+        canvas.drawText("心镜情绪周报", padding, padding + 24 * density, titlePaint);
 
         // 正文
         android.graphics.Paint textPaint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
@@ -812,7 +813,7 @@ public class WorkshopFragment extends Fragment {
         java.io.File dir = new java.io.File(requireContext().getExternalFilesDir(null), "Reports");
         if (!dir.exists()) dir.mkdirs();
         String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.getDefault()).format(new java.util.Date());
-        java.io.File file = new java.io.File(dir, "EmoScope_Weekly_" + ts + ".png");
+        java.io.File file = new java.io.File(dir, AppBrand.weeklyReportFileName(ts));
         try {
             java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
             bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, fos);

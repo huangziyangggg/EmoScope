@@ -141,7 +141,7 @@ public class RadarFragment extends Fragment {
         tvAiTyping.setOnLongClickListener(view -> {
             ClipboardManager clipboard = (ClipboardManager) requireContext()
                     .getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setPrimaryClip(ClipData.newPlainText("EmoScope",
+            clipboard.setPrimaryClip(ClipData.newPlainText("心镜",
                     tvAiTyping.getText().toString()));
             return true;
         });

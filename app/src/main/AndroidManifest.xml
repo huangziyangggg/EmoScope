@@ -5,6 +5,7 @@
     <!-- 硬件声明 — 非必须，无相机/麦克风的设备仍可使用手动记录等功能 -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
     <!-- 2. 补全系统级权限 (防闪退核心) -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -20,7 +21,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="EmoScope"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EmoScope"

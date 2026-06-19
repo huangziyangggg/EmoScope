@@ -1,0 +1,29 @@
+Slide 1
+Good morning everyone. Today I will present my project, EmoScope. It is a privacy-preserving mobile system for multimodal emotion recognition. The main idea is to use a smartphone to sense, reflect, and act. It can read face, voice, light, and records, but it also keeps privacy and user control at the center.
+
+Slide 2
+The first problem is self-report. Many mood apps ask users to record their feelings by hand. This is useful, but it is easy to forget. When people feel stressed or tired, they may not want to write anything. So a good wellness tool should reduce typing, give more continuity, and still let the user stay in control.
+
+Slide 3
+The research goal is to explore whether a normal smartphone can collect useful emotional context while protecting sensitive data. EmoScope is not a clinical diagnosis system. It is a reflection prototype. Its contributions are multimodal sensing, local memory, and user-confirmed safety, especially for SOS support.
+
+Slide 4
+This slide shows the system architecture. The input layer collects camera frames, voice transcripts, ambient light, and user records. The on-device AI layer analyzes 52 blendshapes and produces ten emotions and a 0 to 100 score. The memory layer stores records, and the feedback layer gives care cards, weekly reports, and SOS support.
+
+Slide 5
+The emotion scoring model converts face signals into a wellness index. Joy and calm have higher scores, while anxiety, anger, and fear have lower scores. MediaPipe FaceLandmarker provides the face features. Then an EWMA smoothing method reduces sudden changes, so the feedback is more stable. This score is only for reflection, not medical diagnosis.
+
+Slide 6
+The user workflow has three loops. First, the app gives immediate feedback in the moment. Second, it supports reflection and weekly reports, so users can understand changes over time. Third, it gives privacy and safety controls. In this way, the interface connects feedback, gentle action, and long-term review.
+
+Slide 7
+For evaluation, I tested the prototype as an engineering system. Facial inference reached about 4 Hertz. The score range was more than 40 points. After smoothing, the jitter was about 3 to 5 percentage points. Synthetic extraction accuracy reached 100 percent, and the SOS prompt opened in less than 0.5 seconds.
+
+Slide 8
+Privacy and user agency are key parts of the design. Raw sensing stays in the private zone. Only structured mood context is shared when needed. Users can confirm SOS, clear local records, export data, and decide whether to call. The boundary rule is clear: support is guided, but escalation is confirmed.
+
+Slide 9
+There are still limits. The current emotion mapping is manual, so it may not work equally well for all people, faces, and environments. The evaluation is functional, not clinical. Future work should include user studies, fairness audits, comparison with PHQ-9 and GAD-7, and stronger voice emotion features.
+
+Slide 10
+To conclude, EmoScope shows a practical direction for privacy-preserving emotional self-awareness. It combines on-device face analysis, voice-rate estimation, and local memory analytics. More importantly, it follows three principles: continuous sensing, cautious interpretation, and user-confirmed support. The goal is not to replace doctors, but to help users notice emotional changes. Thank you.

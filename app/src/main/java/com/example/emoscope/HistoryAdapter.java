@@ -45,10 +45,17 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         String lastGroup = "";
         for (String[] row : rawItems) {
             String time = row[0];
-            String dateKey = time.length() >= 5 ? time.substring(0, 5) : time;
+            // 统一处理两种日期格式: legacy "yyyy-MM-dd HH:mm" -> "MM-dd", current "MM-dd HH:mm" -> "MM-dd"
+            String dateKey;
+            if (time != null && time.length() >= 10 && time.charAt(4) == '-') {
+                dateKey = time.substring(5, 10); // 从 yyyy-MM-dd 提取 MM-dd
+            } else if (time != null && time.length() >= 5) {
+                dateKey = time.substring(0, 5);  // 从 MM-dd 直接取
+            } else {
+                dateKey = (time != null) ? time : "";
+            }
 
             if (!dateKey.equals(lastGroup)) {
-                // 生成日期标签
                 String label;
                 if (dateKey.equals(today)) label = "✦ 今天";
                 else if (dateKey.equals(yesterday)) label = "昨天";

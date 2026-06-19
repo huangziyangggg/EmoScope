@@ -145,7 +145,11 @@ public class DeepSeekClient {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 try {
-                    String respStr = response.body() != null ? response.body().string() : "";
+                    okhttp3.ResponseBody body = response.body();
+                    String respStr = "";
+                    if (body != null) {
+                        respStr = body.string();
+                    }
                     if (!response.isSuccessful()) {
                         Log.e(Constants.TAG, "DeepSeek HTTP " + response.code() + ": " + respStr);
                         if (attempt < Constants.AI_MAX_RETRIES - 1 && response.code() >= 500) {
@@ -203,12 +207,13 @@ public class DeepSeekClient {
         return "AI 请求失败，请检查网络或 API Key";
     }
 
-    /** 查询最近 3 条数据库记忆 */
+    /** 查询最近 3 条数据库记忆。不关闭连接（由 SQLiteOpenHelper 管理生命周期）。 */
     private String fetchRecentMemory() {
         StringBuilder memory = new StringBuilder();
-        android.database.sqlite.SQLiteDatabase db = dbHelper.getReadableDatabase();
+        android.database.sqlite.SQLiteDatabase db = null;
         android.database.Cursor cursor = null;
         try {
+            db = dbHelper.getReadableDatabase();
             cursor = db.rawQuery(
                     "SELECT " + Constants.COL_TIME + ", " + Constants.COL_DETAIL +
                     " FROM " + Constants.TABLE_RECORDS +
@@ -220,7 +225,7 @@ public class DeepSeekClient {
             return memory.toString();
         } finally {
             if (cursor != null) cursor.close();
-            db.close();
+            // 不关闭 db — SQLiteOpenHelper 管理单例连接生命周期
         }
     }
 }

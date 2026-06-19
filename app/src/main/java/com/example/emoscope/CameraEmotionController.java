@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CameraEmotionController {
 
     public interface Callback {
-        void onLightState(int iconRes, String description);
+        void onLightState(int iconRes, String description, int luminance);
         void onFaceBlendshapes(List<List<Category>> blendshapes, long timestampMs);
         void onNoFace();
         void onCameraError(String message);
@@ -49,6 +49,7 @@ public class CameraEmotionController {
     private FaceLandmarker faceLandmarker;
     private int lensFacing = CameraSelector.LENS_FACING_FRONT;
     private long lastFaceDetectionMs = 0;
+    private final SignalUpdateGate lightUpdateGate = new SignalUpdateGate(450, 10);
 
     public CameraEmotionController(Context context, LifecycleOwner lifecycleOwner,
                                    PreviewView viewFinder,
@@ -121,9 +122,12 @@ public class CameraEmotionController {
         try {
             ByteBuffer buffer = proxy.getPlanes()[0].getBuffer();
             int avgLuminance = averageLuminance(buffer);
-            callback.onLightState(lightIcon(avgLuminance), lightDescription(avgLuminance));
 
             long now = System.currentTimeMillis();
+            if (lightUpdateGate.shouldUpdate(now, avgLuminance)) {
+                callback.onLightState(lightIcon(avgLuminance), lightDescription(avgLuminance), avgLuminance);
+            }
+
             boolean canRunFaceDetection = faceLandmarker != null
                     && now - lastFaceDetectionMs >= Constants.FACE_DETECTION_INTERVAL_MS
                     && faceDetectionInFlight.compareAndSet(false, true);
@@ -131,9 +135,14 @@ public class CameraEmotionController {
                 lastFaceDetectionMs = now;
                 Bitmap bitmap = proxy.toBitmap();
                 if (bitmap != null) {
-                    faceLandmarker.detectAsync(
-                            new BitmapImageBuilder(bitmap).build(),
-                            proxy.getImageInfo().getTimestamp() / 1000000);
+                    try {
+                        faceLandmarker.detectAsync(
+                                new BitmapImageBuilder(bitmap).build(),
+                                proxy.getImageInfo().getTimestamp() / 1000000);
+                    } catch (Throwable t) {
+                        faceDetectionInFlight.set(false);
+                        Log.e(Constants.TAG, "FaceLandmarker detectAsync failed", t);
+                    }
                 } else {
                     faceDetectionInFlight.set(false);
                 }

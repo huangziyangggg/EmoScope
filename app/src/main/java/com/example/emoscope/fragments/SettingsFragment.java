@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,9 +27,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.emoscope.Constants;
+import com.example.emoscope.EmotionCalibrationProfile;
 import com.example.emoscope.LocalDataManager;
 import com.example.emoscope.MainActivity;
 import com.example.emoscope.NotificationHelper;
+import com.example.emoscope.PersonalProfile;
 import com.example.emoscope.R;
 import com.example.emoscope.SecureStorage;
 import com.example.emoscope.viewmodels.RadarViewModel;
@@ -47,6 +50,7 @@ public class SettingsFragment extends Fragment {
     private TextView tvCurrentSensitivity;
     private TextView tvCurrentApiKey;
     private TextView tvCurrentGoal;
+    private TextView tvProfileSummary;
     private TextView tvNotifyTime;
     private MaterialSwitch switchHaptic;
     private MaterialSwitch switchTts;
@@ -62,6 +66,7 @@ public class SettingsFragment extends Fragment {
     private View btnPrivacyCenter;
     private View btnClearLocalData;
     private View btnFocusGoal;
+    private View btnPersonalProfile;
 
     private boolean isRestoringUI = false;
     private boolean isBiometricEnabled = false;
@@ -99,6 +104,7 @@ public class SettingsFragment extends Fragment {
         tvCurrentSensitivity = v.findViewById(R.id.tvCurrentSensitivity);
         tvCurrentApiKey = v.findViewById(R.id.tvCurrentApiKey);
         tvCurrentGoal = v.findViewById(R.id.tvCurrentGoal);
+        tvProfileSummary = v.findViewById(R.id.tvProfileSummary);
         tvNotifyTime = v.findViewById(R.id.tvNotifyTime);
         switchHaptic = v.findViewById(R.id.switchHaptic);
         switchTts = v.findViewById(R.id.switchTts);
@@ -114,6 +120,7 @@ public class SettingsFragment extends Fragment {
         btnPrivacyCenter = v.findViewById(R.id.btnPrivacyCenter);
         btnClearLocalData = v.findViewById(R.id.btnClearLocalData);
         btnFocusGoal = v.findViewById(R.id.btnFocusGoal);
+        btnPersonalProfile = v.findViewById(R.id.btnPersonalProfile);
     }
 
     private void loadPreferences() {
@@ -148,6 +155,9 @@ public class SettingsFragment extends Fragment {
         if (tvCurrentGoal != null) {
             tvCurrentGoal.setText(prefs.getString(
                     Constants.KEY_FOCUS_GOAL, Constants.DEFAULT_FOCUS_GOAL));
+        }
+        if (tvProfileSummary != null) {
+            tvProfileSummary.setText(loadPersonalProfile().summary());
         }
 
         switchNotifyDaily.setChecked(prefs.getBoolean(Constants.KEY_NOTIFY_DAILY, false));
@@ -185,6 +195,13 @@ public class SettingsFragment extends Fragment {
             btnFocusGoal.setOnClickListener(v -> {
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                 showFocusGoalDialog();
+            });
+        }
+
+        if (btnPersonalProfile != null) {
+            btnPersonalProfile.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                showPersonalProfileDialog();
             });
         }
 
@@ -352,13 +369,101 @@ public class SettingsFragment extends Fragment {
     private void showPrivacyCenter() {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("隐私与安全中心")
-                .setMessage("EmoScope 是情绪记录和自助支持工具，不提供医疗诊断，也不能替代医生、心理咨询师或紧急救援。\n\n"
+                .setMessage("心镜是情绪记录和自助支持工具，不提供医疗诊断，也不能替代医生、心理咨询师或紧急救援。\n\n"
                         + "相机：仅用于本地面部情绪分析，当前版本不上传相机画面。\n\n"
                         + "麦克风：用于 Android 系统语音识别，把你的语音转成文本输入。\n\n"
                         + "短信：仅在 SOS 流程中向你设置的紧急联系人发送求助短信。\n\n"
                         + "AI 解读：当你使用 AI 功能时，输入文本和必要上下文可能发送到 DeepSeek 服务。\n\n"
-                        + "本机数据：情绪记录保存在本地数据库；API Key 和紧急联系人通过 Android Keystore 加密保存。你可以随时清除本机数据。")
+                        + "本机数据：情绪记录保存在本地数据库；API Key 和紧急联系人通过 Android Keystore 加密保存。你可以随时清除本机数据。\n\n"
+                        + "模型边界：表情和语音结果只是自我观察线索，不等同于心理诊断。光线、遮挡、语音识别误差和个人表达习惯都会影响结果。")
+                .setNeutralButton("情绪校准", (dialog, which) -> showCalibrationDialog())
                 .setPositiveButton("我知道了", null)
+                .show();
+    }
+
+    private PersonalProfile loadPersonalProfile() {
+        return new PersonalProfile(
+                prefs.getString(Constants.KEY_PROFILE_NAME, ""),
+                prefs.getString(Constants.KEY_PROFILE_IDENTITY, ""),
+                prefs.getString(Constants.KEY_FOCUS_GOAL, Constants.DEFAULT_FOCUS_GOAL),
+                prefs.getString(Constants.KEY_PROFILE_EMOTION_PREF, ""));
+    }
+
+    private void showPersonalProfileDialog() {
+        PersonalProfile profile = loadPersonalProfile();
+        LinearLayout form = new LinearLayout(requireContext());
+        form.setOrientation(LinearLayout.VERTICAL);
+        int pad = (int) (20 * getResources().getDisplayMetrics().density);
+        form.setPadding(pad, 8, pad, 0);
+
+        EditText nameInput = new EditText(requireContext());
+        nameInput.setHint("昵称，例如 Ziyang");
+        nameInput.setSingleLine(true);
+        nameInput.setText(profile.hasCustomName() ? profile.displayName() : "");
+        form.addView(nameInput);
+
+        EditText identityInput = new EditText(requireContext());
+        identityInput.setHint("身份标签，例如 学生 / 创作者");
+        identityInput.setSingleLine(true);
+        identityInput.setText("私人情绪档案".equals(profile.identityLabel())
+                ? "" : profile.identityLabel());
+        form.addView(identityInput);
+
+        EditText emotionInput = new EditText(requireContext());
+        emotionInput.setHint("偏好的情绪表达，例如 平静 / 专注");
+        emotionInput.setSingleLine(true);
+        emotionInput.setText(profile.emotionPreference());
+        form.addView(emotionInput);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("编辑私人档案")
+                .setMessage("这些信息只保存在本机，用于私人化显示和提示，不用于诊断。")
+                .setView(form)
+                .setPositiveButton("保存", (dialog, which) -> {
+                    prefs.edit()
+                            .putString(Constants.KEY_PROFILE_NAME,
+                                    nameInput.getText().toString().trim())
+                            .putString(Constants.KEY_PROFILE_IDENTITY,
+                                    identityInput.getText().toString().trim())
+                            .putString(Constants.KEY_PROFILE_EMOTION_PREF,
+                                    emotionInput.getText().toString().trim())
+                            .apply();
+                    updateUI();
+                    showSnackbar("私人档案已保存在本机");
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void showCalibrationDialog() {
+        String[] options = new String[Constants.EMOTION_NAMES.length + 1];
+        options[0] = "不使用校准";
+        for (int i = 0; i < Constants.EMOTION_NAMES.length; i++) {
+            options[i + 1] = "我的 " + Constants.EMOTION_NAMES[i] + " 表情偏弱/偏难识别";
+        }
+        EmotionCalibrationProfile current = EmotionCalibrationProfile.fromStorageString(
+                prefs.getString(Constants.KEY_EMOTION_CALIBRATION, ""));
+        int checked = current.isEnabled() ? current.getTargetIndex() + 1 : 0;
+        final int[] selected = {checked};
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("表情个性化校准")
+                .setMessage("选择后，系统会对该类表情做轻量补偿；这只是减少工程误差，不会改变“非诊断工具”的边界。")
+                .setSingleChoiceItems(options, checked, (dialog, which) -> selected[0] = which)
+                .setPositiveButton("保存", (dialog, which) -> {
+                    String value = "";
+                    if (selected[0] > 0) {
+                        value = EmotionCalibrationProfile
+                                .fromTargetIndex(selected[0] - 1)
+                                .toStorageString();
+                    }
+                    prefs.edit().putString(Constants.KEY_EMOTION_CALIBRATION, value).apply();
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).onEmotionCalibrationChanged(value);
+                    }
+                    showSnackbar("情绪校准已保存");
+                })
+                .setNegativeButton("取消", null)
                 .show();
     }
 
@@ -408,6 +513,7 @@ public class SettingsFragment extends Fragment {
             activity.onApiKeyChanged(Constants.DEFAULT_API_KEY);
             activity.onTtsSettingChanged(Constants.DEFAULT_TTS);
             activity.onPrivacyModeChanged();
+            activity.onEmotionCalibrationChanged("");
         }
         showSnackbar("本机数据已清除");
     }
@@ -428,7 +534,7 @@ public class SettingsFragment extends Fragment {
             if (am != null && !am.canScheduleExactAlarms()) {
                 new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("需要精确闹钟权限")
-                        .setMessage("定时提醒需要系统允许 EmoScope 使用闹钟和提醒权限。")
+                        .setMessage("定时提醒需要系统允许心镜使用闹钟和提醒权限。")
                         .setPositiveButton("去设置", (d, w) -> {
                             Intent intent = new Intent(
                                     android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);

@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_home_canvas"
     android:orientation="vertical"
-    android:paddingStart="20dp"
+    android:paddingStart="24dp"
     android:paddingTop="58dp"
-    android:paddingEnd="20dp">
+    android:paddingEnd="24dp">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -349,7 +349,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingBottom="44dp" />
+                android:paddingBottom="88dp" />
 
             <TextView
                 android:id="@+id/tvHistoryEmpty"

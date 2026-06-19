@@ -9,10 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingStart="22dp"
+        android:paddingStart="24dp"
         android:paddingTop="50dp"
-        android:paddingEnd="22dp"
-        android:paddingBottom="136dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="156dp"
         android:scrollbars="none">
 
         <LinearLayout
@@ -217,9 +217,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:letterSpacing="0"
-                        android:text="分析样本"
+                        android:lineSpacingExtra="4dp"
                         android:textColor="@color/glass_ink_soft"
-                        android:textSize="1sp"
+                        android:textSize="15sp"
                         android:visibility="gone" />
 
                     <LinearLayout
@@ -261,7 +261,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnWriteJournal"
                     android:layout_width="0dp"
-                    android:layout_height="128dp"
+                    android:layout_height="136dp"
                     android:layout_marginEnd="7dp"
                     android:layout_weight="1"
                     android:clickable="true"
@@ -329,7 +329,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnEditGratitude"
                     android:layout_width="0dp"
-                    android:layout_height="128dp"
+                    android:layout_height="136dp"
                     android:layout_marginStart="7dp"
                     android:layout_weight="1"
                     android:clickable="true"
@@ -733,6 +733,7 @@
                 android:id="@+id/llBadges"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:orientation="vertical"
                 android:visibility="gone" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

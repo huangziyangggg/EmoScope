@@ -1,0 +1,29 @@
+Slide 1
+Good morning everyone. Today I will present EmoScope. It is a phone app for emotion awareness. It uses face, voice, and records to help users understand their feelings. It also tries to protect privacy.
+
+Slide 2
+The main problem is mood recording. Many apps ask users to write their mood by themselves. But people may forget, or they may not want to write when they feel tired or stressed.
+
+Slide 3
+My research question is simple. Can a normal phone collect useful emotion information and still keep private data safe? EmoScope is not a medical diagnosis tool. It is a reflection tool for daily use.
+
+Slide 4
+This is the system design. First, the app gets input from camera, voice, light, and records. Then it analyzes emotion on the phone. After that, it stores records locally and gives feedback to the user.
+
+Slide 5
+For face analysis, EmoScope uses MediaPipe FaceLandmarker. It reads 52 face features. The app maps them to emotions like joy, calm, sadness, and anxiety. A smoothing method makes the result more stable.
+
+Slide 6
+This slide shows the user flow. Users can see feedback, do small wellness activities, and review old records. The goal is not only emotion detection. The goal is to help users reflect and take action.
+
+Slide 7
+I tested the prototype functions. Face analysis ran at about 4 frames per second. The score changed clearly in different test states. The memory parser also worked correctly on test records.
+
+Slide 8
+Privacy is very important in this project. Face data is processed on the phone. Records are stored locally. If SOS support is needed, the user must confirm it. The app does not call others automatically.
+
+Slide 9
+There are still limits. The emotion rules are designed by hand, so they may not fit everyone. The tests are engineering tests, not clinical tests. In the future, I need real user studies.
+
+Slide 10
+In conclusion, EmoScope shows one possible way to build a safer emotion app. It combines phone sensing, local memory, and user-controlled support. It helps users notice emotional changes. Thank you.

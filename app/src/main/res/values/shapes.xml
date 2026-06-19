@@ -22,13 +22,13 @@
         <item name="cornerSize">16dp</item>
     </style>
 
-    <!-- 导航栏选中指示器 — 胶囊形状 -->
+    <!-- 导航栏选中指示器：透明占位，避免挤压图标和文字 -->
     <style name="Widget.EmoScope.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:shape">rectangle</item>
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">18dp</item>
-        <item name="android:color">?attr/colorPrimaryContainer</item>
-        <item name="android:height">34dp</item>
-        <item name="android:width">58dp</item>
+        <item name="cornerSize">1dp</item>
+        <item name="android:color">@android:color/transparent</item>
+        <item name="android:height">1dp</item>
+        <item name="android:width">1dp</item>
     </style>
 </resources>

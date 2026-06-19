@@ -5,10 +5,10 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_settings_canvas_soft"
     android:clipToPadding="false"
-    android:paddingStart="22dp"
+    android:paddingStart="24dp"
     android:paddingTop="54dp"
-    android:paddingEnd="22dp"
-    android:paddingBottom="136dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="156dp"
     android:scrollbars="none">
 
     <LinearLayout
@@ -64,6 +64,83 @@
                 android:textColor="#B69AFF"
                 android:textSize="24sp" />
         </FrameLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnPersonalProfile"
+            android:layout_width="match_parent"
+            android:layout_height="112dp"
+            android:layout_marginBottom="24dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_settings_banner"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp">
+
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_settings_icon_purple"
+                    android:contentDescription="@null"
+                    android:padding="13dp"
+                    android:src="@drawable/ic_mood_neutral"
+                    app:tint="@color/glass_violet" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0"
+                        android:text="私人档案"
+                        android:textColor="@color/glass_ink"
+                        android:textSize="19sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvProfileSummary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:ellipsize="end"
+                        android:letterSpacing="0"
+                        android:maxLines="2"
+                        android:text="我 · 私人情绪档案 · 本机保存"
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0"
+                    android:text="编辑"
+                    android:textColor="@color/glass_violet"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_arrow_right"
+                    app:tint="@color/glass_ink_muted" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:layout_width="wrap_content"
@@ -1024,7 +1101,7 @@
             android:gravity="center"
             android:letterSpacing="0"
             android:paddingBottom="24dp"
-            android:text="EmoScope · 1.0.0"
+            android:text="心镜 · 1.0.0"
             android:textColor="@color/glass_ink_muted"
             android:textSize="12sp" />
     </LinearLayout>

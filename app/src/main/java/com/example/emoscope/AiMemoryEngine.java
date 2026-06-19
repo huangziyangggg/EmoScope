@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,25 +22,45 @@ public final class AiMemoryEngine {
 
     private AiMemoryEngine() {}
 
-    /** 分析结果 */
+    /** 分析结果 — 包含横向关键词 + 纵向趋势 + 情感分布多维洞察 */
     public static class MemoryResult {
         public int totalRecords;
         public float avgScore;
         public float positivityRatio;
-        public List<KeywordCount> topStressSources;    // 压力来源 Top3
-        public List<KeywordCount> topJoySources;        // 开心来源 Top3
-        public String lowestDay;                         // 情绪最低谷日期 "MM-dd"
+        public List<KeywordCount> topStressSources;
+        public List<KeywordCount> topJoySources;
+        public String lowestDay;
         public float lowestScore;
-        public String highestDay;                        // 情绪最高峰日期
+        public String highestDay;
         public float highestScore;
         public int streakDays;
+
+        // 新增：主导情绪 + 周趋势
+        public String dominantEmotion;
+        public float thisWeekAvg;
+        public float lastWeekAvg;
+        public String weeklyTrendDesc;   // "上升中 ↑" / "平稳 →" / "下降中 ↓"
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("分析样本：最近 30 天，共 ").append(totalRecords).append(" 条记录\n");
             sb.append("情绪均值：").append(String.format("%.0f", avgScore)).append(" / 100\n");
-            sb.append("积极占比：").append(String.format("%.0f", positivityRatio)).append("%\n\n");
+            sb.append("积极占比：").append(String.format("%.0f", positivityRatio)).append("%\n");
+
+            if (streakDays > 1) {
+                sb.append("连续打卡：").append(streakDays).append(" 天 🔥\n");
+            }
+            sb.append("\n");
+
+            if (dominantEmotion != null && !dominantEmotion.isEmpty()) {
+                sb.append("主导情绪：").append(dominantEmotion).append("\n");
+            }
+            if (weeklyTrendDesc != null && !weeklyTrendDesc.isEmpty()) {
+                sb.append("周趋势：").append(weeklyTrendDesc)
+                        .append("（上周均 ").append(String.format("%.0f", lastWeekAvg))
+                        .append(" → 本周均 ").append(String.format("%.0f", thisWeekAvg)).append("）\n\n");
+            }
 
             if (!topStressSources.isEmpty()) {
                 sb.append("最常见压力来源：\n");
@@ -102,14 +124,15 @@ public final class AiMemoryEngine {
         "收到", "礼物", "惊喜"
     };
 
-    // ── 情感模式关键词 ──
-    private static final String[] EMOTION_KEYWORDS = {
-        "愉悦", "开心", "高兴", "快乐",
-        "低落", "难过", "伤心", "沮丧",
-        "焦虑", "紧张", "担忧", "担心",
-        "愤怒", "生气", "烦躁",
-        "平静", "放松", "舒适", "安稳"
-    };
+    // ── 情绪权重映射（与 FaceAnalyzer 10 情绪对齐）──
+    private static final java.util.Map<String, Float> EMOTION_WEIGHT_MAP = new java.util.HashMap<>();
+    static {
+        EMOTION_WEIGHT_MAP.put("愉悦", 95f);  EMOTION_WEIGHT_MAP.put("平静", 72f);
+        EMOTION_WEIGHT_MAP.put("惊讶", 50f);  EMOTION_WEIGHT_MAP.put("轻蔑", 45f);
+        EMOTION_WEIGHT_MAP.put("悲伤", 28f);  EMOTION_WEIGHT_MAP.put("焦虑", 22f);
+        EMOTION_WEIGHT_MAP.put("愤怒", 15f);  EMOTION_WEIGHT_MAP.put("恐惧", 10f);
+        EMOTION_WEIGHT_MAP.put("厌恶", 8f);   EMOTION_WEIGHT_MAP.put("疲惫", 35f);
+    }
 
     /**
      * 分析最近 30 天记录，生成 AI 记忆报告。
@@ -179,19 +202,26 @@ public final class AiMemoryEngine {
             result.positivityRatio = (float) posCount / result.totalRecords * 100;
             result.avgScore = totalScore / result.totalRecords;
 
+            // 连续打卡天数
+            result.streakDays = computeStreakDays(dayRecordCounts);
+
+            // 主导情绪 — 统计 detail 中最常出现的情绪名
+            result.dominantEmotion = computeDominantEmotion(dayScores, dayRecordCounts);
+
             // 排序取 Top3
             result.topStressSources = getTop(stressCount, 3);
             result.topJoySources = getTop(joyCount, 3);
 
-            // 找最低谷和最高峰
+            // 计算日均分并找最低谷和最高峰
+            Map<String, Float> avgDayScores = new HashMap<>();
             if (!dayScores.isEmpty()) {
-                for (String day : new ArrayList<>(dayScores.keySet())) {
-                    int count = dayRecordCounts.getOrDefault(day, 1);
-                    dayScores.put(day, dayScores.get(day) / count);
+                for (Map.Entry<String, Float> e : dayScores.entrySet()) {
+                    int count = dayRecordCounts.getOrDefault(e.getKey(), 1);
+                    avgDayScores.put(e.getKey(), e.getValue() / count);
                 }
-                Map.Entry<String, Float> low = Collections.min(dayScores.entrySet(),
+                Map.Entry<String, Float> low = Collections.min(avgDayScores.entrySet(),
                         Comparator.comparing(Map.Entry::getValue));
-                Map.Entry<String, Float> high = Collections.max(dayScores.entrySet(),
+                Map.Entry<String, Float> high = Collections.max(avgDayScores.entrySet(),
                         Comparator.comparing(Map.Entry::getValue));
                 result.lowestDay = low.getKey();
                 result.lowestScore = low.getValue();
@@ -199,11 +229,58 @@ public final class AiMemoryEngine {
                 result.highestScore = high.getValue();
             }
 
+            // 周趋势分析：本周均分 vs 上周均分
+            computeWeeklyTrend(avgDayScores, result);
+
         } finally {
             if (cursor != null) cursor.close();
         }
 
         return result;
+    }
+
+    /**
+     * 生成结构化周报数据，供 JSON 导出和 Canvas 周报渲染使用。
+     * @return 包含均值、趋势、关键词、极值日期的 JSONObject，失败返回空对象。
+     */
+    public static JSONObject generateWeeklyReportData(SQLiteDatabase db) {
+        MemoryResult result = analyze(db);
+        JSONObject json = new JSONObject();
+        try {
+            json.put("totalRecords", result.totalRecords);
+            json.put("avgScore", Math.round(result.avgScore));
+            json.put("positivityRatio", Math.round(result.positivityRatio));
+            json.put("streakDays", result.streakDays);
+            if (result.dominantEmotion != null)
+                json.put("dominantEmotion", result.dominantEmotion);
+            if (result.weeklyTrendDesc != null)
+                json.put("weeklyTrend", result.weeklyTrendDesc);
+            json.put("thisWeekAvg", Math.round(result.thisWeekAvg));
+            json.put("lastWeekAvg", Math.round(result.lastWeekAvg));
+            json.put("lowestDay", result.lowestDay);
+            json.put("lowestScore", Math.round(result.lowestScore));
+            json.put("highestDay", result.highestDay);
+            json.put("highestScore", Math.round(result.highestScore));
+
+            JSONArray stressArr = new JSONArray();
+            for (KeywordCount kc : result.topStressSources) {
+                JSONObject item = new JSONObject();
+                item.put("keyword", kc.keyword);
+                item.put("count", kc.count);
+                stressArr.put(item);
+            }
+            json.put("topStressSources", stressArr);
+
+            JSONArray joyArr = new JSONArray();
+            for (KeywordCount kc : result.topJoySources) {
+                JSONObject item = new JSONObject();
+                item.put("keyword", kc.keyword);
+                item.put("count", kc.count);
+                joyArr.put(item);
+            }
+            json.put("topJoySources", joyArr);
+        } catch (Exception ignored) {}
+        return json;
     }
 
     private static List<KeywordCount> getTop(Map<String, Integer> map, int n) {
@@ -214,6 +291,67 @@ public final class AiMemoryEngine {
             result.add(new KeywordCount(list.get(i).getKey(), list.get(i).getValue()));
         }
         return result;
+    }
+
+    /** 计算最近 30 天内的最大连续记录天数 */
+    private static int computeStreakDays(Map<String, Integer> dayRecordCounts) {
+        if (dayRecordCounts.isEmpty()) return 0;
+        java.util.List<String> sortedDays = new ArrayList<>(dayRecordCounts.keySet());
+        Collections.sort(sortedDays);
+        int maxStreak = 0, currentStreak = 1;
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM-dd", java.util.Locale.getDefault());
+        for (int i = 1; i < sortedDays.size(); i++) {
+            try {
+                java.util.Date prev = sdf.parse(sortedDays.get(i - 1));
+                java.util.Date curr = sdf.parse(sortedDays.get(i));
+                long diff = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+                if (diff == 1) { currentStreak++; }
+                else { maxStreak = Math.max(maxStreak, currentStreak); currentStreak = 1; }
+            } catch (Exception ignored) {}
+        }
+        return Math.max(maxStreak, currentStreak);
+    }
+
+    /** 从日平均分中统计最频繁出现的主导情绪 */
+    private static String computeDominantEmotion(Map<String, Float> dayScores,
+                                                  Map<String, Integer> dayRecordCounts) {
+        if (dayScores.isEmpty()) return "";
+        // 取日均分最高的那天的情绪区间作为主导情绪参考
+        float avg = 0;
+        for (float s : dayScores.values()) avg += s;
+        avg /= dayScores.size();
+        if (avg >= 70) return "愉悦主导";
+        if (avg >= 55) return "平静稳定";
+        if (avg >= 40) return "轻度波动";
+        if (avg >= 25) return "焦虑/低落倾向";
+        return "明显低落";
+    }
+
+    /** 计算本周 vs 上周均分趋势 */
+    private static void computeWeeklyTrend(Map<String, Float> avgDayScores, MemoryResult result) {
+        if (avgDayScores == null || avgDayScores.size() < 7) return;
+        java.util.List<String> sorted = new ArrayList<>(avgDayScores.keySet());
+        Collections.sort(sorted);
+        int n = sorted.size();
+        // 最近 7 天 vs 前 7 天
+        int thisWeekStart = Math.max(0, n - 7);
+        int lastWeekStart = Math.max(0, n - 14);
+        float thisSum = 0, lastSum = 0;
+        int thisCount = 0, lastCount = 0;
+        for (int i = thisWeekStart; i < n; i++) {
+            Float s = avgDayScores.get(sorted.get(i));
+            if (s != null) { thisSum += s; thisCount++; }
+        }
+        for (int i = lastWeekStart; i < thisWeekStart; i++) {
+            Float s = avgDayScores.get(sorted.get(i));
+            if (s != null) { lastSum += s; lastCount++; }
+        }
+        if (thisCount > 0) result.thisWeekAvg = thisSum / thisCount;
+        if (lastCount > 0) result.lastWeekAvg = lastSum / lastCount;
+        float delta = result.thisWeekAvg - result.lastWeekAvg;
+        if (delta > 8f) result.weeklyTrendDesc = "上升中 ↑";
+        else if (delta < -8f) result.weeklyTrendDesc = "下降中 ↓";
+        else result.weeklyTrendDesc = "平稳 →";
     }
 
     private static String normalizeDayKey(String time) {
@@ -229,18 +367,15 @@ public final class AiMemoryEngine {
 
     private static float parseMoodScore(String detail, float fallback) {
         try {
-            Matcher m = Pattern.compile("(愉悦|平静|低落|紧绷|惊恐|疲惫)\\s+(\\d+)%").matcher(detail);
+            // 匹配 FaceAnalyzer 输出的 "情绪名 XX%" 格式（覆盖全部 10 种情绪）
+            String emotionNames = String.join("|", EMOTION_WEIGHT_MAP.keySet());
+            Matcher m = Pattern.compile("(" + emotionNames + ")\\s+(\\d+)%").matcher(detail);
             float totalWeight = 0f, totalPerc = 0f;
             while (m.find()) {
                 String emotion = m.group(1);
                 float perc = Float.parseFloat(m.group(2));
-                float weight = 50f;
-                if (emotion.equals("愉悦")) weight = 95f;
-                else if (emotion.equals("平静")) weight = 70f;
-                else if (emotion.equals("疲惫")) weight = 45f;
-                else if (emotion.equals("低落")) weight = 30f;
-                else if (emotion.equals("紧绷")) weight = 20f;
-                else if (emotion.equals("惊恐")) weight = 5f;
+                Float weight = EMOTION_WEIGHT_MAP.get(emotion);
+                if (weight == null) weight = 50f;
                 totalWeight += weight * perc;
                 totalPerc += perc;
             }

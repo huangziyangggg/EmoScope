@@ -30,6 +30,8 @@ public final class NotificationHelper {
 
     /** 初始化通知渠道 — 在 Application 或 onCreate 中调用 */
     public static void createChannels(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
+
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm == null) return;
 
@@ -77,37 +79,38 @@ public final class NotificationHelper {
 
     /** C3: 根据用户近期情绪数据生成定制提醒文案 */
     private static String buildCustomMessage(Context context) {
+        EmoDatabaseHelper helper = null;
+        android.database.sqlite.SQLiteDatabase db = null;
+        android.database.Cursor cursor = null;
         try {
-            android.database.sqlite.SQLiteDatabase db = new EmoDatabaseHelper(context).getReadableDatabase();
-            android.database.Cursor cursor = null;
-            try {
-                // 查询昨天的情绪记录
-                java.util.Calendar cal = java.util.Calendar.getInstance();
-                cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
-                cursor = db.rawQuery(
-                        "SELECT " + Constants.COL_POSITIVE + " FROM " + Constants.TABLE_RECORDS +
-                        " WHERE " + Constants.COL_TIME + " LIKE ? OR " +
-                        Constants.COL_TIME + " LIKE ? ORDER BY " + Constants.COL_ID + " DESC LIMIT 5",
-                        EmoDatabaseHelper.dayLikeArgs(cal.getTime()));
-                if (cursor.getCount() == 0) {
-                    return "昨天没有记录心情，今天别忘了记录哦 🌱";
-                }
-                int pos = 0, neg = 0;
-                while (cursor.moveToNext()) {
-                    if (cursor.getInt(0) == 1) pos++;
-                    else neg++;
-                }
-                if (pos >= neg) {
-                    return "昨天你看起来状态不错，今天继续保持";
-                } else {
-                    return "昨天你似乎有些低落，今天感觉好点了吗？给自己一点温柔的时间";
-                }
-            } finally {
-                if (cursor != null) cursor.close();
-                db.close();
+            helper = new EmoDatabaseHelper(context);
+            db = helper.getReadableDatabase();
+            // 查询昨天的情绪记录
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+            cursor = db.rawQuery(
+                    "SELECT " + Constants.COL_POSITIVE + " FROM " + Constants.TABLE_RECORDS +
+                    " WHERE " + Constants.COL_TIME + " LIKE ? OR " +
+                    Constants.COL_TIME + " LIKE ? ORDER BY " + Constants.COL_ID + " DESC LIMIT 5",
+                    EmoDatabaseHelper.dayLikeArgs(cal.getTime()));
+            if (cursor.getCount() == 0) {
+                return "昨天没有记录心情，今天别忘了记录哦";
+            }
+            int pos = 0, neg = 0;
+            while (cursor.moveToNext()) {
+                if (cursor.getInt(0) == 1) pos++;
+                else neg++;
+            }
+            if (pos >= neg) {
+                return "昨天状态不错，今天继续保持";
+            } else {
+                return "昨天似乎有些低落，今天感觉好点了吗？";
             }
         } catch (Exception e) {
             return "花 30 秒记录此刻的感受，持续追踪情绪变化";
+        } finally {
+            if (cursor != null) cursor.close();
+            // 不关闭 db — SQLiteOpenHelper 管理单例连接生命周期
         }
     }
 

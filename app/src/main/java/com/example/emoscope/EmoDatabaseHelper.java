@@ -47,9 +47,8 @@ public class EmoDatabaseHelper extends SQLiteOpenHelper {
      * 调用方应在后台线程执行。方法内部保证异常安全和数据库正确关闭。
      */
     public void saveRecord(String type, String detail, boolean positive) {
-        SQLiteDatabase db = null;
         try {
-            db = getWritableDatabase();
+            SQLiteDatabase db = getWritableDatabase();
             ContentValues values = new ContentValues();
             synchronized (SDF_DB) {
                 values.put(Constants.COL_TIME, SDF_DB.format(new Date()));
@@ -60,9 +59,8 @@ public class EmoDatabaseHelper extends SQLiteOpenHelper {
             db.insert(Constants.TABLE_RECORDS, null, values);
         } catch (Exception e) {
             android.util.Log.e(Constants.TAG, "saveRecord failed", e);
-        } finally {
-            if (db != null) db.close();
         }
+        // 不关闭 db — SQLiteOpenHelper 管理单例连接生命周期
     }
 
     public static String dayPrefix(Date date) {
@@ -126,16 +124,36 @@ public class EmoDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * 清理超过指定天数的旧记录，防止数据库无限增长。
+     * @param maxDays 保留的最大天数（例如 180 天）
+     * @return 删除的记录条数
+     */
+    public int deleteRecordsOlderThan(int maxDays) {
+        try {
+            Calendar cutoff = Calendar.getInstance();
+            cutoff.add(Calendar.DAY_OF_YEAR, -maxDays);
+            String legacyCutoff = SDF_LEGACY_DB.format(cutoff.getTime());
+            String currentCutoff = SDF_DB.format(cutoff.getTime());
+            SQLiteDatabase db = getWritableDatabase();
+            return db.delete(Constants.TABLE_RECORDS,
+                    "(" + Constants.COL_TIME + " < ? AND " + Constants.COL_TIME + " LIKE '____-__-__%')"
+                    + " OR (" + Constants.COL_TIME + " < ? AND " + Constants.COL_TIME + " LIKE '__-__ __:__')",
+                    new String[]{legacyCutoff, currentCutoff});
+        } catch (Exception e) {
+            android.util.Log.e(Constants.TAG, "deleteRecordsOlderThan failed", e);
+            return 0;
+        }
+    }
+
     /** Delete all locally stored emotion records. */
     public void clearAllRecords() {
-        SQLiteDatabase db = null;
         try {
-            db = getWritableDatabase();
+            SQLiteDatabase db = getWritableDatabase();
             db.delete(Constants.TABLE_RECORDS, null, null);
         } catch (Exception e) {
             android.util.Log.e(Constants.TAG, "clearAllRecords failed", e);
-        } finally {
-            if (db != null) db.close();
         }
+        // 不关闭 db — SQLiteOpenHelper 管理单例连接生命周期
     }
 }

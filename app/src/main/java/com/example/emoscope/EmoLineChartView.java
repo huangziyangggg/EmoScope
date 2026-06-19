@@ -41,8 +41,9 @@ public class EmoLineChartView extends View {
     // ── Paint 池 ──────────────────────────────────────────────
     private final Paint linePaint, fillPaint, pointPaint;
     private final Paint gridPaint, zonePaint, labelPaint;
-    private final Paint inflectionPaint;
-    private final Path linePath, fillPath;
+    private final Paint inflectionPaint, trendPaint;
+    private final Paint refPaint70, refPaint30;  // 预分配参考线 Paint
+    private final Path linePath, fillPath, trendPath;
 
     // ── 主题感知颜色 ──────────────────────────────────────────
     private final int greenLight, greenDark;
@@ -84,10 +85,11 @@ public class EmoLineChartView extends View {
 
         linePath = new Path();
         fillPath = new Path();
+        trendPath = new Path();
 
         linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setStrokeWidth(6f);
+        linePaint.setStrokeWidth(5f);
         linePaint.setStrokeCap(Paint.Cap.ROUND);
         linePaint.setStrokeJoin(Paint.Join.ROUND);
         linePaint.setPathEffect(new CornerPathEffect(12f));
@@ -111,8 +113,30 @@ public class EmoLineChartView extends View {
 
         labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         labelPaint.setColor(textColor);
-        labelPaint.setTextSize(11f * getResources().getDisplayMetrics().scaledDensity);
+        labelPaint.setTextSize(10.5f * getResources().getDisplayMetrics().scaledDensity);
         labelPaint.setAntiAlias(true);
+
+        // 移动平均趋势线 — 预分配避免 onDraw 中对象创建
+        trendPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        trendPaint.setStyle(Paint.Style.STROKE);
+        trendPaint.setStrokeWidth(2.5f);
+        trendPaint.setStrokeCap(Paint.Cap.ROUND);
+        trendPaint.setColor(0x60FFFFFF);
+        trendPaint.setPathEffect(new DashPathEffect(new float[]{10f, 6f}, 0));
+
+        // 参考线 Paint — 预分配
+        float density = getResources().getDisplayMetrics().density;
+        refPaint70 = new Paint(Paint.ANTI_ALIAS_FLAG);
+        refPaint70.setStyle(Paint.Style.STROKE);
+        refPaint70.setStrokeWidth(1.5f * density);
+        refPaint70.setColor(0x4010B981);
+        refPaint70.setPathEffect(new DashPathEffect(new float[]{8, 6}, 0));
+
+        refPaint30 = new Paint(Paint.ANTI_ALIAS_FLAG);
+        refPaint30.setStyle(Paint.Style.STROKE);
+        refPaint30.setStrokeWidth(1.5f * density);
+        refPaint30.setColor(0x40EF4444);
+        refPaint30.setPathEffect(new DashPathEffect(new float[]{8, 6}, 0));
 
         detectSegments();
     }
@@ -176,9 +200,9 @@ public class EmoLineChartView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         px = 48f * getResources().getDisplayMetrics().density;
-        py = 12f * getResources().getDisplayMetrics().density;
-        graphW = w - px - 16f * getResources().getDisplayMetrics().density;
-        graphH = h - py * 2;
+        py = 22f * getResources().getDisplayMetrics().density;
+        graphW = w - px - 28f * getResources().getDisplayMetrics().density;
+        graphH = h - py * 2 - 10f * getResources().getDisplayMetrics().density;
     }
 
     @Override
@@ -190,6 +214,7 @@ public class EmoLineChartView extends View {
 
         drawEmotionZones(canvas, width);
         drawGrid(canvas, width);
+        drawAverageGuide(canvas);
         if (dateLabels != null && !dateLabels.isEmpty()) drawDateLabels(canvas);
 
         int totalPoints = data.size();
@@ -200,24 +225,25 @@ public class EmoLineChartView extends View {
         }
 
         drawDataMarkers(canvas, stepX, totalPoints);
+        if (totalPoints >= 7) drawTrendLine(canvas, stepX, totalPoints);
     }
 
     // ── 情绪区域着色 ──────────────────────────────────────────
     private void drawEmotionZones(Canvas canvas, float width) {
-        float highY = py + graphH * 0.25f;
-        float lowY  = py + graphH * 0.75f;
+        float highY = py + graphH * 0.30f;
+        float lowY  = py + graphH * 0.70f;
 
         // 高涨区 (>=75): 淡绿
         zonePaint.setShader(new LinearGradient(0, py, 0, highY,
                 (greenLight & 0x00FFFFFF) | 0x18000000,
-                (greenLight & 0x00FFFFFF) | 0x04000000,
+                (greenLight & 0x00FFFFFF) | 0x02000000,
                 Shader.TileMode.CLAMP));
         canvas.drawRect(px, py, width, highY, zonePaint);
 
         // 低谷区 (<=25): 淡红
         zonePaint.setShader(new LinearGradient(0, lowY, 0, getHeight() - py,
-                (redLight & 0x00FFFFFF) | 0x04000000,
-                (redLight & 0x00FFFFFF) | 0x18000000,
+                (redLight & 0x00FFFFFF) | 0x02000000,
+                (redLight & 0x00FFFFFF) | 0x14000000,
                 Shader.TileMode.CLAMP));
         canvas.drawRect(px, lowY, width, getHeight() - py, zonePaint);
 
@@ -226,31 +252,42 @@ public class EmoLineChartView extends View {
 
     // ── 网格 + Y轴标签 + 参考线 ─────────────────────────────────
     private void drawGrid(Canvas canvas, float width) {
-        float[] yLevels = {0.25f, 0.50f, 0.75f};
-        String[] labels = {"75", "50", "25"};
+        float[] yLevels = {0.30f, 0.50f, 0.70f};
+        String[] labels = {"高 70", "中 50", "低 30"};
 
         for (int i = 0; i < yLevels.length; i++) {
             float y = py + graphH * yLevels[i];
-            canvas.drawLine(px, y, width, y, gridPaint);
-            canvas.drawText(labels[i], 4f * getResources().getDisplayMetrics().density,
+            canvas.drawLine(px, y, px + graphW, y, gridPaint);
+            canvas.drawText(labels[i], 2f * getResources().getDisplayMetrics().density,
                     y + 4f, labelPaint);
         }
 
-        // 参考线：积极线(70) + 预警线(30)
-        Paint refPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        refPaint.setStyle(Paint.Style.STROKE);
-        refPaint.setStrokeWidth(1.5f * getResources().getDisplayMetrics().density);
-        refPaint.setPathEffect(new DashPathEffect(new float[]{8, 6}, 0));
-
-        // 积极参考线 70分
+        // 参考线：积极线(70) + 预警线(30) — 使用预分配 Paint
         float refY70 = py + graphH * 0.3f;
-        refPaint.setColor(0x4010B981);
-        canvas.drawLine(px, refY70, width, refY70, refPaint);
-
-        // 预警参考线 30分
+        canvas.drawLine(px, refY70, px + graphW, refY70, refPaint70);
         float refY30 = py + graphH * 0.7f;
-        refPaint.setColor(0x40EF4444);
-        canvas.drawLine(px, refY30, width, refY30, refPaint);
+        canvas.drawLine(px, refY30, px + graphW, refY30, refPaint30);
+    }
+
+    private void drawAverageGuide(Canvas canvas) {
+        if (data == null || data.size() < 2) return;
+        float sum = 0f;
+        for (float value : data) sum += value;
+        float avg = sum / data.size();
+        float y = py + graphH - (avg / 100f * graphH);
+
+        Paint avgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        avgPaint.setStyle(Paint.Style.STROKE);
+        avgPaint.setStrokeWidth(1.2f * getResources().getDisplayMetrics().density);
+        avgPaint.setColor(0x707C6EE6);
+        avgPaint.setPathEffect(new DashPathEffect(new float[]{12f, 10f}, 0));
+        canvas.drawLine(px, y, px + graphW, y, avgPaint);
+
+        Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
+        text.setColor(textColor);
+        text.setTextSize(10f * getResources().getDisplayMetrics().scaledDensity);
+        text.setTextAlign(Paint.Align.RIGHT);
+        canvas.drawText("均值 " + Math.round(avg), px + graphW, y - 6f, text);
     }
 
     // ── X轴日期标签 ─────────────────────────────────────────────
@@ -293,7 +330,7 @@ public class EmoLineChartView extends View {
         if (pts.size() == 1) {
             linePaint.setColor(seg.colorStart);
             linePaint.setStyle(Paint.Style.FILL);
-            canvas.drawCircle(pts.get(0).x, pts.get(0).y, 8f, linePaint);
+                canvas.drawCircle(pts.get(0).x, pts.get(0).y, 7f, linePaint);
             linePaint.setStyle(Paint.Style.STROKE);
             return;
         }
@@ -327,7 +364,7 @@ public class EmoLineChartView extends View {
         fillPath.close();
 
         // 填充
-        int fillAlpha = 0x30;
+        int fillAlpha = 0x26;
         int fillStart = (seg.colorStart & 0x00FFFFFF) | (fillAlpha << 24);
         int fillEnd   = (seg.colorEnd   & 0x00FFFFFF) | (fillAlpha << 24);
         fillPaint.setShader(new LinearGradient(
@@ -345,6 +382,29 @@ public class EmoLineChartView extends View {
         fillPaint.setShader(null);
     }
 
+    // ── 7日移动平均趋势线 ───────────────────────────────────
+    private void drawTrendLine(Canvas canvas, float stepX, int totalPoints) {
+        int window = Math.min(7, totalPoints);
+        float[] smoothed = new float[totalPoints];
+        for (int i = 0; i < totalPoints; i++) {
+            float sum = 0; int count = 0;
+            int start = Math.max(0, i - window / 2);
+            int end = Math.min(totalPoints - 1, i + window / 2);
+            for (int j = start; j <= end; j++) { sum += data.get(j); count++; }
+            smoothed[i] = sum / count;
+        }
+        trendPath.reset();
+        for (int i = 0; i < totalPoints; i++) {
+            float x = px + i * stepX;
+            float y = py + graphH - (smoothed[i] / 100f * graphH);
+            if (i == 0) trendPath.moveTo(x, y);
+            else trendPath.lineTo(x, y);
+        }
+        // 浅色覆盖线 + 白色底层发光效果
+        trendPaint.setColor(0x60FFFFFF);
+        canvas.drawPath(trendPath, trendPaint);
+    }
+
     // ── 数据点标记 ────────────────────────────────────────────
     private void drawDataMarkers(Canvas canvas, float stepX, int totalPoints) {
         boolean[] isInflection = new boolean[totalPoints];
@@ -357,15 +417,15 @@ public class EmoLineChartView extends View {
             float y = py + graphH - (data.get(i) / 100f * graphH);
 
             if (isInflection[i]) {
-                inflectionPaint.setColor(Color.WHITE);
-                drawDiamond(canvas, x, y, 7f, inflectionPaint);
+                inflectionPaint.setColor(0xEEFFFFFF);
+                drawDiamond(canvas, x, y, 6.5f, inflectionPaint);
                 inflectionPaint.setColor(getSegmentColorAt(i));
-                drawDiamond(canvas, x, y, 4.5f, inflectionPaint);
+                drawDiamond(canvas, x, y, 4f, inflectionPaint);
             } else {
-                pointPaint.setColor(Color.WHITE);
-                canvas.drawCircle(x, y, 5f, pointPaint);
+                pointPaint.setColor(0xEEFFFFFF);
+                canvas.drawCircle(x, y, 4.5f, pointPaint);
                 pointPaint.setColor(getSegmentColorAt(i));
-                canvas.drawCircle(x, y, 3.5f, pointPaint);
+                canvas.drawCircle(x, y, 3f, pointPaint);
             }
         }
     }

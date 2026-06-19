@@ -1,0 +1,20 @@
+Slide 1
+Good morning everyone. Today I am going to present my project, EmoScope, a privacy-preserving mobile system for multimodal emotion recognition. The motivation is simple: many people want to understand their emotional changes, but traditional mood-tracking apps usually ask users to manually record how they feel. EmoScope tries to make this process more continuous by combining facial expression, voice, recent memory records, and user-controlled intervention tools.
+
+Slide 2
+The problem starts from self-report. Mood diaries are useful, but they are easy to forget, especially when users are stressed, tired, or anxious. In those moments, the user may need support the most, but may be least willing to open an app and write a record. This creates missing data and makes long-term reflection difficult. So the research question behind EmoScope is: can a normal smartphone collect helpful emotional context while keeping sensitive biometric analysis mainly on the device?
+
+Slide 3
+The system design has four major parts. First, the camera captures facial frames and MediaPipe FaceLandmarker extracts 52 blendshape coefficients. Second, these signals are mapped into ten emotion dimensions and smoothed by an exponentially weighted moving average. Third, voice input, speech rate, ambient light, and recent records are fused into a short supportive response. Finally, the local memory engine summarizes 30-day emotional trends and keeps the user's records available for export.
+
+Slide 4
+Here are the main user interfaces. The home radar gives immediate feedback and quick recording. The wellness workshop offers low-intensity actions such as journaling, breathing, gratitude practice, and weekly reports. The history page helps users review longer-term emotional changes. The point is not only to detect emotion, but to close the loop from sensing, to interpretation, to action.
+
+Slide 5
+For prototype evaluation, I focused on functional feasibility. Facial inference ran at about 4 Hertz under normal lighting. The wellness score changed by more than 40 points between joy-dominant and anxiety-dominant conditions. The smoothing filter reduced visible frame jitter to about 3 to 5 percentage points. The memory engine's ten-emotion parser reached 100 percent extraction accuracy on synthetic records, and SOS confirmation opened in less than half a second.
+
+Slide 6
+Privacy and user agency are central to the design. Raw facial inference happens locally, and the app stores records on the device. Only structured textual context is sent to the language model when the user asks for feedback. Emergency support is also user-confirmed: negative facial signals can show an SOS cue, but the app does not automatically contact others. This avoids turning emotion recognition into an uncontrolled high-stakes system.
+
+Slide 7
+To conclude, EmoScope shows that a smartphone can combine on-device facial analysis, speech-rate estimation, local memory analytics, and user-confirmed SOS support into one mental wellness workflow. The current prototype is not a clinical diagnostic tool, and future work should include real user studies, fairness evaluation, and comparison with validated scales such as PHQ-9 or GAD-7. But as a prototype, it demonstrates a practical direction for privacy-preserving, multimodal emotional self-awareness. Thank you.

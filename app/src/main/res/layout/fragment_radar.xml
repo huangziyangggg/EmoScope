@@ -12,7 +12,7 @@
         android:clipToPadding="false"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingBottom="138dp"
+        android:paddingBottom="156dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,11 +22,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="74dp">
+            android:paddingTop="68dp">
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="312dp">
+                android:layout_height="300dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -150,7 +150,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnQuickMood"
                 android:layout_width="match_parent"
-                android:layout_height="136dp"
+                android:layout_height="132dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@android:color/transparent"
@@ -213,7 +213,7 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="154dp"
+                android:layout_height="150dp"
                 android:layout_marginTop="18dp"
                 android:clipChildren="false"
                 android:clipToPadding="false">
@@ -221,7 +221,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnContainerMain"
                     android:layout_width="match_parent"
-                    android:layout_height="136dp"
+                    android:layout_height="132dp"
                     android:layout_gravity="center"
                     android:clickable="true"
                     android:focusable="true"
@@ -302,7 +302,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvFaceAnalysis"
                 android:layout_width="match_parent"
-                android:layout_height="136dp"
+                android:layout_height="132dp"
                 android:layout_marginTop="0dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -394,6 +394,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:importantForAccessibility="no"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

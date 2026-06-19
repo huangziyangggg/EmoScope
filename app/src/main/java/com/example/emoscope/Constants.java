@@ -66,9 +66,13 @@ public final class Constants {
     // ── 模型路径 ────────────────────────────────────────────────
     public static final String FACELANDMARKER_MODEL = "face_landmarker.task";
 
-    // ── 情绪检测 ────────────────────────────────────────────────
-    public static final String[] EMOTION_NAMES = { "愉悦", "低落", "紧绷", "惊恐", "疲惫", "平静" };
-    public static final String[] EMOTION_EMOJIS = { "😆", "😭", "😟", "😱", "🥱", "😐" };
+    // ── 情绪检测（与 FaceAnalyzer 10 情绪对齐）──────────────
+    public static final String[] EMOTION_NAMES = {
+        "愉悦", "平静", "惊讶", "轻蔑", "悲伤", "焦虑", "愤怒", "恐惧", "厌恶", "疲惫"
+    };
+    public static final String[] EMOTION_EMOJIS = {
+        "😆", "😐", "😲", "😏", "😭", "😟", "😠", "😱", "🤢", "🥱"
+    };
     /** 主导情绪触发 SOS 提示的阈值 */
     public static final float SOS_EMOTION_THRESHOLD = 0.4f;
     /** EMA 平滑系数 (0-1), 越小越平滑但越滞后 */
@@ -106,6 +110,11 @@ public final class Constants {
     // ── 隐私模式 ────────────────────────────────────────────────
     public static final String KEY_PRIVACY_MODE = "privacy_mode";
     public static final boolean DEFAULT_PRIVACY_MODE = false;
+    public static final String KEY_EMOTION_CALIBRATION = "emotion_calibration_profile";
+    public static final String KEY_MODEL_BOUNDARY_ACK = "model_boundary_ack";
+    public static final String KEY_PROFILE_NAME = "profile_name";
+    public static final String KEY_PROFILE_IDENTITY = "profile_identity";
+    public static final String KEY_PROFILE_EMOTION_PREF = "profile_emotion_preference";
 
     // ── 通知提醒 ────────────────────────────────────────────────
     public static final String KEY_NOTIFY_DAILY = "notify_daily";

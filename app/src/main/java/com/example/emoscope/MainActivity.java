@@ -180,12 +180,13 @@ public class MainActivity extends AppCompatActivity
         faceAnalyzer = new FaceAnalyzer(new FaceAnalyzer.FaceCallback() {
             @Override public void onEmotionResult(FaceAnalyzer.EmotionResult r) {
                 latestEmotionResult = r; // 缓存最新结果供拍照打分使用
-                currentFaceTop3Desc = r.cameraState;
+                currentFaceTop3Desc = r.cameraState + " | " + r.confidenceMessage;
                 radarVM.setFaceResult(R.drawable.ic_face_scan,
                         r.prob1, r.prob2, r.prob3,
-                        R.drawable.ic_emotion_calm, r.moodLabel);
+                        R.drawable.ic_emotion_calm, r.moodLabel + " · " + r.confidenceMessage);
                 tvCameraFaceEmoji.setImageResource(R.drawable.ic_face_scan);
-                tvCameraFaceState.setText(r.cameraState + "  |  " + r.moodLabel);
+                tvCameraFaceState.setText(r.cameraState + "  |  " + r.moodLabel
+                        + "  |  " + r.confidenceMessage);
                 if (tvCameraProb1 != null) {
                     tvCameraProb1.setText("① " + r.prob1);
                     tvCameraProb1.setVisibility(View.VISIBLE);
@@ -210,15 +211,19 @@ public class MainActivity extends AppCompatActivity
                 triggerSOSButton(false);
             }
         });
+        faceAnalyzer.setCalibrationProfile(EmotionCalibrationProfile.fromStorageString(
+                getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
+                        .getString(Constants.KEY_EMOTION_CALIBRATION, "")));
 
         // 绑定 Activity 级别视图
         bindActivityViews();
 
         cameraController = new CameraEmotionController(this, this, viewFinder,
                 backgroundExecutor, new CameraEmotionController.Callback() {
-                    @Override public void onLightState(int iconRes, String description) {
+                    @Override public void onLightState(int iconRes, String description, int luminance) {
                         runOnUiThread(() -> {
                             currentLightDesc = description;
+                            faceAnalyzer.setAmbientLuminance(luminance);
                             radarVM.setLightState(iconRes, description);
                         });
                     }
@@ -287,8 +292,8 @@ public class MainActivity extends AppCompatActivity
                 runOnUiThread(() -> radarVM.setVoiceText("\"" + text + "\""));
             }
 
-            @Override public void onFinalText(String text) {
-                runOnUiThread(() -> handleVoiceResult(text));
+            @Override public void onFinalText(String text, VoiceFeatureAnalyzer.Result features) {
+                runOnUiThread(() -> handleVoiceResult(text, features));
             }
 
             @Override public void onNoSpeech() {
@@ -802,6 +807,13 @@ public class MainActivity extends AppCompatActivity
     // ═══════════════════════════════════════════════════════════════
     public void onTtsSettingChanged(boolean enabled) { updateTtsState(enabled); }
     public void onApiKeyChanged(String newKey) { deepSeekClient.setApiKey(newKey); }
+    public void onEmotionCalibrationChanged(String profileValue) {
+        if (faceAnalyzer != null) {
+            faceAnalyzer.setCalibrationProfile(
+                    EmotionCalibrationProfile.fromStorageString(profileValue));
+        }
+        showUserMessage("表情校准已更新");
+    }
     public void onPrivacyModeChanged() { applyPrivacyMode(); }
 
     /** B1: 为手动记录提供 AI 情绪解读 */
@@ -902,21 +914,20 @@ public class MainActivity extends AppCompatActivity
         if (voiceController != null) voiceController.stop();
     }
 
-    private void handleVoiceResult(String text) {
+    private void handleVoiceResult(String text, VoiceFeatureAnalyzer.Result features) {
         if (text.isEmpty()) {
             radarVM.setVoiceNotHeard();
             return;
         }
-        float durationSec = Math.max(0.5f,
-                (System.currentTimeMillis() - voiceRecordStartTime) / 1000f);
-        float speed = text.length() / durationSec;
-        String speedDesc = "声带平稳";
-        if (speed > 4.5f) speedDesc = "急促/高压";
-        else if (speed < 1.5f) speedDesc = "迟缓/低落";
+        if (features == null) {
+            float durationSec = Math.max(0.5f,
+                    (System.currentTimeMillis() - voiceRecordStartTime) / 1000f);
+            features = VoiceFeatureAnalyzer.analyze(text, durationSec, 0f, 0f, 0);
+        }
 
         radarVM.setVoiceResult("\"" + text + "\"",
-                String.format(Locale.getDefault(), "%.1f字/秒 (%s)", speed, speedDesc));
-        deepSeekClient.call(currentFaceTop3Desc, text, speedDesc, currentLightDesc);
+                features.summary);
+        deepSeekClient.call(currentFaceTop3Desc, text, features.summary, currentLightDesc);
     }
 
 
@@ -1066,6 +1077,10 @@ public class MainActivity extends AppCompatActivity
         deepSeekClient.setApiKey(apiKey);
         radarVM.setTtsIcon(prefs.getBoolean(Constants.KEY_TTS, Constants.DEFAULT_TTS)
                 ? R.drawable.ic_tts_on : R.drawable.ic_tts_off);
+        if (faceAnalyzer != null) {
+            faceAnalyzer.setCalibrationProfile(EmotionCalibrationProfile.fromStorageString(
+                    prefs.getString(Constants.KEY_EMOTION_CALIBRATION, "")));
+        }
     }
 
     private void triggerHaptic(View view, int feedbackConstant) {
@@ -1097,13 +1112,13 @@ public class MainActivity extends AppCompatActivity
         prefs.edit().putBoolean(Constants.KEY_FIRST_LAUNCH, true).apply();
 
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("欢迎使用 EmoScope")
-                .setMessage("欢迎来到 EmoScope，你的 AI 情绪成长伙伴。\n\n"
+                .setTitle("欢迎使用心镜")
+                .setMessage("欢迎来到心镜，你的 AI 情绪成长伙伴。\n\n"
                         + "[记录] 对麦克风说话或手动记录，捕捉每一天的情绪瞬间\n\n"
                         + "[理解] AI 自动分析你的情绪模式、压力来源和开心时刻\n\n"
                         + "[成长] 持续记录，解锁成就徽章和成长等级\n\n"
                         + "相机仅用于本地面部分析，麦克风用于系统语音识别。AI 解读会把必要文本发送到你配置的 AI 服务。\n\n"
-                        + "EmoScope 不提供医疗诊断，也不能替代心理咨询或紧急救援。摇晃手机或在“我的”页配置 SOS 紧急求助。")
+                        + "心镜不提供医疗诊断，也不能替代心理咨询或紧急救援。摇晃手机或在“我的”页配置 SOS 紧急求助。")
                 .setPositiveButton("选择目标", (dialog, which) -> showFocusGoalDialog())
                 .setCancelable(false)
                 .show();

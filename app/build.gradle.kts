@@ -21,8 +21,8 @@ android {
         applicationId = "com.example.emoscope"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "5.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -83,4 +83,6 @@ dependencies {
     // Fragment / ViewModel / LiveData 由 activity:1.9.3 传递依赖提供
     implementation(libs.splashscreen)
     implementation(libs.swiperefreshlayout)
+
+    testImplementation(libs.junit)
 }

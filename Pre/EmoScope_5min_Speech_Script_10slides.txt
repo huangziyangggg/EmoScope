@@ -1,0 +1,29 @@
+Slide 1
+Good morning everyone. Today I am going to present my project, EmoScope. It is a privacy-preserving mobile system for multimodal emotion recognition and mental wellness support. The basic idea is simple: instead of asking the user to manually record every mood, EmoScope uses the smartphone itself to collect helpful emotional context, while keeping sensitive biometric processing mainly on the device.
+
+Slide 2
+The first problem is self-report. Mood diaries can be useful, but they depend on memory, motivation, and consistency. When users are stressed, tired, or anxious, they may be exactly the people who need support, but also the least likely to open an app and write a detailed record. This creates missing data and makes long-term emotional reflection less reliable.
+
+Slide 3
+The research question behind EmoScope is whether a normal smartphone can combine facial, vocal, contextual, and historical signals into a useful wellness workflow. I do not claim that the app diagnoses mental disorders. Instead, the goal is a reflection system: it helps the user notice emotional patterns, receive gentle feedback, and decide when to take action.
+
+Slide 4
+Here is the system architecture. The input layer includes camera frames, voice transcript, ambient light, and recent user records. The on-device AI layer extracts facial blendshape coefficients, maps them into ten emotion dimensions, and smooths the output. The memory layer stores local records and summarizes 30-day trends. Finally, the feedback layer provides care cards, weekly reports, and SOS support.
+
+Slide 5
+For facial analysis, EmoScope uses MediaPipe FaceLandmarker, which returns 52 facial blendshape coefficients. These coefficients are mapped into ten emotion dimensions such as joy, calm, surprise, sadness, anxiety, anger, fear, disgust, contempt, and fatigue. To reduce unstable frame-by-frame changes, I apply an exponentially weighted moving average with alpha equal to 0.3, and then convert the smoothed values into a zero-to-one-hundred wellness score.
+
+Slide 6
+The user workflow has three parts. First, the home screen gives immediate emotional feedback. Second, the growth and wellness functions encourage low-intensity actions, such as journaling, mindfulness, gratitude, and weekly reflection. Third, the records page helps users look back at longer-term emotional changes. This closes the loop from sensing, to interpretation, to action.
+
+Slide 7
+For prototype evaluation, I focused on functional feasibility. Facial inference ran at about four Hertz under normal lighting. The wellness score changed by more than forty points between joy-dominant and anxiety-dominant test conditions. The smoothing filter reduced visible frame jitter to about three to five percentage points. The memory engine also reached one hundred percent extraction accuracy on synthetic ten-emotion records.
+
+Slide 8
+Privacy and user agency are central to the design. Raw facial analysis happens locally, and emotion records are stored on the device. When the language model is used, it receives structured textual context rather than raw face images. Emergency support is also user-confirmed: negative facial signals can show an SOS cue, but the system does not automatically contact others.
+
+Slide 9
+There are still several limitations. The emotion mapping is manually designed, so it may not generalize across different users, cultures, lighting conditions, or facial habits. The current evaluation is engineering validation rather than clinical validation. Future work should include real user studies, fairness evaluation, and comparison with validated scales such as PHQ-9 and GAD-7.
+
+Slide 10
+To conclude, EmoScope demonstrates a practical direction for privacy-preserving emotional self-awareness. It combines on-device facial analysis, voice-rate estimation, local memory analytics, and user-confirmed support into one mobile workflow. The most important contribution is not a clinical diagnosis, but a safer and more continuous way for users to reflect on emotional change. Thank you.

@@ -27,12 +27,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.emoscope.AppBrand;
 import com.example.emoscope.Constants;
 import com.example.emoscope.EmoDatabaseHelper;
 import com.example.emoscope.EmoLineChartView;
 import com.example.emoscope.HistoryAdapter;
 import com.example.emoscope.MainActivity;
 import com.example.emoscope.R;
+import com.example.emoscope.ResearchDataExporter;
+import com.example.emoscope.history.HistoryExportFormatter;
 import com.example.emoscope.viewmodels.HistoryViewModel;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.snackbar.Snackbar;
@@ -219,6 +222,7 @@ public class HistoryFragment extends Fragment {
             popup.getMenu().add("记录心情");
             popup.getMenu().add("AI 情绪洞察");
             popup.getMenu().add("导出报告");
+            popup.getMenu().add("研究导出（匿名）");
             popup.getMenu().add("JSON 备份");
             popup.getMenu().add("JSON 恢复");
             popup.getMenu().add("清空记忆");
@@ -226,6 +230,7 @@ public class HistoryFragment extends Fragment {
                 String title = item.getTitle().toString();
                 if (title.contains("记录")) showManualMoodDialog();
                 else if (title.contains("洞察")) generateAIInsight();
+                else if (title.contains("研究导出")) exportResearchData();
                 else if (title.contains("导出")) exportHistoryData();
                 else if (title.contains("备份")) exportJSON();
                 else if (title.contains("恢复")) importJSON();
@@ -558,6 +563,73 @@ public class HistoryFragment extends Fragment {
                 .show();
     }
 
+    private void exportResearchData() {
+        String[] formats = {"匿名 JSON（研究包）", "匿名 CSV（表格）"};
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle("研究数据导出")
+                .setMessage("导出会移除手机号、邮箱和身份证号，并按日期分桶；仅用于课程研究或自我复盘，不用于诊断。")
+                .setItems(formats, (dialog, which) -> executeResearchExport(which))
+                .setNegativeButton(getString(R.string.dialog_cancel), null)
+                .show();
+    }
+
+    private void executeResearchExport(int format) {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor cursor = null;
+            try {
+                cursor = db.rawQuery("SELECT " + Constants.COL_TIME + ","
+                        + Constants.COL_TYPE + ","
+                        + Constants.COL_DETAIL + ","
+                        + Constants.COL_POSITIVE
+                        + " FROM " + Constants.TABLE_RECORDS
+                        + " ORDER BY " + Constants.COL_ID + " DESC", null);
+
+                List<ResearchDataExporter.Record> rows = new ArrayList<>();
+                while (cursor.moveToNext()) {
+                    rows.add(new ResearchDataExporter.Record(
+                            cursor.getString(0),
+                            cursor.getString(1),
+                            cursor.getString(2),
+                            cursor.getInt(3) == 1));
+                }
+
+                if (rows.isEmpty()) {
+                    runOnUiThreadSafe(() -> showSnackbar("暂无可导出的研究数据"));
+                    return;
+                }
+
+                String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+                String reportStr = format == 0
+                        ? ResearchDataExporter.buildAnonymousJson(rows, AppBrand.androidSourceLabel())
+                        : ResearchDataExporter.buildAnonymousCsv(rows);
+                String fileName = AppBrand.researchFileName(ts, format == 0);
+                String mimeType = format == 0 ? "application/json" : "text/csv";
+                String savedPath = saveExportFile(fileName, reportStr);
+
+                runOnUiThreadSafe(() -> {
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType(mimeType);
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, fileName);
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, reportStr);
+                    if (savedPath != null) {
+                        java.io.File file = new java.io.File(savedPath);
+                        Uri fileUri = androidx.core.content.FileProvider.getUriForFile(
+                                requireContext(),
+                                requireContext().getPackageName() + ".fileprovider", file);
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
+                    startActivity(Intent.createChooser(shareIntent, "分享匿名研究数据"));
+                    if (savedPath != null) showSnackbar("匿名研究数据已保存");
+                });
+            } finally {
+                if (cursor != null) cursor.close();
+                db.close();
+            }
+        });
+    }
+
     private void chooseExportRange(int format) {
         String[] ranges = {"最近 7 天", "最近 30 天", "全部记录"};
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
@@ -590,7 +662,7 @@ public class HistoryFragment extends Fragment {
                     });
                 }
                 if (rows.isEmpty()) {
-                    requireActivity().runOnUiThread(() -> showSnackbar("报告生成失败：暂无情绪记录"));
+                    runOnUiThreadSafe(() -> showSnackbar("报告生成失败：暂无情绪记录"));
                     return;
                 }
 
@@ -598,17 +670,19 @@ public class HistoryFragment extends Fragment {
                 String fileName;
                 String mimeType;
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+                String generatedAt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
+                List<HistoryExportFormatter.Record> exportRows = toExportRecords(rows);
                 if (format == 0) {
-                    reportStr = buildTextExport(rows);
-                    fileName = "EmoScope_" + ts + ".txt";
+                    reportStr = HistoryExportFormatter.buildText(exportRows, generatedAt);
+                    fileName = AppBrand.reportFileName(ts, "txt");
                     mimeType = "text/plain";
                 } else if (format == 1) {
-                    reportStr = buildCsvExport(rows);
-                    fileName = "EmoScope_" + ts + ".csv";
+                    reportStr = HistoryExportFormatter.buildCsv(exportRows);
+                    fileName = AppBrand.reportFileName(ts, "csv");
                     mimeType = "text/csv";
                 } else {
-                    reportStr = buildMarkdownExport(rows);
-                    fileName = "EmoScope_" + ts + ".md";
+                    reportStr = HistoryExportFormatter.buildMarkdown(exportRows, generatedAt);
+                    fileName = AppBrand.reportFileName(ts, "md");
                     mimeType = "text/markdown";
                 }
 
@@ -618,7 +692,7 @@ public class HistoryFragment extends Fragment {
                 final String finalMimeType = mimeType;
                 final String finalSavedPath = savedPath;
 
-                requireActivity().runOnUiThread(() -> {
+                runOnUiThreadSafe(() -> {
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setType(finalMimeType);
                     shareIntent.putExtra(Intent.EXTRA_SUBJECT, finalFileName);
@@ -646,60 +720,12 @@ public class HistoryFragment extends Fragment {
         });
     }
 
-    private String buildTextExport(List<String[]> rows) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getString(R.string.export_report_header));
-        sb.append(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date()));
-        sb.append("\n\n");
-        int count = 0;
+    private List<HistoryExportFormatter.Record> toExportRecords(List<String[]> rows) {
+        List<HistoryExportFormatter.Record> result = new ArrayList<>();
         for (String[] row : rows) {
-            count++;
-            boolean isPos = "1".equals(row[3]);
-            sb.append("--- 样本 ").append(count).append(" ---\n")
-                    .append("时刻: ").append(row[0]).append("\n")
-                    .append("类型: ").append(row[1]).append("\n")
-                    .append("判定: ").append(isPos ? "[积极/平稳]" : "[压力/预警]").append("\n")
-                    .append("详情:\n").append(row[2]).append("\n\n");
+            result.add(HistoryExportFormatter.Record.fromLegacyRow(row));
         }
-        return sb.toString();
-    }
-
-    private String buildCsvExport(List<String[]> rows) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("﻿"); // BOM
-        sb.append("时间,类型,情绪判定,详情\n");
-        for (String[] row : rows) {
-            boolean isPos = "1".equals(row[3]);
-            String escapedDetail = "\"" + row[2].replace("\"", "\"\"")
-                    .replace("\n", " / ") + "\"";
-            sb.append(row[0]).append(",").append(row[1]).append(",")
-                    .append(isPos ? "积极" : "预警").append(",")
-                    .append(escapedDetail).append("\n");
-        }
-        return sb.toString();
-    }
-
-    private String buildMarkdownExport(List<String[]> rows) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("# EmoScope 情绪分析报告\n\n");
-        sb.append("> 生成时间: ");
-        sb.append(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date()));
-        sb.append("\n\n| # | 时间 | 类型 | 情绪 | 详情 |\n");
-        sb.append("|---|------|------|------|------|\n");
-        int count = 0;
-        for (String[] row : rows) {
-            count++;
-            boolean isPos = "1".equals(row[3]);
-            String shortDetail = row[2].length() > 60
-                    ? row[2].substring(0, 57).replace("\n", " ") + "..."
-                    : row[2].replace("\n", " ");
-            sb.append("| ").append(count).append(" | ").append(row[0])
-                    .append(" | ").append(row[1])
-                    .append(" | ").append(isPos ? "[积极]" : "[预警]")
-                    .append(" | ").append(shortDetail).append(" |\n");
-        }
-        sb.append("\n> 共 ").append(rows.size()).append(" 条记录\n");
-        return sb.toString();
+        return result;
     }
 
     private String saveExportFile(String fileName, String content) {
@@ -707,13 +733,21 @@ public class HistoryFragment extends Fragment {
             java.io.File dir = new java.io.File(requireContext().getExternalFilesDir(null), "Exports");
             if (!dir.exists()) dir.mkdirs();
             java.io.File file = new java.io.File(dir, fileName);
-            java.io.FileWriter writer = new java.io.FileWriter(file);
+            java.io.Writer writer = new java.io.OutputStreamWriter(
+                    new java.io.FileOutputStream(file), java.nio.charset.StandardCharsets.UTF_8);
             writer.write(content);
             writer.close();
             return file.getAbsolutePath();
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private void runOnUiThreadSafe(Runnable action) {
+        if (!isAdded() || getActivity() == null) return;
+        requireActivity().runOnUiThread(() -> {
+            if (isAdded()) action.run();
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -812,10 +846,10 @@ public class HistoryFragment extends Fragment {
 
                 java.io.File dir = new java.io.File(
                         android.os.Environment.getExternalStoragePublicDirectory(
-                                android.os.Environment.DIRECTORY_DOWNLOADS), "EmoScope");
+                                android.os.Environment.DIRECTORY_DOWNLOADS), AppBrand.EXPORT_DIRECTORY);
                 if (!dir.exists()) dir.mkdirs();
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-                java.io.File file = new java.io.File(dir, "EmoScope_Backup_" + ts + ".json");
+                java.io.File file = new java.io.File(dir, AppBrand.backupFileName(ts));
                 java.io.FileWriter writer = new java.io.FileWriter(file);
                 writer.write(arr.toString(2));
                 writer.close();
@@ -849,9 +883,15 @@ public class HistoryFragment extends Fragment {
     private void doImportJSON() {
         executor.execute(() -> {
             try {
-                java.io.File dir = new java.io.File(
-                        android.os.Environment.getExternalStoragePublicDirectory(
-                                android.os.Environment.DIRECTORY_DOWNLOADS), "EmoScope");
+                java.io.File downloads = android.os.Environment.getExternalStoragePublicDirectory(
+                        android.os.Environment.DIRECTORY_DOWNLOADS);
+                java.io.File dir = new java.io.File(downloads, AppBrand.EXPORT_DIRECTORY);
+                java.io.File legacyDir = new java.io.File(downloads, AppBrand.LEGACY_EXPORT_DIRECTORY);
+                if ((!dir.exists() || dir.listFiles() == null)
+                        && legacyDir.exists()
+                        && legacyDir.listFiles() != null) {
+                    dir = legacyDir;
+                }
                 if (!dir.exists() || dir.listFiles() == null) {
                     requireActivity().runOnUiThread(() -> showSnackbar(getString(R.string.import_json_empty)));
                     return;
@@ -867,7 +907,7 @@ public class HistoryFragment extends Fragment {
                     if (f.lastModified() > latest.lastModified()) latest = f;
                 }
 
-                String content = new String(java.nio.file.Files.readAllBytes(latest.toPath()));
+                String content = readFileText(latest);
                 org.json.JSONArray arr = new org.json.JSONArray(content);
 
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -892,6 +932,18 @@ public class HistoryFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> showSnackbar("恢复失败：" + e.getMessage()));
             }
         });
+    }
+
+    private String readFileText(java.io.File file) throws java.io.IOException {
+        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+        try (java.io.InputStream input = new java.io.FileInputStream(file)) {
+            byte[] chunk = new byte[4096];
+            int read;
+            while ((read = input.read(chunk)) != -1) {
+                buffer.write(chunk, 0, read);
+            }
+        }
+        return buffer.toString("UTF-8");
     }
 
     private void showSnackbar(String msg) {

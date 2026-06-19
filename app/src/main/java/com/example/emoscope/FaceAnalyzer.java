@@ -25,12 +25,17 @@ public class FaceAnalyzer {
         public final String moodLabel;
         public final int weightedScore;       // 0-100 加权情绪分
         public final boolean isWarning;
+        public final String confidenceMessage;
+        public final boolean isReliable;
 
         EmotionResult(String pb1, String pb2, String pb3, String cs,
-                      String ml, int score, boolean warn) {
+                      String ml, int score, boolean warn,
+                      String confidenceMessage, boolean isReliable) {
             prob1 = pb1; prob2 = pb2; prob3 = pb3;
             cameraState = cs; moodLabel = ml;
             weightedScore = score; isWarning = warn;
+            this.confidenceMessage = confidenceMessage;
+            this.isReliable = isReliable;
         }
     }
 
@@ -57,8 +62,8 @@ public class FaceAnalyzer {
     };
 
     // ── 每种情绪的 blendshape 权重配置 ──────────────────────────
-    // {blendshapeName, multiplier}[]
-    private static final String[][][] EMOTION_BLENDSHAPES = {
+    // {blendshapeName, multiplier} — multiplier 已在 static 块预解析为 float
+    private static final String[][][] EMOTION_BLENDSHAPES_RAW = {
         // 0: 愉悦 — 嘴角上扬 + 脸颊提起 + 眼角笑纹
         {{"mouthSmileLeft","1.6"},{"mouthSmileRight","1.6"},{"cheekSquintLeft","0.8"},{"cheekSquintRight","0.8"},{"eyeSquintLeft","0.4"},{"eyeSquintRight","0.4"}},
         // 1: 平静 — 低激活 = 1 - (其他激活总和)
@@ -81,12 +86,40 @@ public class FaceAnalyzer {
         {{"eyeBlinkLeft","1.4"},{"eyeBlinkRight","1.4"},{"jawForward","0.6"},{"eyeLookDownLeft","0.5"},{"eyeLookDownRight","0.5"},{"mouthShrugLower","0.4"}},
     };
 
+    // 预解析权重，避免每帧重复 Float.parseFloat
+    private static final float[][] EMOTION_BLENDSHAPE_WEIGHTS = new float[10][];
+    static {
+        for (int i = 0; i < 10; i++) {
+            EMOTION_BLENDSHAPE_WEIGHTS[i] = new float[EMOTION_BLENDSHAPES_RAW[i].length];
+            for (int j = 0; j < EMOTION_BLENDSHAPES_RAW[i].length; j++) {
+                EMOTION_BLENDSHAPE_WEIGHTS[i][j] = Float.parseFloat(EMOTION_BLENDSHAPES_RAW[i][j][1]);
+            }
+        }
+    }
+    private static String blendshapeName(int emotionIdx, int j) {
+        return EMOTION_BLENDSHAPES_RAW[emotionIdx][j][0];
+    }
+
     private final float[] smoothedScores = new float[10];
     private long lastUiUpdate = 0;
     private final FaceCallback callback;
+    private EmotionCalibrationProfile calibrationProfile = EmotionCalibrationProfile.none();
+    private int ambientLuminance = 128;
+    // 自适应平静基线 — 基于用户历史平均激活水平的 EWMA
+    private float adaptiveCalmBaseline = 1.2f;
+    private long totalFramesAnalyzed = 0;
 
     public FaceAnalyzer(FaceCallback callback) {
         this.callback = callback;
+    }
+
+    public void setCalibrationProfile(EmotionCalibrationProfile calibrationProfile) {
+        this.calibrationProfile = calibrationProfile == null
+                ? EmotionCalibrationProfile.none() : calibrationProfile;
+    }
+
+    public void setAmbientLuminance(int ambientLuminance) {
+        this.ambientLuminance = ambientLuminance;
     }
 
     /**
@@ -110,18 +143,22 @@ public class FaceAnalyzer {
             float totalActivation = 0f;
 
             for (int i = 0; i < 10; i++) {
-                if (EMOTION_BLENDSHAPES[i].length == 0) continue; // 平静单独算
+                if (EMOTION_BLENDSHAPES_RAW[i].length == 0) continue; // 平静单独算
                 float score = 0f;
-                for (String[] bs : EMOTION_BLENDSHAPES[i]) {
-                    float val = muscle(shapes, bs[0]) * Float.parseFloat(bs[1]);
+                for (int j = 0; j < EMOTION_BLENDSHAPES_RAW[i].length; j++) {
+                    float val = muscle(shapes, blendshapeName(i, j)) * EMOTION_BLENDSHAPE_WEIGHTS[i][j];
                     score += val;
                 }
                 rawScores[i] = Math.min(1.5f, score); // 上限裁剪
                 totalActivation += rawScores[i];
             }
 
-            // 平静 = 1 - 其他激活（归一化）
-            rawScores[1] = Math.max(0.05f, 1.2f - totalActivation);
+            // 自适应平静基线 — 基于历史激活水平的 EWMA 调整
+            totalFramesAnalyzed++;
+            float activationTarget = (totalFramesAnalyzed < 50) ? 1.2f
+                    : 1.0f + totalActivation / 9.0f * 1.8f; // 随用户激活水平自适应
+            adaptiveCalmBaseline = 0.95f * adaptiveCalmBaseline + 0.05f * activationTarget;
+            rawScores[1] = Math.max(0.05f, adaptiveCalmBaseline - totalActivation);
 
             // ── EMA 平滑 ──
             float alpha = Constants.FACE_EMA_ALPHA;
@@ -135,6 +172,7 @@ public class FaceAnalyzer {
             if (sum == 0) sum = 1;
             float[] percentages = new float[10];
             for (int i = 0; i < 10; i++) percentages[i] = smoothedScores[i] / sum * 100f;
+            percentages = calibrationProfile.apply(percentages);
 
             // ── 加权打分 (0-100) ──
             float weightedSum = 0f, weightTotal = 0f;
@@ -157,12 +195,16 @@ public class FaceAnalyzer {
             String prob3 = EMOTIONS[t3[0]].name + " " + t3[1] + "%";
             String cameraState = prob1 + " | " + prob2 + " | " + prob3;
             String moodLabel = "情绪指数 " + finalScore + " · " + EMOTIONS[t1[0]].name + "主导";
+            if (calibrationProfile.isEnabled()) moodLabel += " · 已校准";
+            EmotionConfidenceEvaluator.Result confidence =
+                    EmotionConfidenceEvaluator.evaluate(percentages, ambientLuminance, true);
 
             // 消极主导且占比高 → 预警
             boolean isWarning = EMOTIONS[t1[0]].valence < 0 && t1[1] > 35;
 
             callback.onEmotionResult(new EmotionResult(
-                    prob1, prob2, prob3, cameraState, moodLabel, finalScore, isWarning));
+                    prob1, prob2, prob3, cameraState, moodLabel, finalScore, isWarning,
+                    confidence.message, confidence.isReliable));
 
         } catch (Exception e) {
             Log.e(Constants.TAG, "FaceAnalyzer error", e);
