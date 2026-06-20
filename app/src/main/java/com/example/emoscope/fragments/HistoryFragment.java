@@ -36,6 +36,7 @@ import com.example.emoscope.MainActivity;
 import com.example.emoscope.R;
 import com.example.emoscope.ResearchDataExporter;
 import com.example.emoscope.history.HistoryExportFormatter;
+import com.example.emoscope.history.HistoryExportRepository;
 import com.example.emoscope.viewmodels.HistoryViewModel;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.snackbar.Snackbar;
@@ -576,23 +577,8 @@ public class HistoryFragment extends Fragment {
     private void executeResearchExport(int format) {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor cursor = null;
             try {
-                cursor = db.rawQuery("SELECT " + Constants.COL_TIME + ","
-                        + Constants.COL_TYPE + ","
-                        + Constants.COL_DETAIL + ","
-                        + Constants.COL_POSITIVE
-                        + " FROM " + Constants.TABLE_RECORDS
-                        + " ORDER BY " + Constants.COL_ID + " DESC", null);
-
-                List<ResearchDataExporter.Record> rows = new ArrayList<>();
-                while (cursor.moveToNext()) {
-                    rows.add(new ResearchDataExporter.Record(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getInt(3) == 1));
-                }
+                List<ResearchDataExporter.Record> rows = HistoryExportRepository.loadResearchRows(db);
 
                 if (rows.isEmpty()) {
                     runOnUiThreadSafe(() -> showSnackbar("暂无可导出的研究数据"));
@@ -600,11 +586,11 @@ public class HistoryFragment extends Fragment {
                 }
 
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-                String reportStr = format == 0
-                        ? ResearchDataExporter.buildAnonymousJson(rows, AppBrand.androidSourceLabel())
-                        : ResearchDataExporter.buildAnonymousCsv(rows);
-                String fileName = AppBrand.researchFileName(ts, format == 0);
-                String mimeType = format == 0 ? "application/json" : "text/csv";
+                HistoryExportRepository.ExportData export = HistoryExportRepository.buildResearchExport(
+                        rows, format == 0, ts);
+                String reportStr = export.content;
+                String fileName = export.fileName;
+                String mimeType = export.mimeType;
                 String savedPath = saveExportFile(fileName, reportStr);
 
                 runOnUiThreadSafe(() -> {
@@ -624,7 +610,6 @@ public class HistoryFragment extends Fragment {
                     if (savedPath != null) showSnackbar("匿名研究数据已保存");
                 });
             } finally {
-                if (cursor != null) cursor.close();
                 db.close();
             }
         });
@@ -645,51 +630,21 @@ public class HistoryFragment extends Fragment {
     private void executeExport(int format, int days) {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor cursor = null;
             try {
-                cursor = db.rawQuery("SELECT * FROM " + Constants.TABLE_RECORDS
-                        + " ORDER BY " + Constants.COL_ID + " DESC", null);
-
-                List<String[]> rows = new ArrayList<>();
-                while (cursor.moveToNext()) {
-                    String time = cursor.getString(1);
-                    if (days > 0 && !EmoDatabaseHelper.isWithinLastDays(time, days)) {
-                        continue;
-                    }
-                    rows.add(new String[]{
-                            time, cursor.getString(2),
-                            cursor.getString(3), cursor.getString(4)
-                    });
-                }
+                List<HistoryExportFormatter.Record> rows = HistoryExportRepository.loadRows(db, days);
                 if (rows.isEmpty()) {
                     runOnUiThreadSafe(() -> showSnackbar("报告生成失败：暂无情绪记录"));
                     return;
                 }
 
-                String reportStr;
-                String fileName;
-                String mimeType;
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
                 String generatedAt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
-                List<HistoryExportFormatter.Record> exportRows = toExportRecords(rows);
-                if (format == 0) {
-                    reportStr = HistoryExportFormatter.buildText(exportRows, generatedAt);
-                    fileName = AppBrand.reportFileName(ts, "txt");
-                    mimeType = "text/plain";
-                } else if (format == 1) {
-                    reportStr = HistoryExportFormatter.buildCsv(exportRows);
-                    fileName = AppBrand.reportFileName(ts, "csv");
-                    mimeType = "text/csv";
-                } else {
-                    reportStr = HistoryExportFormatter.buildMarkdown(exportRows, generatedAt);
-                    fileName = AppBrand.reportFileName(ts, "md");
-                    mimeType = "text/markdown";
-                }
-
-                String savedPath = saveExportFile(fileName, reportStr);
-                final String finalReport = reportStr;
-                final String finalFileName = fileName;
-                final String finalMimeType = mimeType;
+                HistoryExportRepository.ExportData export = HistoryExportRepository.buildExport(
+                        rows, format, ts, generatedAt);
+                String savedPath = saveExportFile(export.fileName, export.content);
+                final String finalReport = export.content;
+                final String finalFileName = export.fileName;
+                final String finalMimeType = export.mimeType;
                 final String finalSavedPath = savedPath;
 
                 runOnUiThreadSafe(() -> {
@@ -714,29 +669,16 @@ public class HistoryFragment extends Fragment {
                     }
                 });
             } finally {
-                if (cursor != null) cursor.close();
                 db.close();
             }
         });
     }
 
-    private List<HistoryExportFormatter.Record> toExportRecords(List<String[]> rows) {
-        List<HistoryExportFormatter.Record> result = new ArrayList<>();
-        for (String[] row : rows) {
-            result.add(HistoryExportFormatter.Record.fromLegacyRow(row));
-        }
-        return result;
-    }
-
     private String saveExportFile(String fileName, String content) {
         try {
             java.io.File dir = new java.io.File(requireContext().getExternalFilesDir(null), "Exports");
-            if (!dir.exists()) dir.mkdirs();
-            java.io.File file = new java.io.File(dir, fileName);
-            java.io.Writer writer = new java.io.OutputStreamWriter(
-                    new java.io.FileOutputStream(file), java.nio.charset.StandardCharsets.UTF_8);
-            writer.write(content);
-            writer.close();
+            java.io.File file = HistoryExportRepository.writeExport(dir,
+                    new HistoryExportRepository.ExportData(fileName, "", content));
             return file.getAbsolutePath();
         } catch (Exception e) {
             return null;
@@ -847,12 +789,10 @@ public class HistoryFragment extends Fragment {
                 java.io.File dir = new java.io.File(
                         android.os.Environment.getExternalStoragePublicDirectory(
                                 android.os.Environment.DIRECTORY_DOWNLOADS), AppBrand.EXPORT_DIRECTORY);
-                if (!dir.exists()) dir.mkdirs();
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-                java.io.File file = new java.io.File(dir, AppBrand.backupFileName(ts));
-                java.io.FileWriter writer = new java.io.FileWriter(file);
-                writer.write(arr.toString(2));
-                writer.close();
+                java.io.File file = HistoryExportRepository.writeExport(dir,
+                        new HistoryExportRepository.ExportData(AppBrand.backupFileName(ts),
+                                "application/json", arr.toString(2)));
 
                 final String path = file.getAbsolutePath();
                 requireActivity().runOnUiThread(() -> {
@@ -885,29 +825,18 @@ public class HistoryFragment extends Fragment {
             try {
                 java.io.File downloads = android.os.Environment.getExternalStoragePublicDirectory(
                         android.os.Environment.DIRECTORY_DOWNLOADS);
-                java.io.File dir = new java.io.File(downloads, AppBrand.EXPORT_DIRECTORY);
-                java.io.File legacyDir = new java.io.File(downloads, AppBrand.LEGACY_EXPORT_DIRECTORY);
-                if ((!dir.exists() || dir.listFiles() == null)
-                        && legacyDir.exists()
-                        && legacyDir.listFiles() != null) {
-                    dir = legacyDir;
-                }
+                java.io.File dir = HistoryExportRepository.selectImportDirectory(downloads);
                 if (!dir.exists() || dir.listFiles() == null) {
                     requireActivity().runOnUiThread(() -> showSnackbar(getString(R.string.import_json_empty)));
                     return;
                 }
-                java.io.File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
-                if (files == null || files.length == 0) {
+                java.io.File latest = HistoryExportRepository.findLatestJsonBackup(dir);
+                if (latest == null) {
                     requireActivity().runOnUiThread(() -> showSnackbar(getString(R.string.import_json_empty)));
                     return;
                 }
                 // 取最新的备份文件
-                java.io.File latest = files[0];
-                for (java.io.File f : files) {
-                    if (f.lastModified() > latest.lastModified()) latest = f;
-                }
-
-                String content = readFileText(latest);
+                String content = HistoryExportRepository.readUtf8(latest);
                 org.json.JSONArray arr = new org.json.JSONArray(content);
 
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -932,18 +861,6 @@ public class HistoryFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> showSnackbar("恢复失败：" + e.getMessage()));
             }
         });
-    }
-
-    private String readFileText(java.io.File file) throws java.io.IOException {
-        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
-        try (java.io.InputStream input = new java.io.FileInputStream(file)) {
-            byte[] chunk = new byte[4096];
-            int read;
-            while ((read = input.read(chunk)) != -1) {
-                buffer.write(chunk, 0, read);
-            }
-        }
-        return buffer.toString("UTF-8");
     }
 
     private void showSnackbar(String msg) {
