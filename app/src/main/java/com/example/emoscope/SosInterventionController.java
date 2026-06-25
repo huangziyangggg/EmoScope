@@ -92,15 +92,33 @@ public class SosInterventionController {
                     breathMode = which;
                     prefs.edit().putInt(Constants.KEY_BREATH_MODE, which).apply();
                 })
-                .setPositiveButton("开始", (dialog, which) -> startBreathingIntervention(breathMode))
+                .setPositiveButton("继续", (dialog, which) -> showSafetyActionDialog(breathMode))
+                .setNegativeButton(activity.getString(R.string.dialog_cancel), null)
+                .show();
+    }
+
+    private void showSafetyActionDialog(int mode) {
+        new MaterialAlertDialogBuilder(activity)
+                .setTitle("选择下一步")
+                .setMessage("你可以先开始呼吸练习。只有在你明确确认后，应用才会发送求助短信。")
+                .setPositiveButton("开始呼吸练习", (dialog, which) ->
+                        startBreathingIntervention(mode, false))
+                .setNeutralButton("发送短信并开始", (dialog, which) ->
+                        startBreathingIntervention(mode, true))
                 .setNegativeButton(activity.getString(R.string.dialog_cancel), null)
                 .show();
     }
 
     public void startBreathingIntervention(int mode) {
+        startBreathingIntervention(mode, false);
+    }
+
+    private void startBreathingIntervention(int mode, boolean sendSms) {
         if (breathingEngine.isRunning()) return;
         host.triggerHaptic(activity.getWindow().getDecorView(), HapticFeedbackConstants.LONG_PRESS);
-        sendEmergencySms();
+        if (SosActionPolicy.shouldSendEmergencySms(sendSms)) {
+            sendEmergencySms();
+        }
         layoutBreathing.setVisibility(View.VISIBLE);
         layoutBreathing.setAlpha(0f);
         layoutBreathing.animate().alpha(1f).setDuration(500).start();

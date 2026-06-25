@@ -13,6 +13,7 @@ public final class Constants {
     // ── SharedPreferences ───────────────────────────────────────
     public static final String PREFS_NAME = "EmoScopePrefs";
     public static final String KEY_API_KEY = "apikey";
+    public static final String KEY_AI_DATA_CONSENT = "ai_data_consent";
     public static final String KEY_CONTACT = "contact";
     public static final String KEY_TTS = "tts";
     public static final String KEY_HAPTIC = "haptic";
@@ -161,13 +162,13 @@ public final class Constants {
 
     // ── 权限请求码 ──────────────────────────────────────────────
     /** 核心权限（相机 + 麦克风）请求码 */
-    public static final int PERM_CORE = 100;
     /** SMS 权限请求码 */
     public static final int PERM_SMS = 101;
     /** 通知权限请求码 (Android 13+) */
     public static final int PERM_NOTIFY = 102;
     /** 独立麦克风权限请求码 */
     public static final int PERM_AUDIO = 103;
+    public static final int PERM_CAMERA = 104;
     /** 首次启动引导 */
     public static final String KEY_FIRST_LAUNCH = "first_launch_done";
     /** 用户选择的关注目标 */

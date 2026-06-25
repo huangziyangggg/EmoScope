@@ -22,6 +22,17 @@
         <item name="cornerSize">16dp</item>
     </style>
 
+    <!-- 对话框使用更舒展的圆角，和内容卡片形成清晰层级。 -->
+    <style name="ShapeAppearance.EmoScope.Dialog" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <style name="ShapeAppearance.EmoScope.DialogAction" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
     <!-- 导航栏选中指示器：透明占位，避免挤压图标和文字 -->
     <style name="Widget.EmoScope.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:shape">rectangle</item>
