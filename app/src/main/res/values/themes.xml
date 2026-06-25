@@ -6,6 +6,8 @@
          ═══════════════════════════════════════════════════════════ -->
 
     <style name="Base.Theme.EmoScope" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- 统一中英文界面字形；缺失字形仍由 Android 系统安全回退。 -->
+        <item name="android:fontFamily">@font/xinjing_sans</item>
         <!-- Primary -->
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
@@ -57,9 +59,11 @@
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.EmoScope.Small</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.EmoScope.Medium</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.EmoScope.Large</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.EmoScope.AlertDialog</item>
 
         <!-- Bottom Nav — 无阴影、背景跟随 Surface Container -->
         <item name="bottomNavigationStyle">@style/Widget.EmoScope.BottomNav</item>
+        <item name="snackbarStyle">@style/Widget.EmoScope.Snackbar</item>
     </style>
 
     <style name="Theme.EmoScope" parent="Base.Theme.EmoScope" />
@@ -78,5 +82,53 @@
     <style name="ThemeOverlay.EmoScope.BottomNav" parent="">
         <item name="colorSurface">@color/md_theme_light_surface</item>
         <item name="android:elevation">0dp</item>
+    </style>
+
+    <!-- 全局 Material 对话框：柔和表面、清晰文字、统一紫色操作。 -->
+    <style name="ThemeOverlay.EmoScope.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearance">@style/ShapeAppearance.EmoScope.Dialog</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/glass_ink</item>
+        <item name="colorPrimary">@color/glass_violet</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TextAppearance.EmoScope.Dialog.Title</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/TextAppearance.EmoScope.Dialog.Body</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.EmoScope.DialogButton.Primary</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.EmoScope.DialogButton.Secondary</item>
+    </style>
+
+    <style name="Widget.EmoScope.DialogButton.Primary" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="backgroundTint">@color/glass_violet</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.EmoScope.DialogAction</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+
+    <style name="Widget.EmoScope.DialogButton.Secondary" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/glass_violet</item>
+    </style>
+
+    <style name="TextAppearance.EmoScope.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:fontFamily">@font/xinjing_sans</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.EmoScope.Dialog.Body" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:fontFamily">@font/xinjing_sans</item>
+    </style>
+
+    <style name="Widget.EmoScope.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="backgroundTint">@color/glass_ink</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.EmoScope.DialogAction</item>
+    </style>
+
+    <!-- 极窄屏优先呈现入口名称，避免说明文字被卡片高度裁切。 -->
+    <style name="Widget.EmoScope.HomeEntryBody" parent="">
+        <item name="android:visibility">gone</item>
     </style>
 </resources>

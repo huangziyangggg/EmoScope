@@ -8,11 +8,11 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingStart="24dp"
-        android:paddingTop="50dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="156dp"
+        android:clipToPadding="true"
+        android:paddingStart="@dimen/page_horizontal_padding"
+        android:paddingTop="@dimen/page_top_padding"
+        android:paddingEnd="@dimen/page_horizontal_padding"
+        android:paddingBottom="@dimen/page_bottom_safe_padding"
         android:scrollbars="none">
 
         <LinearLayout
@@ -22,7 +22,8 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="166dp">
+                android:layout_height="wrap_content"
+                android:minHeight="124dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -36,7 +37,7 @@
                         android:letterSpacing="0"
                         android:text="照顾自己"
                         android:textColor="@color/glass_ink"
-                        android:textSize="38sp"
+                        android:textSize="30sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -73,7 +74,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvLevel"
                 android:layout_width="match_parent"
-                android:layout_height="118dp"
+                android:layout_height="@dimen/growth_level_card_height"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
@@ -161,7 +162,7 @@
                 android:id="@+id/cvAiInsight"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="@dimen/section_spacing"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
@@ -175,12 +176,14 @@
                     android:padding="18dp">
 
                     <LinearLayout
+                        android:id="@+id/llInsightMetrics"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
                         <TextView
+                            android:id="@+id/tvInsightTitle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -222,10 +225,11 @@
                         android:textSize="15sp"
                         android:visibility="gone" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+            <LinearLayout
+                android:id="@+id/llInsightDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                         android:orientation="vertical">
 
                         <include
@@ -287,8 +291,9 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="68dp"
+                            android:layout_marginEnd="38dp"
                             android:orientation="vertical">
 
                             <TextView
@@ -297,18 +302,17 @@
                                 android:letterSpacing="0"
                                 android:text="日记"
                                 android:textColor="@color/glass_ink"
-                                android:textSize="21sp"
+                                android:textSize="19sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvJournalPreview"
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
+                                android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:layout_weight="1"
                                 android:ellipsize="end"
                                 android:lineSpacingExtra="2dp"
-                                android:maxLines="3"
+                                android:maxLines="2"
                                 android:text="记录心情\n梳理思绪"
                                 android:textColor="@color/glass_ink_soft"
                                 android:textSize="13sp" />
@@ -317,7 +321,8 @@
                         <ImageView
                             android:layout_width="34dp"
                             android:layout_height="34dp"
-                            android:layout_gravity="bottom|end"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="4dp"
                             android:background="@drawable/bg_workshop_arrow_orange"
                             android:contentDescription="@null"
                             android:padding="8dp"
@@ -355,8 +360,9 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="68dp"
+                            android:layout_marginEnd="38dp"
                             android:orientation="vertical">
 
                             <TextView
@@ -365,18 +371,17 @@
                                 android:letterSpacing="0"
                                 android:text="感恩"
                                 android:textColor="@color/glass_ink"
-                                android:textSize="21sp"
+                                android:textSize="19sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvGratitudeContent"
                                 android:layout_width="match_parent"
-                                android:layout_height="0dp"
+                                android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:layout_weight="1"
                                 android:ellipsize="end"
                                 android:lineSpacingExtra="2dp"
-                                android:maxLines="3"
+                                android:maxLines="2"
                                 android:text="发现美好\n积累幸福"
                                 android:textColor="@color/glass_ink_soft"
                                 android:textSize="13sp" />
@@ -385,7 +390,8 @@
                         <ImageView
                             android:layout_width="34dp"
                             android:layout_height="34dp"
-                            android:layout_gravity="bottom|end"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="4dp"
                             android:background="@drawable/bg_workshop_arrow_green"
                             android:contentDescription="@null"
                             android:padding="8dp"
@@ -409,6 +415,19 @@
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_workshop_breath_card"
                     android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="118dp"
+                        android:layout_height="118dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginEnd="4dp"
+                        android:alpha="0.14"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        android:text="☽"
+                        android:textColor="#7E64C8"
+                        android:textSize="78sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -517,25 +536,15 @@
                             </com.google.android.material.card.MaterialCardView>
                         </LinearLayout>
                     </LinearLayout>
-
-                    <TextView
-                        android:layout_width="118dp"
-                        android:layout_height="118dp"
-                        android:layout_gravity="top|end"
-                        android:layout_marginTop="18dp"
-                        android:layout_marginEnd="4dp"
-                        android:gravity="center"
-                        android:text="☽"
-                        android:textColor="#7E64C8"
-                        android:textSize="78sp" />
                 </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvWeeklyReport"
                 android:layout_width="match_parent"
-                android:layout_height="158dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
+                android:minHeight="@dimen/growth_weekly_card_min_height"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
@@ -543,7 +552,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/bg_workshop_panel"
                     android:orientation="vertical"
                     android:padding="18dp">
@@ -594,9 +603,10 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="154dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:background="@drawable/bg_workshop_quote_card"
+                android:minHeight="@dimen/growth_quote_card_min_height"
                 android:padding="18dp">
 
                 <TextView
@@ -666,8 +676,9 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnOpenFaceCamera"
                 android:layout_width="match_parent"
-                android:layout_height="158dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
+                android:minHeight="@dimen/growth_face_card_min_height"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@android:color/transparent"
@@ -677,13 +688,26 @@
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/bg_workshop_panel"
+                    android:minHeight="@dimen/growth_face_card_min_height"
                     android:padding="18dp">
+
+                    <ImageView
+                        android:layout_width="96dp"
+                        android:layout_height="96dp"
+                        android:layout_gravity="center_vertical|end"
+                        android:alpha="0.14"
+                        android:contentDescription="@null"
+                        android:importantForAccessibility="no"
+                        android:padding="20dp"
+                        android:src="@drawable/ic_face_scan"
+                        app:tint="@color/glass_violet" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="96dp"
                         android:orientation="vertical">
 
                         <TextView
@@ -716,16 +740,6 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
                     </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:layout_gravity="center_vertical|end"
-                        android:alpha="0.32"
-                        android:contentDescription="@null"
-                        android:padding="20dp"
-                        android:src="@drawable/ic_face_scan"
-                        app:tint="@color/glass_violet" />
                 </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 

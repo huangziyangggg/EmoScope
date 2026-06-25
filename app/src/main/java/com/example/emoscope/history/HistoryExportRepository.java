@@ -2,6 +2,7 @@ package com.example.emoscope.history;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.content.ContentValues;
 
 import com.example.emoscope.AppBrand;
 import com.example.emoscope.Constants;
@@ -18,6 +19,9 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Provides the non-UI parts of a history export: loading records, rendering content and saving it.
@@ -135,6 +139,38 @@ public final class HistoryExportRepository {
             }
             return output.toString(StandardCharsets.UTF_8.name());
         }
+    }
+
+    public static List<HistoryBackupFormatter.Record> loadBackupRows(SQLiteDatabase database) {
+        List<HistoryBackupFormatter.Record> rows = new ArrayList<>();
+        try (Cursor cursor = database.rawQuery("SELECT * FROM " + Constants.TABLE_RECORDS
+                + " ORDER BY " + Constants.COL_ID, null)) {
+            while (cursor.moveToNext()) {
+                rows.add(new HistoryBackupFormatter.Record(cursor.getString(1), cursor.getString(2),
+                        cursor.getString(3), cursor.getInt(4)));
+            }
+        }
+        return rows;
+    }
+
+    public static int importBackup(SQLiteDatabase database, String content) throws Exception {
+        JSONArray records = new JSONArray(content);
+        database.beginTransaction();
+        try {
+            for (int index = 0; index < records.length(); index++) {
+                JSONObject record = records.getJSONObject(index);
+                ContentValues values = new ContentValues();
+                values.put(Constants.COL_TIME, record.getString("time"));
+                values.put(Constants.COL_TYPE, record.getString("type"));
+                values.put(Constants.COL_DETAIL, record.getString("detail"));
+                values.put(Constants.COL_POSITIVE, record.optInt("positive", 1));
+                database.insert(Constants.TABLE_RECORDS, null, values);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+        return records.length();
     }
 
     public static final class ExportData {
