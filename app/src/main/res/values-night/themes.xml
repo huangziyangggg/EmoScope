@@ -2,6 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Base.Theme.EmoScope" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:fontFamily">@font/xinjing_sans</item>
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
@@ -43,8 +44,10 @@
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.EmoScope.Small</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.EmoScope.Medium</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.EmoScope.Large</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.EmoScope.AlertDialog.Dark</item>
 
         <item name="bottomNavigationStyle">@style/Widget.EmoScope.BottomNav.Dark</item>
+        <item name="snackbarStyle">@style/Widget.EmoScope.Snackbar.Dark</item>
     </style>
 
     <style name="Theme.EmoScope.Splash" parent="Theme.SplashScreen">
@@ -59,5 +62,47 @@
     <style name="ThemeOverlay.EmoScope.BottomNav.Dark" parent="">
         <item name="colorSurface">@color/md_theme_dark_surface</item>
         <item name="android:elevation">0dp</item>
+    </style>
+
+    <style name="ThemeOverlay.EmoScope.AlertDialog.Dark" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearance">@style/ShapeAppearance.EmoScope.Dialog</item>
+        <item name="colorSurface">@color/md_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TextAppearance.EmoScope.Dialog.Title.Dark</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/TextAppearance.EmoScope.Dialog.Body.Dark</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.EmoScope.DialogButton.Primary.Dark</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.EmoScope.DialogButton.Secondary.Dark</item>
+    </style>
+
+    <style name="Widget.EmoScope.DialogButton.Primary.Dark" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="backgroundTint">@color/md_theme_dark_primary</item>
+        <item name="android:textColor">@color/md_theme_dark_onPrimary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.EmoScope.DialogAction</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+
+    <style name="Widget.EmoScope.DialogButton.Secondary.Dark" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/md_theme_dark_primary</item>
+    </style>
+
+    <style name="TextAppearance.EmoScope.Dialog.Title.Dark" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:fontFamily">@font/xinjing_sans</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.EmoScope.Dialog.Body.Dark" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:fontFamily">@font/xinjing_sans</item>
+    </style>
+
+    <style name="Widget.EmoScope.Snackbar.Dark" parent="Widget.Material3.Snackbar">
+        <item name="backgroundTint">@color/md_theme_dark_surfaceContainerHigh</item>
+        <item name="android:textColor">@color/md_theme_dark_onSurface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.EmoScope.DialogAction</item>
     </style>
 </resources>

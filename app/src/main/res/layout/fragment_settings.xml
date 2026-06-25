@@ -4,11 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_settings_canvas_soft"
-    android:clipToPadding="false"
-    android:paddingStart="24dp"
-    android:paddingTop="54dp"
-    android:paddingEnd="24dp"
-    android:paddingBottom="156dp"
+    android:clipToPadding="true"
+    android:paddingStart="@dimen/page_horizontal_padding"
+    android:paddingTop="@dimen/page_top_padding"
+    android:paddingEnd="@dimen/page_horizontal_padding"
+    android:paddingBottom="@dimen/page_bottom_safe_padding"
     android:scrollbars="none">
 
     <LinearLayout
@@ -18,7 +18,30 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="164dp">
+            android:layout_height="wrap_content"
+            android:minHeight="116dp">
+
+            <TextView
+                android:layout_width="118dp"
+                android:layout_height="118dp"
+                android:layout_gravity="bottom|end"
+                android:alpha="0.16"
+                android:gravity="center"
+                android:importantForAccessibility="no"
+                android:text="☻"
+                android:textColor="#9B7BFF"
+                android:textSize="58sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|end"
+                android:layout_marginEnd="120dp"
+                android:alpha="0.72"
+                android:importantForAccessibility="no"
+                android:text="✦"
+                android:textColor="#B69AFF"
+                android:textSize="24sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -30,9 +53,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:letterSpacing="0"
-                    android:text="我的"
+                    android:text="我的空间"
                     android:textColor="@color/glass_ink"
-                    android:textSize="36sp"
+                    android:textSize="30sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -40,36 +63,19 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:letterSpacing="0"
-                    android:text="安全、轻盈与成长引擎"
+                    android:paddingEnd="@dimen/settings_header_text_end_padding"
+                    android:text="你的记录、边界和陪伴方式，都由你决定"
                     android:textColor="@color/glass_ink_soft"
                     android:textSize="16sp"
                     android:textStyle="bold" />
             </LinearLayout>
-
-            <TextView
-                android:layout_width="118dp"
-                android:layout_height="118dp"
-                android:layout_gravity="bottom|end"
-                android:gravity="center"
-                android:text="☻"
-                android:textColor="#9B7BFF"
-                android:textSize="58sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|end"
-                android:layout_marginEnd="120dp"
-                android:text="✦"
-                android:textColor="#B69AFF"
-                android:textSize="24sp" />
         </FrameLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnPersonalProfile"
             android:layout_width="match_parent"
             android:layout_height="112dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="@dimen/section_spacing"
             android:clickable="true"
             android:focusable="true"
             app:cardBackgroundColor="@android:color/transparent"
@@ -117,7 +123,7 @@
                         android:layout_marginTop="6dp"
                         android:ellipsize="end"
                         android:letterSpacing="0"
-                        android:maxLines="2"
+                        android:maxLines="1"
                         android:text="我 · 私人情绪档案 · 本机保存"
                         android:textColor="@color/glass_ink_soft"
                         android:textSize="13sp" />

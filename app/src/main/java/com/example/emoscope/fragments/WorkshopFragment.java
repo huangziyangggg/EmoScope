@@ -1,6 +1,5 @@
 package com.example.emoscope.fragments;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +23,9 @@ import androidx.fragment.app.Fragment;
 import com.example.emoscope.AppBrand;
 import com.example.emoscope.Constants;
 import com.example.emoscope.EmoDatabaseHelper;
+import com.example.emoscope.GrowthInsightSummary;
+import com.example.emoscope.GrowthInsightDisplayPolicy;
+import com.example.emoscope.GrowthJourneyMessage;
 import com.example.emoscope.MainActivity;
 import com.example.emoscope.R;
 import com.example.emoscope.StreakManager;
@@ -48,7 +50,8 @@ public class WorkshopFragment extends Fragment {
     private java.util.concurrent.ExecutorService executor;
     private static final SimpleDateFormat SDF_DAY = new SimpleDateFormat("MM-dd", Locale.getDefault());
 
-    private TextView tvAiInsight, tvJournalPreview, tvGratitudeContent;
+    private TextView tvAiInsight, tvInsightTitle, tvJournalPreview, tvGratitudeContent;
+    private View llInsightDetails;
     private TextView tvBadgeSummary, tvReportHint;
     private TextView tvLevelBadge, tvLevelName, tvLevelProgress;
     private TextView tvInsightSample, tvInsightAverage, tvInsightPositive, tvInsightLow, tvInsightHigh;
@@ -103,6 +106,8 @@ public class WorkshopFragment extends Fragment {
 
     private void bindViews(View v) {
         tvAiInsight = v.findViewById(R.id.tvAiInsight);
+        tvInsightTitle = v.findViewById(R.id.tvInsightTitle);
+        llInsightDetails = v.findViewById(R.id.llInsightDetails);
         tvJournalPreview = v.findViewById(R.id.tvJournalPreview);
         tvGratitudeContent = v.findViewById(R.id.tvGratitudeContent);
         tvBadgeSummary = v.findViewById(R.id.tvBadgeSummary);
@@ -231,9 +236,13 @@ public class WorkshopFragment extends Fragment {
                     setTextIfReady(tvInsightLow, low);
                     setTextIfReady(tvInsightHigh, high);
                     if (tvAiInsight != null) {
-                        tvAiInsight.setText(fTotal < 3
-                                ? "记录达到 3 条后，洞察会更稳定。"
-                                : "近期洞察已更新");
+                        tvAiInsight.setVisibility(View.VISIBLE);
+                        tvAiInsight.setText(GrowthInsightSummary.build(fTotal, positiveRate));
+                    }
+                    applyInsightHeader(fTotal);
+                    if (llInsightDetails != null) {
+                        llInsightDetails.setVisibility(GrowthInsightDisplayPolicy
+                                .showsDetailedMetrics(fTotal) ? View.VISIBLE : View.GONE);
                     }
                 });
             } catch (Exception e) {
@@ -243,7 +252,12 @@ public class WorkshopFragment extends Fragment {
                     setTextIfReady(tvInsightPositive, "--");
                     setTextIfReady(tvInsightLow, "--");
                     setTextIfReady(tvInsightHigh, "--");
-                    if (tvAiInsight != null) tvAiInsight.setText("分析暂时不可用，请稍后再试");
+                    if (tvAiInsight != null) {
+                        tvAiInsight.setVisibility(View.VISIBLE);
+                        tvAiInsight.setText("分析暂时不可用，请稍后再试");
+                    }
+                    applyInsightHeader(3);
+                    if (llInsightDetails != null) llInsightDetails.setVisibility(View.GONE);
                 });
             } finally {
                 if (cursor != null) cursor.close();
@@ -254,6 +268,14 @@ public class WorkshopFragment extends Fragment {
 
     private void setTextIfReady(TextView view, String text) {
         if (view != null) view.setText(text);
+    }
+
+    private void applyInsightHeader(int recordCount) {
+        setTextIfReady(tvInsightTitle, GrowthInsightDisplayPolicy.sectionTitle(recordCount));
+        if (btnRefreshInsight != null) {
+            btnRefreshInsight.setVisibility(GrowthInsightDisplayPolicy.showsRefreshAction(recordCount)
+                    ? View.VISIBLE : View.GONE);
+        }
     }
 
     private String formatInsightDay(String storedTime) {
@@ -290,7 +312,7 @@ public class WorkshopFragment extends Fragment {
                                 "心灵日记"});
                 final String preview;
                 if (cursor.moveToFirst()) preview = cursor.getString(0);
-                else preview = "今天还没写日记，点击开始记录...";
+                else preview = GrowthJourneyMessage.emptyJournalPreview();
                 requireActivity().runOnUiThread(() -> tvJournalPreview.setText(preview));
             } finally {
                 if (cursor != null) cursor.close();
@@ -727,18 +749,13 @@ public class WorkshopFragment extends Fragment {
                 final int fNeed = need;
 
                 requireActivity().runOnUiThread(() -> {
+                    GrowthJourneyMessage journey = GrowthJourneyMessage.forRecords(fTotal, fLevel,
+                            Constants.LEVEL_NAMES[fLevel], nextThreshold, fNeed);
                     if (tvLevelBadge != null)
-                        tvLevelBadge.setText("Lv" + (fLevel + 1));
+                        tvLevelBadge.setText(journey.badge);
                     if (tvLevelName != null)
-                        tvLevelName.setText(Constants.LEVEL_NAMES[fLevel]);
-                    if (tvLevelProgress != null) {
-                        if (fNeed > 0) {
-                            tvLevelProgress.setText(fTotal + "/" + nextThreshold
-                                    + " 条记录 · 升级还需 " + fNeed + " 条");
-                        } else {
-                            tvLevelProgress.setText(fTotal + " 条记录 · 已达最高等级");
-                        }
-                    }
+                        tvLevelName.setText(journey.title);
+                    if (tvLevelProgress != null) tvLevelProgress.setText(journey.progress);
                     updateLevelProgress(fTotal, Constants.LEVEL_THRESHOLDS[fLevel], nextThreshold);
                 });
             } finally {

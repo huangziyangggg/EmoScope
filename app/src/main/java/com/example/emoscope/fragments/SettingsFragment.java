@@ -3,7 +3,6 @@ package com.example.emoscope.fragments;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.KeyguardManager;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,6 +37,8 @@ import com.example.emoscope.viewmodels.RadarViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.util.Locale;
 
@@ -296,14 +297,25 @@ public class SettingsFragment extends Fragment {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             int h = prefs.getInt(Constants.KEY_NOTIFY_HOUR, Constants.DEFAULT_NOTIFY_HOUR);
             int m = prefs.getInt(Constants.KEY_NOTIFY_MINUTE, Constants.DEFAULT_NOTIFY_MINUTE);
-            new TimePickerDialog(requireContext(), (view, hour, minute) -> {
+            MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                    .setTimeFormat(TimeFormat.CLOCK_24H)
+                    .setHour(h)
+                    .setMinute(m)
+                    .setTitleText("选择每日提醒时间")
+                    .setPositiveButtonText("保存")
+                    .setNegativeButtonText("取消")
+                    .build();
+            picker.addOnPositiveButtonClickListener(view -> {
+                int hour = picker.getHour();
+                int minute = picker.getMinute();
                 prefs.edit().putInt(Constants.KEY_NOTIFY_HOUR, hour)
                         .putInt(Constants.KEY_NOTIFY_MINUTE, minute).apply();
                 tvNotifyTime.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, minute));
                 if (switchNotifyDaily.isChecked()) {
                     NotificationHelper.scheduleDailyReminder(requireContext(), hour, minute);
                 }
-            }, h, m, true).show();
+            });
+            picker.show(getParentFragmentManager(), "daily_reminder_time_picker");
         });
     }
 
@@ -334,11 +346,13 @@ public class SettingsFragment extends Fragment {
             input.setText(deepseekApiKey);
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("配置 DeepSeek API Key")
-                    .setMessage("API Key 会加密保存在本机。使用 AI 解读时，文本可能发送到 DeepSeek 服务。")
+                    .setMessage("API Key 会加密保存在本机。确认保存即表示你已了解：使用 AI 解读时，输入文本、情绪线索和必要上下文可能发送到 DeepSeek 服务。清空 API Key 可随时停止此类发送。")
                     .setView(input)
                     .setPositiveButton("确认", (d, w) -> {
                         deepseekApiKey = input.getText().toString().trim();
                         secureStorage.put(Constants.KEY_API_KEY, deepseekApiKey);
+                        prefs.edit().putBoolean(Constants.KEY_AI_DATA_CONSENT,
+                                !deepseekApiKey.isEmpty()).apply();
                         updateUI();
                         if (getActivity() instanceof MainActivity) {
                             ((MainActivity) getActivity()).onApiKeyChanged(deepseekApiKey);
@@ -374,7 +388,7 @@ public class SettingsFragment extends Fragment {
                         + "麦克风：用于 Android 系统语音识别，把你的语音转成文本输入。\n\n"
                         + "短信：仅在 SOS 流程中向你设置的紧急联系人发送求助短信。\n\n"
                         + "AI 解读：当你使用 AI 功能时，输入文本和必要上下文可能发送到 DeepSeek 服务。\n\n"
-                        + "本机数据：情绪记录保存在本地数据库；API Key 和紧急联系人通过 Android Keystore 加密保存。你可以随时清除本机数据。\n\n"
+                        + "本机数据：情绪记录保存在本地数据库，默认不参与系统自动云备份；API Key 和紧急联系人通过 Android Keystore 加密保存。你可以随时手动导出、恢复或清除本机数据。\n\n"
                         + "模型边界：表情和语音结果只是自我观察线索，不等同于心理诊断。光线、遮挡、语音识别误差和个人表达习惯都会影响结果。")
                 .setNeutralButton("情绪校准", (dialog, which) -> showCalibrationDialog())
                 .setPositiveButton("我知道了", null)

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Restore the roomier home composition on taller phones. -->
+    <dimen name="home_header_height">210dp</dimen>
+    <dimen name="home_entry_height">116dp</dimen>
+    <dimen name="home_entry_icon_size">64dp</dimen>
+    <dimen name="home_action_size">48dp</dimen>
+    <dimen name="home_header_content_end_padding">72dp</dimen>
+</resources>
