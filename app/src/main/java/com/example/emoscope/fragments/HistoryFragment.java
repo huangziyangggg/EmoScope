@@ -1,7 +1,5 @@
 package com.example.emoscope.fragments;
 
-import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,7 +14,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,9 +30,14 @@ import com.example.emoscope.EmoDatabaseHelper;
 import com.example.emoscope.EmoLineChartView;
 import com.example.emoscope.HistoryAdapter;
 import com.example.emoscope.MainActivity;
+import com.example.emoscope.MoodDialogHelper;
+import com.example.emoscope.MoodSelectionPolicy;
 import com.example.emoscope.R;
 import com.example.emoscope.ResearchDataExporter;
+import com.example.emoscope.history.HistoryBackupFormatter;
+import com.example.emoscope.history.HistoryEmptyStatePolicy;
 import com.example.emoscope.history.HistoryExportFormatter;
+import com.example.emoscope.history.HistoryExportRepository;
 import com.example.emoscope.viewmodels.HistoryViewModel;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.snackbar.Snackbar;
@@ -66,7 +68,7 @@ public class HistoryFragment extends Fragment {
     private HistoryAdapter historyAdapter;
     private TextView tvHistoryEmpty, tvChartEmpty, tvStatTotal, tvStatPos, tvStatNeg, tvStatAvg;
     private FrameLayout chartContainer;
-    private View filterAll, filterWeek, filterMonth;
+    private View filterAll, filterWeek, filterMonth, btnHistoryEmptyRecord;
     private ImageView filterPos, filterWarn;
     private TextView tvNotifyTime; // 可能为 null（在 settings 中）
 
@@ -109,6 +111,8 @@ public class HistoryFragment extends Fragment {
         swipeHistory = v.findViewById(R.id.swipeHistory);
         rvHistory = v.findViewById(R.id.rvHistory);
         tvHistoryEmpty = v.findViewById(R.id.tvHistoryEmpty);
+        btnHistoryEmptyRecord = v.findViewById(R.id.btnHistoryEmptyRecord);
+        btnHistoryEmptyRecord.setOnClickListener(view -> showManualMoodDialog());
         tvChartEmpty = v.findViewById(R.id.tvChartEmpty);
         tvStatTotal = v.findViewById(R.id.tvStatTotal);
         tvStatPos = v.findViewById(R.id.tvStatPos);
@@ -143,8 +147,11 @@ public class HistoryFragment extends Fragment {
             else tvStatAvg.setText("--");
         });
         vm.getIsEmpty().observe(getViewLifecycleOwner(), empty -> {
-            tvHistoryEmpty.setVisibility(Boolean.TRUE.equals(empty) ? View.VISIBLE : View.GONE);
-            rvHistory.setVisibility(Boolean.TRUE.equals(empty) ? View.GONE : View.VISIBLE);
+            boolean isEmpty = Boolean.TRUE.equals(empty);
+            tvHistoryEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            btnHistoryEmptyRecord.setVisibility(HistoryEmptyStatePolicy.shouldShowRecordAction(isEmpty)
+                    ? View.VISIBLE : View.GONE);
+            rvHistory.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
         });
         vm.getIsRefreshing().observe(getViewLifecycleOwner(), refreshing -> {
             if (swipeHistory != null) swipeHistory.setRefreshing(Boolean.TRUE.equals(refreshing));
@@ -218,33 +225,85 @@ public class HistoryFragment extends Fragment {
     private void setupMoreMenu(View v) {
         v.findViewById(R.id.btnHistoryMore).setOnClickListener(view -> {
             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-            PopupMenu popup = new PopupMenu(requireContext(), view);
-            popup.getMenu().add("记录心情");
-            popup.getMenu().add("AI 情绪洞察");
-            popup.getMenu().add("导出报告");
-            popup.getMenu().add("研究导出（匿名）");
-            popup.getMenu().add("JSON 备份");
-            popup.getMenu().add("JSON 恢复");
-            popup.getMenu().add("清空记忆");
-            popup.setOnMenuItemClickListener(item -> {
-                String title = item.getTitle().toString();
-                if (title.contains("记录")) showManualMoodDialog();
-                else if (title.contains("洞察")) generateAIInsight();
-                else if (title.contains("研究导出")) exportResearchData();
-                else if (title.contains("导出")) exportHistoryData();
-                else if (title.contains("备份")) exportJSON();
-                else if (title.contains("恢复")) importJSON();
-                else if (title.contains("清空")) clearHistory();
-                return true;
-            });
-            popup.show();
+            String[] actions = {
+                    "记录心情",
+                    "AI 情绪洞察",
+                    "导出报告",
+                    "研究导出（匿名）",
+                    "JSON 备份",
+                    "JSON 恢复",
+                    "清空记忆"
+            };
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("更多操作")
+                    .setItems(actions, (dialog, which) -> handleMoreAction(which))
+                    .show();
         });
+    }
+
+    private void handleMoreAction(int actionIndex) {
+        switch (actionIndex) {
+            case 0:
+                showManualMoodDialog();
+                break;
+            case 1:
+                generateAIInsight();
+                break;
+            case 2:
+                exportHistoryData();
+                break;
+            case 3:
+                exportResearchData();
+                break;
+            case 4:
+                exportJSON();
+                break;
+            case 5:
+                importJSON();
+                break;
+            case 6:
+                clearHistory();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown history action: " + actionIndex);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════
     // 手动心情打卡
     // ═══════════════════════════════════════════════════════════════
     private void showManualMoodDialog() {
+        MoodDialogHelper.showMoodPicker(requireContext(), true, true,
+                getString(R.string.mood_picker_title), (index, label, tag, note) -> {
+                    String detail = "心情: " + label;
+                    if (!tag.isEmpty()) {
+                        detail += " #" + tag;
+                    }
+                    if (!note.isEmpty()) {
+                        detail += "\n备注: " + note;
+                    }
+                    saveToDatabase("手动记录", detail, MoodSelectionPolicy.isPositiveMood(index));
+                    updateStreak();
+                    loadHistoryData();
+                    showSnackbar(getString(R.string.mood_picker_saved, label));
+                    showManualMoodAiPrompt(detail);
+                });
+    }
+
+    private void showManualMoodAiPrompt(String detail) {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle("AI 情绪解读")
+                .setMessage("需要 AI 为你解读当前情绪状态吗？")
+                .setPositiveButton("立即解读", (dialog, which) -> requestAiAnalysis(detail))
+                .setNegativeButton("稍后", null)
+                .show();
+    }
+
+    /**
+     * 由统一选择组件取代，暂时保留以便下一轮从 Fragment 移除历史 UI 实现。
+     */
+    @Deprecated
+    private void showLegacyManualMoodDialog() {
         LinearLayout grid = new LinearLayout(requireContext());
         grid.setOrientation(LinearLayout.VERTICAL);
         grid.setPadding(32, 24, 32, 16);
@@ -576,23 +635,8 @@ public class HistoryFragment extends Fragment {
     private void executeResearchExport(int format) {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor cursor = null;
             try {
-                cursor = db.rawQuery("SELECT " + Constants.COL_TIME + ","
-                        + Constants.COL_TYPE + ","
-                        + Constants.COL_DETAIL + ","
-                        + Constants.COL_POSITIVE
-                        + " FROM " + Constants.TABLE_RECORDS
-                        + " ORDER BY " + Constants.COL_ID + " DESC", null);
-
-                List<ResearchDataExporter.Record> rows = new ArrayList<>();
-                while (cursor.moveToNext()) {
-                    rows.add(new ResearchDataExporter.Record(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getInt(3) == 1));
-                }
+                List<ResearchDataExporter.Record> rows = HistoryExportRepository.loadResearchRows(db);
 
                 if (rows.isEmpty()) {
                     runOnUiThreadSafe(() -> showSnackbar("暂无可导出的研究数据"));
@@ -600,11 +644,11 @@ public class HistoryFragment extends Fragment {
                 }
 
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-                String reportStr = format == 0
-                        ? ResearchDataExporter.buildAnonymousJson(rows, AppBrand.androidSourceLabel())
-                        : ResearchDataExporter.buildAnonymousCsv(rows);
-                String fileName = AppBrand.researchFileName(ts, format == 0);
-                String mimeType = format == 0 ? "application/json" : "text/csv";
+                HistoryExportRepository.ExportData export = HistoryExportRepository.buildResearchExport(
+                        rows, format == 0, ts);
+                String reportStr = export.content;
+                String fileName = export.fileName;
+                String mimeType = export.mimeType;
                 String savedPath = saveExportFile(fileName, reportStr);
 
                 runOnUiThreadSafe(() -> {
@@ -624,7 +668,6 @@ public class HistoryFragment extends Fragment {
                     if (savedPath != null) showSnackbar("匿名研究数据已保存");
                 });
             } finally {
-                if (cursor != null) cursor.close();
                 db.close();
             }
         });
@@ -645,51 +688,21 @@ public class HistoryFragment extends Fragment {
     private void executeExport(int format, int days) {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor cursor = null;
             try {
-                cursor = db.rawQuery("SELECT * FROM " + Constants.TABLE_RECORDS
-                        + " ORDER BY " + Constants.COL_ID + " DESC", null);
-
-                List<String[]> rows = new ArrayList<>();
-                while (cursor.moveToNext()) {
-                    String time = cursor.getString(1);
-                    if (days > 0 && !EmoDatabaseHelper.isWithinLastDays(time, days)) {
-                        continue;
-                    }
-                    rows.add(new String[]{
-                            time, cursor.getString(2),
-                            cursor.getString(3), cursor.getString(4)
-                    });
-                }
+                List<HistoryExportFormatter.Record> rows = HistoryExportRepository.loadRows(db, days);
                 if (rows.isEmpty()) {
                     runOnUiThreadSafe(() -> showSnackbar("报告生成失败：暂无情绪记录"));
                     return;
                 }
 
-                String reportStr;
-                String fileName;
-                String mimeType;
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
                 String generatedAt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
-                List<HistoryExportFormatter.Record> exportRows = toExportRecords(rows);
-                if (format == 0) {
-                    reportStr = HistoryExportFormatter.buildText(exportRows, generatedAt);
-                    fileName = AppBrand.reportFileName(ts, "txt");
-                    mimeType = "text/plain";
-                } else if (format == 1) {
-                    reportStr = HistoryExportFormatter.buildCsv(exportRows);
-                    fileName = AppBrand.reportFileName(ts, "csv");
-                    mimeType = "text/csv";
-                } else {
-                    reportStr = HistoryExportFormatter.buildMarkdown(exportRows, generatedAt);
-                    fileName = AppBrand.reportFileName(ts, "md");
-                    mimeType = "text/markdown";
-                }
-
-                String savedPath = saveExportFile(fileName, reportStr);
-                final String finalReport = reportStr;
-                final String finalFileName = fileName;
-                final String finalMimeType = mimeType;
+                HistoryExportRepository.ExportData export = HistoryExportRepository.buildExport(
+                        rows, format, ts, generatedAt);
+                String savedPath = saveExportFile(export.fileName, export.content);
+                final String finalReport = export.content;
+                final String finalFileName = export.fileName;
+                final String finalMimeType = export.mimeType;
                 final String finalSavedPath = savedPath;
 
                 runOnUiThreadSafe(() -> {
@@ -714,29 +727,16 @@ public class HistoryFragment extends Fragment {
                     }
                 });
             } finally {
-                if (cursor != null) cursor.close();
                 db.close();
             }
         });
     }
 
-    private List<HistoryExportFormatter.Record> toExportRecords(List<String[]> rows) {
-        List<HistoryExportFormatter.Record> result = new ArrayList<>();
-        for (String[] row : rows) {
-            result.add(HistoryExportFormatter.Record.fromLegacyRow(row));
-        }
-        return result;
-    }
-
     private String saveExportFile(String fileName, String content) {
         try {
             java.io.File dir = new java.io.File(requireContext().getExternalFilesDir(null), "Exports");
-            if (!dir.exists()) dir.mkdirs();
-            java.io.File file = new java.io.File(dir, fileName);
-            java.io.Writer writer = new java.io.OutputStreamWriter(
-                    new java.io.FileOutputStream(file), java.nio.charset.StandardCharsets.UTF_8);
-            writer.write(content);
-            writer.close();
+            java.io.File file = HistoryExportRepository.writeExport(dir,
+                    new HistoryExportRepository.ExportData(fileName, "", content));
             return file.getAbsolutePath();
         } catch (Exception e) {
             return null;
@@ -830,42 +830,30 @@ public class HistoryFragment extends Fragment {
     private void exportJSON() {
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor cursor = null;
             try {
-                cursor = db.rawQuery("SELECT * FROM " + Constants.TABLE_RECORDS
-                        + " ORDER BY " + Constants.COL_ID, null);
-                org.json.JSONArray arr = new org.json.JSONArray();
-                while (cursor.moveToNext()) {
-                    org.json.JSONObject obj = new org.json.JSONObject();
-                    obj.put("time", cursor.getString(1));
-                    obj.put("type", cursor.getString(2));
-                    obj.put("detail", cursor.getString(3));
-                    obj.put("positive", cursor.getInt(4));
-                    arr.put(obj);
-                }
+                List<com.example.emoscope.history.HistoryBackupFormatter.Record> rows =
+                        HistoryExportRepository.loadBackupRows(db);
 
                 java.io.File dir = new java.io.File(
                         android.os.Environment.getExternalStoragePublicDirectory(
                                 android.os.Environment.DIRECTORY_DOWNLOADS), AppBrand.EXPORT_DIRECTORY);
-                if (!dir.exists()) dir.mkdirs();
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-                java.io.File file = new java.io.File(dir, AppBrand.backupFileName(ts));
-                java.io.FileWriter writer = new java.io.FileWriter(file);
-                writer.write(arr.toString(2));
-                writer.close();
+                java.io.File file = HistoryExportRepository.writeExport(dir,
+                        new HistoryExportRepository.ExportData(AppBrand.backupFileName(ts),
+                                "application/json", HistoryBackupFormatter.buildJson(rows)));
 
                 final String path = file.getAbsolutePath();
+                final int recordCount = rows.size();
                 requireActivity().runOnUiThread(() -> {
                     new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
                             .setTitle("备份完成")
-                            .setMessage("已保存 " + arr.length() + " 条记录到：\n" + path)
+                            .setMessage("已保存 " + recordCount + " 条记录到：\n" + path)
                             .setPositiveButton("知道了", null)
                             .show();
                 });
             } catch (Exception e) {
                 requireActivity().runOnUiThread(() -> showSnackbar("备份失败：" + e.getMessage()));
             } finally {
-                if (cursor != null) cursor.close();
                 db.close();
             }
         });
@@ -885,65 +873,36 @@ public class HistoryFragment extends Fragment {
             try {
                 java.io.File downloads = android.os.Environment.getExternalStoragePublicDirectory(
                         android.os.Environment.DIRECTORY_DOWNLOADS);
-                java.io.File dir = new java.io.File(downloads, AppBrand.EXPORT_DIRECTORY);
-                java.io.File legacyDir = new java.io.File(downloads, AppBrand.LEGACY_EXPORT_DIRECTORY);
-                if ((!dir.exists() || dir.listFiles() == null)
-                        && legacyDir.exists()
-                        && legacyDir.listFiles() != null) {
-                    dir = legacyDir;
-                }
+                java.io.File dir = HistoryExportRepository.selectImportDirectory(downloads);
                 if (!dir.exists() || dir.listFiles() == null) {
                     requireActivity().runOnUiThread(() -> showSnackbar(getString(R.string.import_json_empty)));
                     return;
                 }
-                java.io.File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
-                if (files == null || files.length == 0) {
+                java.io.File latest = HistoryExportRepository.findLatestJsonBackup(dir);
+                if (latest == null) {
                     requireActivity().runOnUiThread(() -> showSnackbar(getString(R.string.import_json_empty)));
                     return;
                 }
                 // 取最新的备份文件
-                java.io.File latest = files[0];
-                for (java.io.File f : files) {
-                    if (f.lastModified() > latest.lastModified()) latest = f;
-                }
-
-                String content = readFileText(latest);
-                org.json.JSONArray arr = new org.json.JSONArray(content);
-
+                String content = HistoryExportRepository.readUtf8(latest);
+                int count;
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
-                for (int i = 0; i < arr.length(); i++) {
-                    org.json.JSONObject obj = arr.getJSONObject(i);
-                    ContentValues values = new ContentValues();
-                    values.put(Constants.COL_TIME, obj.getString("time"));
-                    values.put(Constants.COL_TYPE, obj.getString("type"));
-                    values.put(Constants.COL_DETAIL, obj.getString("detail"));
-                    values.put(Constants.COL_POSITIVE, obj.optInt("positive", 1));
-                    db.insert(Constants.TABLE_RECORDS, null, values);
+                try {
+                    count = HistoryExportRepository.importBackup(db, content);
+                } finally {
+                    db.close();
                 }
-                db.close();
 
-                final int count = arr.length();
+                final int importedCount = count;
                 requireActivity().runOnUiThread(() -> {
                     showSnackbar(String.format(Locale.getDefault(),
-                            getString(R.string.import_json_success), count));
+                            getString(R.string.import_json_success), importedCount));
                     loadHistoryData();
                 });
             } catch (Exception e) {
                 requireActivity().runOnUiThread(() -> showSnackbar("恢复失败：" + e.getMessage()));
             }
         });
-    }
-
-    private String readFileText(java.io.File file) throws java.io.IOException {
-        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
-        try (java.io.InputStream input = new java.io.FileInputStream(file)) {
-            byte[] chunk = new byte[4096];
-            int read;
-            while ((read = input.read(chunk)) != -1) {
-                buffer.write(chunk, 0, read);
-            }
-        }
-        return buffer.toString("UTF-8");
     }
 
     private void showSnackbar(String msg) {

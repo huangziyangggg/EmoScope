@@ -8,6 +8,7 @@
     <string name="greeting_noon">午后时光，\n让思绪放慢脚步</string>
     <string name="greeting_afternoon">午后时光，\n让思绪放慢脚步</string>
     <string name="greeting_evening">晚上好，\n今天辛苦了</string>
+    <string name="home_narrative_subtitle">把此刻留给自己</string>
 
     <!-- 灵敏度 -->
     <string name="sensitivity_low">低（防误触）</string>
@@ -57,6 +58,7 @@
     <!-- AI -->
     <string name="ai_connecting">AI 模型连接中…</string>
     <string name="ai_no_api_key">请先在「控制」页面配置 DeepSeek API Key</string>
+    <string name="ai_consent_required">请先在「我的」页面确认 AI 数据使用说明</string>
     <string name="ai_busy">AI 引擎处理中，请稍后…</string>
     <string name="ai_request_failed">AI 连接失败，请检查网络或 API Key 余额</string>
 
@@ -123,6 +125,14 @@
 
     <!-- 情绪评分 -->
     <string name="mood_score_format">情绪评分 · %d分</string>
+
+    <!-- 快速记录 -->
+    <string name="mood_picker_title">记录此刻的感受</string>
+    <string name="mood_picker_prompt">此刻更接近哪一种感受？</string>
+    <string name="mood_picker_selection_required">请先选择一种感受</string>
+    <string name="mood_picker_note_hint">添加备注（可选）</string>
+    <string name="mood_picker_save">保存记录</string>
+    <string name="mood_picker_saved">已记录：%1$s</string>
 
     <!-- 手动记录 AI -->
     <string name="manual_ai_analyze">AI 解读当前情绪</string>

@@ -66,6 +66,12 @@ public class DeepSeekClient {
             callback.onAiError(context.getString(R.string.ai_no_api_key));
             return;
         }
+        boolean acknowledged = context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(Constants.KEY_AI_DATA_CONSENT, false);
+        if (!AiDataConsentPolicy.canSendToExternalAi(apiKey, acknowledged)) {
+            callback.onAiError(context.getString(R.string.ai_consent_required));
+            return;
+        }
         if (isInProgress) {
             callback.onAiError(context.getString(R.string.ai_busy));
             return;

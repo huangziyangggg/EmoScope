@@ -10,9 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="156dp"
+        android:paddingStart="@dimen/page_horizontal_padding"
+        android:paddingEnd="@dimen/page_horizontal_padding"
+        android:paddingBottom="@dimen/page_bottom_safe_padding"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,11 +22,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="68dp">
+            android:paddingTop="@dimen/page_top_padding">
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp">
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/home_header_height">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -57,7 +58,7 @@
                             android:layout_marginStart="10dp"
                             android:text="6月10日  星期三"
                             android:textColor="@color/glass_ink_soft"
-                            android:textSize="15sp"
+                            android:textSize="@dimen/home_date_text_size"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -65,26 +66,29 @@
                         android:id="@+id/tvDynamicGreeting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="34dp"
-                        android:lineSpacingExtra="8dp"
+                    android:layout_marginTop="18dp"
+                    android:lineSpacingExtra="4dp"
+                    android:maxLines="2"
+                    android:paddingEnd="@dimen/home_header_content_end_padding"
                         android:text="@string/greeting_default"
                         android:textColor="@color/glass_ink"
-                        android:textSize="34sp"
+                    android:textSize="@dimen/home_greeting_text_size"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
-                        android:text="给心灵片刻宁静，遇见更好的自己"
+                    android:layout_marginTop="8dp"
+                    android:paddingEnd="@dimen/home_header_content_end_padding"
+                        android:text="@string/home_narrative_subtitle"
                         android:textColor="@color/glass_ink_soft"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/home_narrative_text_size" />
                 </LinearLayout>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnTtsToggle"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="@dimen/home_action_size"
+                    android:layout_height="@dimen/home_action_size"
                     android:layout_gravity="end|center_vertical"
                     android:layout_marginEnd="4dp"
                     android:clickable="true"
@@ -150,7 +154,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnQuickMood"
                 android:layout_width="match_parent"
-                android:layout_height="132dp"
+                android:layout_height="@dimen/home_entry_height"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@android:color/transparent"
@@ -168,8 +172,8 @@
                     android:paddingEnd="18dp">
 
                     <ImageView
-                        android:layout_width="76dp"
-                        android:layout_height="76dp"
+                        android:layout_width="@dimen/home_entry_icon_size"
+                        android:layout_height="@dimen/home_entry_icon_size"
                         android:background="@drawable/bg_home_icon_record"
                         android:contentDescription="快速记录"
                         android:padding="18dp"
@@ -188,16 +192,17 @@
                             android:layout_height="wrap_content"
                             android:text="快速记录"
                             android:textColor="@color/glass_ink"
-                            android:textSize="21sp"
+                            android:textSize="@dimen/home_entry_title_text_size"
                             android:textStyle="bold" />
 
                         <TextView
+                            style="@style/Widget.EmoScope.HomeEntryBody"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="手动写下此刻情绪"
                             android:textColor="@color/glass_ink_soft"
-                            android:textSize="15sp" />
+                            android:textSize="@dimen/home_entry_body_text_size" />
                     </LinearLayout>
 
                     <ImageView
@@ -213,15 +218,15 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginTop="18dp"
+                android:layout_height="@dimen/home_entry_height"
+                android:layout_marginTop="@dimen/item_spacing"
                 android:clipChildren="false"
                 android:clipToPadding="false">
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnContainerMain"
                     android:layout_width="match_parent"
-                    android:layout_height="132dp"
+                    android:layout_height="@dimen/home_entry_height"
                     android:layout_gravity="center"
                     android:clickable="true"
                     android:focusable="true"
@@ -240,9 +245,9 @@
                         android:paddingEnd="18dp">
 
                         <ImageView
-                            android:layout_width="76dp"
-                            android:layout_height="76dp"
-                            android:background="@drawable/bg_home_icon_voice"
+                        android:layout_width="@dimen/home_entry_icon_size"
+                        android:layout_height="@dimen/home_entry_icon_size"
+                        android:background="@drawable/bg_home_icon_voice"
                             android:contentDescription="语音倾诉"
                             android:padding="18dp"
                             android:src="@drawable/ic_mic"
@@ -261,16 +266,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="按住说话"
                                 android:textColor="@color/glass_ink"
-                                android:textSize="21sp"
+                                android:textSize="@dimen/home_entry_title_text_size"
                                 android:textStyle="bold" />
 
                             <TextView
+                                style="@style/Widget.EmoScope.HomeEntryBody"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="用语音获得 AI 陪伴"
                                 android:textColor="@color/glass_ink_soft"
-                                android:textSize="15sp" />
+                                android:textSize="@dimen/home_entry_body_text_size" />
                         </LinearLayout>
 
                         <ImageView
@@ -286,15 +292,15 @@
 
                 <com.example.emoscope.SonarRippleView
                     android:id="@+id/sonarRipple"
-                    android:layout_width="132dp"
-                    android:layout_height="132dp"
+                android:layout_width="@dimen/home_entry_height"
+                android:layout_height="@dimen/home_entry_height"
                     android:layout_gravity="center"
                     android:visibility="gone" />
 
                 <com.example.emoscope.VoiceWaveView
                     android:id="@+id/voiceWaveView"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
+                android:layout_width="@dimen/home_entry_height"
+                android:layout_height="@dimen/home_entry_height"
                     android:layout_gravity="center"
                     android:visibility="gone" />
             </FrameLayout>
@@ -302,8 +308,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvFaceAnalysis"
                 android:layout_width="match_parent"
-                android:layout_height="132dp"
-                android:layout_marginTop="0dp"
+                android:layout_height="@dimen/home_entry_height"
+                android:layout_marginTop="@dimen/item_spacing"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@android:color/transparent"
@@ -321,8 +327,8 @@
                     android:paddingEnd="18dp">
 
                     <ImageView
-                        android:layout_width="76dp"
-                        android:layout_height="76dp"
+                        android:layout_width="@dimen/home_entry_icon_size"
+                        android:layout_height="@dimen/home_entry_icon_size"
                         android:background="@drawable/bg_home_icon_face"
                         android:contentDescription="面容分析"
                         android:padding="18dp"
@@ -341,17 +347,18 @@
                             android:layout_height="wrap_content"
                             android:text="面容分析"
                             android:textColor="@color/glass_ink"
-                            android:textSize="21sp"
+                            android:textSize="@dimen/home_entry_title_text_size"
                             android:textStyle="bold" />
 
                         <TextView
+                            style="@style/Widget.EmoScope.HomeEntryBody"
                             android:id="@+id/btnOpenFaceCamera"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="打开相机识别状态"
                             android:textColor="@color/glass_ink_soft"
-                            android:textSize="15sp" />
+                            android:textSize="@dimen/home_entry_body_text_size" />
                     </LinearLayout>
 
                     <ImageView
@@ -369,7 +376,7 @@
                 android:id="@+id/cvAiResponse"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="@dimen/section_spacing"
                 android:visibility="gone"
                 app:cardBackgroundColor="#F7FFFFFF"
                 app:cardElevation="0dp"

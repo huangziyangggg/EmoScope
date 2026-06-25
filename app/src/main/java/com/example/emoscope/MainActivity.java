@@ -19,7 +19,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,10 +34,16 @@ import com.example.emoscope.fragments.HistoryFragment;
 import com.example.emoscope.fragments.RadarFragment;
 import com.example.emoscope.fragments.SettingsFragment;
 import com.example.emoscope.fragments.WorkshopFragment;
+import com.example.emoscope.controllers.CameraOverlayCoordinator;
+import com.example.emoscope.controllers.CameraSessionPolicy;
+import com.example.emoscope.controllers.FaceCaptureRecord;
+import com.example.emoscope.controllers.FaceCapturePersistenceController;
+import com.example.emoscope.controllers.SosOverlayCoordinator;
 import com.example.emoscope.viewmodels.HistoryViewModel;
 import com.example.emoscope.viewmodels.RadarViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.mediapipe.tasks.components.containers.Category;
 
 import java.util.List;
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity
     private DeepSeekClient deepSeekClient;
     private FaceAnalyzer faceAnalyzer;
     private CameraEmotionController cameraController;
+    private FaceCapturePersistenceController faceCapturePersistence;
     private BreathingEngine breathingEngine;
     private SosInterventionController sosController;
     private VoiceRecognitionController voiceController;
@@ -121,9 +127,29 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // 处理系统栏内边距，避免内容被状态栏遮挡
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.fragmentContainer), (v, insets) -> {
+        View fragmentContainer = findViewById(R.id.fragmentContainer);
+        int baseContentPaddingTop = fragmentContainer.getPaddingTop();
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(fragmentContainer, (v, insets) -> {
             int top = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.statusBars()).top;
-            v.setPadding(v.getPaddingLeft(), top, v.getPaddingRight(), v.getPaddingBottom());
+            v.setPadding(v.getPaddingLeft(), baseContentPaddingTop + top,
+                    v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+        });
+        View bottomNavigation = findViewById(R.id.bottomNav);
+        int baseNavigationHeight = bottomNavigation.getLayoutParams().height;
+        int baseNavigationBottomPadding = bottomNavigation.getPaddingBottom();
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(bottomNavigation, (v, insets) -> {
+            int navigationInset = insets.getInsets(
+                    androidx.core.view.WindowInsetsCompat.Type.navigationBars()).bottom;
+            android.view.ViewGroup.LayoutParams params = v.getLayoutParams();
+            int targetHeight = BottomNavigationInsetsPolicy.containerHeight(
+                    baseNavigationHeight, navigationInset);
+            if (params.height != targetHeight) {
+                params.height = targetHeight;
+                v.setLayoutParams(params);
+            }
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(),
+                    BottomNavigationInsetsPolicy.bottomPadding(baseNavigationBottomPadding, navigationInset));
             return insets;
         });
 
@@ -217,6 +243,15 @@ public class MainActivity extends AppCompatActivity
 
         // 绑定 Activity 级别视图
         bindActivityViews();
+
+        faceCapturePersistence = new FaceCapturePersistenceController(
+                backgroundExecutor, dbHelper::saveRecord, record -> runOnUiThread(() -> {
+            showUserMessage(record.successMessage());
+            resetCaptureUI();
+            if (radarFragment != null) {
+                radarFragment.refreshDailyLoop();
+            }
+        }));
 
         cameraController = new CameraEmotionController(this, this, viewFinder,
                 backgroundExecutor, new CameraEmotionController.Callback() {
@@ -329,9 +364,7 @@ public class MainActivity extends AppCompatActivity
         // 通知渠道
         NotificationHelper.createChannels(this);
 
-        // 启动相机
-        if (checkCorePermissions()) { setupVisualEngine(); startCamera(); }
-        else { requestCorePermissions(); }
+        // 相机和麦克风均在用户主动进入对应功能时再申请，手动记录无需授权。
     }
 
     private int getTabIndex(Fragment f) {
@@ -366,10 +399,25 @@ public class MainActivity extends AppCompatActivity
             triggerHaptic(bottomNav, HapticFeedbackConstants.VIRTUAL_KEY);
             int id = item.getItemId();
             Fragment target;
-            if (id == R.id.navRadar) target = radarFragment;
-            else if (id == R.id.navWorkshop) { target = workshopFragment; workshopFragment.refreshUI(); }
-            else if (id == R.id.navHistory) { target = historyFragment; historyFragment.loadHistoryData(); }
-            else { target = settingsFragment; settingsFragment.refreshUI(); }
+            switch (MainNavigationPolicy.destinationFor(id, R.id.navRadar, R.id.navWorkshop,
+                    R.id.navHistory, R.id.navSettings)) {
+                case HOME:
+                    target = radarFragment;
+                    break;
+                case GROWTH:
+                    target = workshopFragment;
+                    workshopFragment.refreshUI();
+                    break;
+                case HISTORY:
+                    target = historyFragment;
+                    historyFragment.loadHistoryData();
+                    break;
+                case SETTINGS:
+                default:
+                    target = settingsFragment;
+                    settingsFragment.refreshUI();
+                    break;
+            }
 
             if (target == activeFragment) return true;
 
@@ -388,8 +436,8 @@ public class MainActivity extends AppCompatActivity
     // ═══════════════════════════════════════════════════════════════
     @Override public void onFaceCardClicked() {
         triggerHaptic(getWindow().getDecorView(), HapticFeedbackConstants.VIRTUAL_KEY);
-        if (!checkCorePermissions()) {
-            showCorePermissionDialog();
+        if (!checkCameraPermission()) {
+            showCameraPermissionDialog();
             return;
         }
         latestEmotionResult = null;
@@ -399,6 +447,7 @@ public class MainActivity extends AppCompatActivity
         layoutCameraMode.setAlpha(0f);
         layoutCameraMode.setVisibility(View.VISIBLE);
         layoutCameraMode.animate().alpha(1f).setDuration(300).start();
+        startRequestedCameraSession();
     }
 
     @Override public void onSOSClicked() {
@@ -416,10 +465,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override public void onVoiceButtonPressed() {
         // 先检查录音权限 — 独立请求，不捆绑相机
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this, Manifest.permission.RECORD_AUDIO)) {
+        RuntimePermissionPolicy.NextAction audioPermissionAction =
+                RuntimePermissionPolicy.nextAction(
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                                == PackageManager.PERMISSION_GRANTED,
+                        ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.RECORD_AUDIO));
+        if (audioPermissionAction != RuntimePermissionPolicy.NextAction.ALREADY_GRANTED) {
+            if (audioPermissionAction == RuntimePermissionPolicy.NextAction.SHOW_RATIONALE) {
                 new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                         .setTitle("需要麦克风权限")
                         .setMessage("语音情绪识别需要访问麦克风，用于将你说的话转成文字。录音数据仅在本地处理。")
@@ -566,6 +619,21 @@ public class MainActivity extends AppCompatActivity
 
     /** 快速心情记录弹窗 — 复用 HistoryFragment 的心情打卡逻辑 */
     public void showQuickMoodDialog() {
+        MoodDialogHelper.showMoodPicker(this, false, false,
+                getString(R.string.mood_picker_title), (index, label, tag, note) -> {
+                    saveToDatabase("手动记录", "心情: " + label,
+                            MoodSelectionPolicy.isPositiveMood(index));
+                    updateStreakFromMain();
+                    refreshDailyLoopSoon();
+                    showUserMessage(getString(R.string.mood_picker_saved, label));
+                });
+    }
+
+    /**
+     * 已由 MoodDialogHelper 取代，暂时保留以便下一轮将历史实现移出 MainActivity。
+     */
+    @Deprecated
+    private void showLegacyQuickMoodDialog() {
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
         grid.setPadding(32, 24, 32, 16);
@@ -683,42 +751,57 @@ public class MainActivity extends AppCompatActivity
     // 覆盖层交互 (Camera / Breathing)
     // ═══════════════════════════════════════════════════════════════
     private void setupOverlayInteractions() {
-        findViewById(R.id.btnCloseCamera).setOnClickListener(v -> {
-            triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
-            layoutCameraMode.animate().cancel();
-            layoutCameraMode.animate().alpha(0f).setDuration(300).withEndAction(() -> {
-                layoutCameraMode.setVisibility(View.GONE);
-                layoutCameraMode.setAlpha(1f);
-                fragmentContainer().setVisibility(View.VISIBLE);
-                bottomNav.setVisibility(View.VISIBLE);
-            }).start();
-        });
+        new CameraOverlayCoordinator(new CameraOverlayCoordinator.Host() {
+            @Override
+            public void performActionHaptic(View source) {
+                triggerHaptic(source, HapticFeedbackConstants.VIRTUAL_KEY);
+            }
 
-        findViewById(R.id.btnFlipCamera).setOnClickListener(v -> {
-            triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
-            v.animate().rotationBy(180).setDuration(300).start();
-            if (cameraController != null) cameraController.flipCamera();
-        });
+            @Override
+            public void closeCameraOverlay() {
+                MainActivity.this.closeCameraOverlay();
+            }
 
-        // ══ 拍照打分按钮 ══
-        btnCaptureFace.setOnClickListener(v -> {
-            triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
-            captureFaceScore();
-        });
+            @Override
+            public void flipCamera(View source) {
+                source.animate().rotationBy(180).setDuration(300).start();
+                if (cameraController != null) cameraController.flipCamera();
+            }
 
-        btnSaveCapture.setOnClickListener(v -> saveCaptureResult());
-        btnDiscardCapture.setOnClickListener(v -> discardCaptureResult());
+            @Override
+            public void captureFaceScore() {
+                MainActivity.this.captureFaceScore();
+            }
 
-        btnCloseBreath.setOnClickListener(v -> {
-            triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
-            stopBreathingIntervention();
-        });
+            @Override
+            public void saveCaptureResult() {
+                MainActivity.this.saveCaptureResult();
+            }
 
-        btnCallHotline.setOnClickListener(v -> {
-            triggerHaptic(v, HapticFeedbackConstants.VIRTUAL_KEY);
-            startActivity(new Intent(Intent.ACTION_DIAL,
-                    Uri.parse("tel:" + Constants.HOTLINE_NUMBER)));
-        });
+            @Override
+            public void discardCaptureResult() {
+                MainActivity.this.discardCaptureResult();
+            }
+        }).bind(findViewById(R.id.btnCloseCamera), findViewById(R.id.btnFlipCamera),
+                btnCaptureFace, btnSaveCapture, btnDiscardCapture);
+
+        new SosOverlayCoordinator(new SosOverlayCoordinator.Host() {
+            @Override
+            public void performActionHaptic(View source) {
+                triggerHaptic(source, HapticFeedbackConstants.VIRTUAL_KEY);
+            }
+
+            @Override
+            public void stopBreathingIntervention() {
+                MainActivity.this.stopBreathingIntervention();
+            }
+
+            @Override
+            public void dialHotline() {
+                startActivity(new Intent(Intent.ACTION_DIAL,
+                        Uri.parse("tel:" + Constants.HOTLINE_NUMBER)));
+            }
+        }).bind(btnCloseBreath, btnCallHotline);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -755,23 +838,24 @@ public class MainActivity extends AppCompatActivity
                 .start();
     }
 
+    private void closeCameraOverlay() {
+        layoutCameraMode.animate().cancel();
+        layoutCameraMode.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+            layoutCameraMode.setVisibility(View.GONE);
+            layoutCameraMode.setAlpha(1f);
+            fragmentContainer().setVisibility(View.VISIBLE);
+            bottomNav.setVisibility(View.VISIBLE);
+        }).start();
+    }
+
     private void saveCaptureResult() {
         FaceAnalyzer.EmotionResult r = latestEmotionResult;
         if (r == null) return;
 
-        String detail = "面容快照 | 加权分: " + r.weightedScore
-                + " | ①" + r.prob1 + " ②" + r.prob2 + " ③" + r.prob3;
-        boolean positive = r.weightedScore >= 50;
+        FaceCaptureRecord record = FaceCaptureRecord.create(r.weightedScore,
+                r.prob1, r.prob2, r.prob3);
 
-        backgroundExecutor.execute(() -> {
-            dbHelper.saveRecord("面容分析", detail, positive);
-            runOnUiThread(() -> {
-                showUserMessage("已保存 · 情绪分 " + r.weightedScore + "/100");
-                resetCaptureUI();
-                // 刷新首页数据
-                if (radarFragment != null) radarFragment.refreshDailyLoop();
-            });
-        });
+        faceCapturePersistence.save(record);
     }
 
     private void discardCaptureResult() {
@@ -906,6 +990,14 @@ public class MainActivity extends AppCompatActivity
         if (cameraController != null) cameraController.startCamera();
     }
 
+    private void startRequestedCameraSession() {
+        if (!CameraSessionPolicy.shouldStart(checkCameraPermission(), true)) {
+            return;
+        }
+        setupVisualEngine();
+        startCamera();
+    }
+
     private void startVoiceRecognition() {
         if (voiceController != null) voiceController.start();
     }
@@ -934,10 +1026,8 @@ public class MainActivity extends AppCompatActivity
     // ═══════════════════════════════════════════════════════════════
     // 权限
     // ═══════════════════════════════════════════════════════════════
-    private boolean checkCorePermissions() {
+    private boolean checkCameraPermission() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -946,30 +1036,25 @@ public class MainActivity extends AppCompatActivity
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestCorePermissions() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)
-                || ActivityCompat.shouldShowRequestPermissionRationale(
-                this, Manifest.permission.RECORD_AUDIO)) {
-            showCorePermissionDialog();
-            return;
-        }
-        requestCorePermissionsDirect();
-    }
-
-    private void requestCorePermissionsDirect() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
-                Constants.PERM_CORE);
-    }
-
     private void requestAudioPermission() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.RECORD_AUDIO},
                 Constants.PERM_AUDIO);
     }
 
+    private void requestCameraPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.CAMERA}, Constants.PERM_CAMERA);
+    }
+
     private void requestSmsPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
+        RuntimePermissionPolicy.NextAction smsPermissionAction = RuntimePermissionPolicy.nextAction(
+                checkSmsPermission(), ActivityCompat.shouldShowRequestPermissionRationale(
+                        this, Manifest.permission.SEND_SMS));
+        if (smsPermissionAction == RuntimePermissionPolicy.NextAction.ALREADY_GRANTED) {
+            return;
+        }
+        if (smsPermissionAction == RuntimePermissionPolicy.NextAction.SHOW_RATIONALE) {
             new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.perm_sms_title)
                     .setMessage(R.string.perm_sms_rationale)
@@ -987,18 +1072,17 @@ public class MainActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] perms,
                                            @NonNull int[] results) {
         super.onRequestPermissionsResult(requestCode, perms, results);
-        if (requestCode == Constants.PERM_CORE) {
-            if (results.length >= 2 && results[0] == PackageManager.PERMISSION_GRANTED
-                    && results[1] == PackageManager.PERMISSION_GRANTED) {
-                setupVisualEngine(); startCamera();
-            } else {
-                showCorePermissionDeniedDialog();
-            }
-        } else if (requestCode == Constants.PERM_AUDIO) {
+        if (requestCode == Constants.PERM_AUDIO) {
             if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) {
                 showUserMessage("麦克风权限已开启，现在可以对语音按钮说话了");
             } else {
                 showUserMessage("需要麦克风权限才能使用语音功能，请在系统设置中开启");
+            }
+        } else if (requestCode == Constants.PERM_CAMERA) {
+            if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) {
+                onFaceCardClicked();
+            } else {
+                showUserMessage("未获得相机权限，你仍可使用手动记录和语音倾诉");
             }
         } else if (requestCode == Constants.PERM_SMS && results.length > 0
                 && results[0] == PackageManager.PERMISSION_GRANTED) {
@@ -1035,33 +1119,23 @@ public class MainActivity extends AppCompatActivity
         tvCaptureEmotions = findViewById(R.id.tvCaptureEmotions);
     }
 
-    private void showCorePermissionDialog() {
+    private void showCameraPermissionDialog() {
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("需要相机和麦克风权限")
-                .setMessage("相机用于本地面部情绪分析，麦克风用于系统语音识别。不开启权限时，你仍可使用手动记录和历史查看。")
-                .setPositiveButton("继续授权", (d, w) -> requestCorePermissionsDirect())
+                .setTitle("需要相机权限")
+                .setMessage("相机仅用于本地面容状态分析，不会上传相机画面。不开启时，你仍可使用手动记录和语音倾诉。")
+                .setPositiveButton("允许相机", (d, w) -> requestCameraPermission())
                 .setNegativeButton("暂不授权", null)
                 .show();
     }
 
-    private void showCorePermissionDeniedDialog() {
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("部分核心功能不可用")
-                .setMessage("未获得相机或麦克风权限，面部分析和语音记录将暂停。你可以在系统设置中重新开启权限。")
-                .setPositiveButton("去系统设置", (d, w) -> openAppSettings())
-                .setNegativeButton("稍后再说", null)
-                .show();
-    }
-
-    private void openAppSettings() {
-        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        intent.setData(Uri.parse("package:" + getPackageName()));
-        startActivity(intent);
-    }
-
     private void showUserMessage(String message) {
         if (message == null || message.trim().isEmpty() || isFinishing()) return;
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        View rootView = findViewById(android.R.id.content);
+        Snackbar snackbar = Snackbar.make(rootView, message, Snackbar.LENGTH_LONG);
+        if (bottomNav != null && bottomNav.getVisibility() == View.VISIBLE) {
+            snackbar.setAnchorView(bottomNav);
+        }
+        snackbar.show();
     }
 
     private void setupBreathingCircleBackground() {
@@ -1112,14 +1186,10 @@ public class MainActivity extends AppCompatActivity
         prefs.edit().putBoolean(Constants.KEY_FIRST_LAUNCH, true).apply();
 
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("欢迎使用心镜")
-                .setMessage("欢迎来到心镜，你的 AI 情绪成长伙伴。\n\n"
-                        + "[记录] 对麦克风说话或手动记录，捕捉每一天的情绪瞬间\n\n"
-                        + "[理解] AI 自动分析你的情绪模式、压力来源和开心时刻\n\n"
-                        + "[成长] 持续记录，解锁成就徽章和成长等级\n\n"
-                        + "相机仅用于本地面部分析，麦克风用于系统语音识别。AI 解读会把必要文本发送到你配置的 AI 服务。\n\n"
-                        + "心镜不提供医疗诊断，也不能替代心理咨询或紧急救援。摇晃手机或在“我的”页配置 SOS 紧急求助。")
-                .setPositiveButton("选择目标", (dialog, which) -> showFocusGoalDialog())
+                .setTitle(OnboardingNarrative.title())
+                .setMessage(OnboardingNarrative.message())
+                .setPositiveButton(OnboardingNarrative.primaryActionLabel(),
+                        (dialog, which) -> showFocusGoalDialog())
                 .setCancelable(false)
                 .show();
     }
