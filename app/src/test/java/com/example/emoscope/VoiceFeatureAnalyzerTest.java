@@ -27,4 +27,28 @@ public class VoiceFeatureAnalyzerTest {
         assertEquals(VoiceFeatureAnalyzer.Energy.LOW, result.energy);
         assertTrue(result.summary.contains("偏慢"));
     }
+
+    @Test
+    public void gentleDescriptionIsNonDiagnosticAndWarm() {
+        VoiceFeatureAnalyzer.Result fastResult =
+                VoiceFeatureAnalyzer.analyze("今天事情很多", 2.0f, 8.0f, 10.0f, 8);
+        String fastHint = VoiceFeatureAnalyzer.gentleDescription(fastResult);
+        assertTrue(fastHint.contains("快"));
+        assertTrue(fastHint.contains("响亮"));
+
+        VoiceFeatureAnalyzer.Result slowResult =
+                VoiceFeatureAnalyzer.analyze("我有点累", 8.0f, 1.0f, 2.0f, 3);
+        String slowHint = VoiceFeatureAnalyzer.gentleDescription(slowResult);
+        assertTrue(slowHint.contains("慢"));
+        assertTrue(slowHint.contains("轻声"));
+
+        // 验证包含非诊断提醒
+        assertTrue(fastHint.contains("提醒"));
+        assertTrue(slowHint.contains("提醒"));
+    }
+
+    @Test
+    public void gentleDescriptionHandlesNullGracefully() {
+        assertEquals("暂时没有语音数据", VoiceFeatureAnalyzer.gentleDescription(null));
+    }
 }
