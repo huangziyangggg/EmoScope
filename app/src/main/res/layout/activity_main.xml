@@ -133,21 +133,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="--"
-                    android:textColor="#18181B"
+                    android:textColor="@color/glass_ink"
                     android:textSize="52sp"
                     android:textStyle="bold" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="/ 100 分"
-                    android:textColor="#71717A"
+                    android:textColor="@color/glass_ink_soft"
                     android:textSize="14sp" />
                 <TextView
                     android:id="@+id/tvCaptureEmotions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:textColor="#52525B"
+                    android:textColor="@color/glass_ink_soft"
                     android:textSize="15sp"
                     android:gravity="center"
                     android:lineSpacingExtra="4dp" />
@@ -233,7 +233,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="正在进行概率分析..."
-                        android:textColor="#1D1D1F"
+                        android:textColor="@color/glass_ink"
                         android:textSize="13sp"
                         android:textStyle="bold"/>
                 </LinearLayout>
