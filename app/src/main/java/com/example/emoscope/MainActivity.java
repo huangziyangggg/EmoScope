@@ -340,30 +340,11 @@ public class MainActivity extends AppCompatActivity
                 });
 
         voiceController = new VoiceRecognitionController(this, new VoiceRecognitionController.Callback() {
-            @Override public void onReady() {
-                runOnUiThread(() -> {
-                    radarVM.setVoiceListening();
-                    enterVoiceListeningState();
-                });
-            }
-
-            @Override public void onProcessing() {
-                runOnUiThread(() -> {
-                    radarVM.setVoiceButtonText("处理中...");
-                    if (tvVoiceStatus != null) tvVoiceStatus.setText("正在整理你的表达…");
-                    if (tvVoiceHint != null) tvVoiceHint.setText("说完后点按按钮结束，表达会被记录下来。");
-                });
-            }
-
-            @Override public void onPartialText(String text) {
-                runOnUiThread(() -> {
-                    radarVM.setVoiceText("\"" + text + "\"");
-                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText(text);
-                });
-            }
-
             @Override public void onFinalText(String text, VoiceFeatureAnalyzer.Result features) {
-                runOnUiThread(() -> handleVoiceResult(text, features));
+                runOnUiThread(() -> {
+                    stopRecording();
+                    handleVoiceResult(text, features);
+                });
             }
 
             @Override public void onNoSpeech() {
@@ -371,25 +352,12 @@ public class MainActivity extends AppCompatActivity
                     stopRecording();
                     radarVM.setVoiceNotHeard();
                     if (tvVoiceStatus != null) tvVoiceStatus.setText("没有听清");
-                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText("没有检测到清晰语音，可以靠近一点再试。");
+                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText("可以靠近麦克风再试一次，或改用文字记录。");
                     if (tvVoiceAction != null) tvVoiceAction.setText("开始倾诉");
                 });
             }
 
-            @Override public void onError(String message) {
-                runOnUiThread(() -> {
-                    stopRecording();
-                    radarVM.setVoiceText(message);
-                    if (tvVoiceStatus != null) tvVoiceStatus.setText("识别未完成");
-                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText(message);
-                    if (tvVoiceHint != null) tvVoiceHint.setText("可以靠近麦克风再试一次，或改用文字记录。");
-                    if (tvVoiceAction != null) tvVoiceAction.setText("重试");
-                    showUserMessage("语音识别未完成，可再试一次。");
-                });
-            }
-
             @Override public void onRequestSystemVoice(Intent intent, int requestCode) {
-                // 路径 B：启动系统语音对话框（国产手机回退方案）
                 runOnUiThread(() -> {
                     try {
                         startActivityForResult(intent, requestCode);
@@ -688,14 +656,12 @@ public class MainActivity extends AppCompatActivity
         isVoiceRecording = true;
         triggerHaptic(btnVoiceStartStop, HapticFeedbackConstants.VIRTUAL_KEY);
         voiceRecordStartTime = System.currentTimeMillis();
-        startVoiceRecognition();
-        animateVoiceButton(true);
         if (tts != null && tts.isSpeaking()) tts.stop();
         radarVM.setRecording(true);
         radarVM.setVoiceListening();
         enterVoiceListeningState();
-        startWaveAnimation();
-        startVoiceCountdown();
+        // 启动系统语音对话框
+        startVoiceRecognition();
     }
 
     private void beginVoiceRecognitionFromVoicePage() {
@@ -728,21 +694,16 @@ public class MainActivity extends AppCompatActivity
                 .getBoolean(Constants.KEY_VOICE_CLICK_MODE, Constants.DEFAULT_VOICE_CLICK_MODE);
 
         if (clickMode) {
-            // 点击切换模式：点一下开始 → 再点一下停止
             if (isVoiceRecording) {
                 stopRecording();
             } else {
                 isVoiceRecording = true;
                 triggerHaptic(findViewById(R.id.btnContainerMain), HapticFeedbackConstants.VIRTUAL_KEY);
                 voiceRecordStartTime = System.currentTimeMillis();
-                startVoiceRecognition();
-                animateVoiceButton(true);
                 if (tts != null && tts.isSpeaking()) tts.stop();
                 radarVM.setRecording(true);
                 radarVM.setVoiceListening();
-                startWaveAnimation();
-                // 启动 30 秒自动停止倒计时
-                startVoiceCountdown();
+                startVoiceRecognition();
             }
             return;
         }
@@ -755,14 +716,10 @@ public class MainActivity extends AppCompatActivity
         isVoiceRecording = true;
         triggerHaptic(findViewById(R.id.btnContainerMain), HapticFeedbackConstants.VIRTUAL_KEY);
         voiceRecordStartTime = System.currentTimeMillis();
-        startVoiceRecognition();
-
-        // 按钮动画
-        animateVoiceButton(true);
         if (tts != null && tts.isSpeaking()) tts.stop();
         radarVM.setRecording(true);
         radarVM.setVoiceListening();
-        startWaveAnimation();
+        startVoiceRecognition();
     }
 
     private void animateVoiceButton(boolean pressed) {
