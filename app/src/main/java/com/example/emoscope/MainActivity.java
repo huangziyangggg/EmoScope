@@ -38,6 +38,7 @@ import com.example.emoscope.controllers.CameraOverlayCoordinator;
 import com.example.emoscope.controllers.CameraSessionPolicy;
 import com.example.emoscope.controllers.FaceCaptureRecord;
 import com.example.emoscope.controllers.FaceCapturePersistenceController;
+import com.example.emoscope.controllers.FaceCaptureScorePolicy;
 import com.example.emoscope.controllers.SosOverlayCoordinator;
 import com.example.emoscope.viewmodels.HistoryViewModel;
 import com.example.emoscope.viewmodels.RadarViewModel;
@@ -88,13 +89,16 @@ public class MainActivity extends AppCompatActivity
 
     // ── Activity 级别视图 ─────────────────────────────────────────
     private BottomNavigationView bottomNav;
-    private View layoutBreathing, layoutCameraMode;
+    private View layoutBreathing, layoutCameraMode, layoutVoiceMode;
     private PreviewView viewFinder;
     private ImageView tvCameraFaceEmoji;
     private TextView tvCameraFaceState, tvCameraProb1, tvCameraProb2, tvCameraProb3;
     private TextView tvBreathText;
     private View breathCircle, btnCloseBreath, btnCallHotline;
     private BreathingOverlayView breathOverlay;
+    // 实验性 rPPG
+    private View llRppgDisplay;
+    private TextView tvRppgBpm, tvRppgQuality;
 
     // ── 相机引擎 ──────────────────────────────────────────────────
     // ── 语音引擎 ──────────────────────────────────────────────────
@@ -112,6 +116,8 @@ public class MainActivity extends AppCompatActivity
     // ── 拍照打分视图 ──────────────────────────────────────────────
     private View btnCaptureFace, cardFaceResult, btnSaveCapture, btnDiscardCapture;
     private TextView tvCaptureScore, tvCaptureEmotions;
+    private View btnCloseVoice, btnVoiceStartStop;
+    private TextView tvVoiceStatus, tvVoiceTranscript, tvVoiceHint, tvVoiceAction;
 
     // ── UI 辅助 ───────────────────────────────────────────────────
     private android.os.Handler countdownHandler;
@@ -125,6 +131,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
+        CrashHandler.install(this);
         setContentView(R.layout.activity_main);
         // 处理系统栏内边距，避免内容被状态栏遮挡
         View fragmentContainer = findViewById(R.id.fragmentContainer);
@@ -278,6 +285,10 @@ public class MainActivity extends AppCompatActivity
                             showUserMessage(message);
                         });
                     }
+
+                    @Override public void onRppgUpdate(RppgAnalyzer.RppgResult result) {
+                        runOnUiThread(() -> updateRppgDisplay(result));
+                    }
                 });
 
         // 呼吸引擎
@@ -316,15 +327,26 @@ public class MainActivity extends AppCompatActivity
 
         voiceController = new VoiceRecognitionController(this, new VoiceRecognitionController.Callback() {
             @Override public void onReady() {
-                runOnUiThread(() -> radarVM.setVoiceListening());
+                runOnUiThread(() -> {
+                    radarVM.setVoiceListening();
+                    if (tvVoiceStatus != null) tvVoiceStatus.setText("正在聆听…");
+                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText("请自然说出此刻的感受。");
+                });
             }
 
             @Override public void onProcessing() {
-                runOnUiThread(() -> radarVM.setVoiceButtonText("处理中..."));
+                runOnUiThread(() -> {
+                    radarVM.setVoiceButtonText("处理中...");
+                    if (tvVoiceStatus != null) tvVoiceStatus.setText("正在整理你的表达…");
+                    if (tvVoiceHint != null) tvVoiceHint.setText("说完后点按按钮结束，表达会被记录下来。");
+                });
             }
 
             @Override public void onPartialText(String text) {
-                runOnUiThread(() -> radarVM.setVoiceText("\"" + text + "\""));
+                runOnUiThread(() -> {
+                    radarVM.setVoiceText("\"" + text + "\"");
+                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText(text);
+                });
             }
 
             @Override public void onFinalText(String text, VoiceFeatureAnalyzer.Result features) {
@@ -335,6 +357,8 @@ public class MainActivity extends AppCompatActivity
                 runOnUiThread(() -> {
                     stopRecording();
                     radarVM.setVoiceNotHeard();
+                    if (tvVoiceStatus != null) tvVoiceStatus.setText("没有听清");
+                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText("没有检测到清晰语音，可以靠近一点再试。");
                 });
             }
 
@@ -342,6 +366,9 @@ public class MainActivity extends AppCompatActivity
                 runOnUiThread(() -> {
                     stopRecording();
                     radarVM.setVoiceText(message);
+                    if (tvVoiceStatus != null) tvVoiceStatus.setText("语音识别失败");
+                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText(message);
+                    if (tvVoiceHint != null) tvVoiceHint.setText("如果反复失败，请检查系统语音服务、网络和麦克风权限。");
                     showUserMessage(message);
                 });
             }
@@ -349,6 +376,22 @@ public class MainActivity extends AppCompatActivity
 
         // 初始化 Fragment
         initFragments();
+
+        // 返回键：优先关闭覆盖层，再退出 App
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override public void handleOnBackPressed() {
+                if (layoutCameraMode != null && layoutCameraMode.getVisibility() == View.VISIBLE) {
+                    closeCameraOverlay();
+                } else if (layoutVoiceMode != null && layoutVoiceMode.getVisibility() == View.VISIBLE) {
+                    closeVoiceOverlay();
+                } else if (layoutBreathing != null && layoutBreathing.getVisibility() == View.VISIBLE) {
+                    sosController.stopBreathingIntervention();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
 
         // 设置导航
         setupBottomNav();
@@ -442,6 +485,7 @@ public class MainActivity extends AppCompatActivity
         }
         latestEmotionResult = null;
         cardFaceResult.setVisibility(View.GONE);
+        if (llRppgDisplay != null) llRppgDisplay.setVisibility(View.GONE);
         fragmentContainer().setVisibility(View.GONE);
         bottomNav.setVisibility(View.GONE);
         layoutCameraMode.setAlpha(0f);
@@ -463,7 +507,93 @@ public class MainActivity extends AppCompatActivity
         if (!ttsOn && tts != null && tts.isSpeaking()) tts.stop();
     }
 
+    private void openVoiceOverlay() {
+        triggerHaptic(getWindow().getDecorView(), HapticFeedbackConstants.VIRTUAL_KEY);
+        fragmentContainer().setVisibility(View.GONE);
+        bottomNav.setVisibility(View.GONE);
+        if (tvVoiceStatus != null) {
+            tvVoiceStatus.setText("点按下方按钮，说出此刻的感受。");
+        }
+        if (tvVoiceTranscript != null) {
+            tvVoiceTranscript.setText("还没有开始。");
+        }
+        if (tvVoiceHint != null) {
+            tvVoiceHint.setText("识别完成后，如果你已配置 AI Key，可以获得一段温和回应。");
+        }
+        if (tvVoiceAction != null) {
+            tvVoiceAction.setText("开始倾诉");
+        }
+        layoutVoiceMode.setAlpha(0f);
+        layoutVoiceMode.setVisibility(View.VISIBLE);
+        layoutVoiceMode.animate().alpha(1f).setDuration(260).start();
+    }
+
+    private void closeVoiceOverlay() {
+        if (isVoiceRecording) {
+            stopRecording();
+        }
+        layoutVoiceMode.animate().cancel();
+        layoutVoiceMode.animate().alpha(0f).setDuration(220).withEndAction(() -> {
+            layoutVoiceMode.setVisibility(View.GONE);
+            layoutVoiceMode.setAlpha(1f);
+            fragmentContainer().setVisibility(View.VISIBLE);
+            bottomNav.setVisibility(View.VISIBLE);
+        }).start();
+    }
+
     @Override public void onVoiceButtonPressed() {
+        openVoiceOverlay();
+    }
+
+    private void startVoicePageRecording() {
+        RuntimePermissionPolicy.NextAction audioPermissionAction =
+                RuntimePermissionPolicy.nextAction(
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                                == PackageManager.PERMISSION_GRANTED,
+                        ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.RECORD_AUDIO));
+        if (audioPermissionAction != RuntimePermissionPolicy.NextAction.ALREADY_GRANTED) {
+            if (tvVoiceStatus != null) tvVoiceStatus.setText("需要麦克风权限");
+            if (tvVoiceTranscript != null) tvVoiceTranscript.setText("授权后才能把你的声音转成文字。");
+            if (audioPermissionAction == RuntimePermissionPolicy.NextAction.SHOW_RATIONALE) {
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                        .setTitle("需要麦克风权限")
+                        .setMessage("语音倾诉需要访问麦克风，用于将你说的话转成文字。录音数据仅用于本次识别。")
+                        .setPositiveButton("允许", (d, w) -> requestAudioPermission())
+                        .setNegativeButton("取消", null)
+                        .show();
+            } else {
+                requestAudioPermission();
+            }
+            return;
+        }
+
+        if (voiceController != null && !voiceController.isAvailable()) {
+            String message = "当前设备没有可用的语音识别服务，请安装或启用 Google App / Google 语音搜索后重试。";
+            if (tvVoiceStatus != null) tvVoiceStatus.setText("语音服务暂不可用");
+            if (tvVoiceTranscript != null) tvVoiceTranscript.setText(message);
+            if (tvVoiceHint != null) tvVoiceHint.setText("这是系统语音服务缺失导致的，不是你的麦克风或说话方式问题。");
+            showUserMessage(message);
+            return;
+        }
+
+        isVoiceRecording = true;
+        triggerHaptic(btnVoiceStartStop, HapticFeedbackConstants.VIRTUAL_KEY);
+        voiceRecordStartTime = System.currentTimeMillis();
+        startVoiceRecognition();
+        animateVoiceButton(true);
+        if (tts != null && tts.isSpeaking()) tts.stop();
+        radarVM.setRecording(true);
+        radarVM.setVoiceListening();
+        if (tvVoiceStatus != null) tvVoiceStatus.setText("正在聆听…");
+        if (tvVoiceTranscript != null) tvVoiceTranscript.setText("请自然说出此刻的感受。");
+        if (tvVoiceHint != null) tvVoiceHint.setText("点按按钮可结束本次倾诉。");
+        if (tvVoiceAction != null) tvVoiceAction.setText("结束倾诉");
+        startWaveAnimation();
+        startVoiceCountdown();
+    }
+
+    private void beginVoiceRecognitionFromVoicePage() {
         // 先检查录音权限 — 独立请求，不捆绑相机
         RuntimePermissionPolicy.NextAction audioPermissionAction =
                 RuntimePermissionPolicy.nextAction(
@@ -531,7 +661,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void animateVoiceButton(boolean pressed) {
-        View container = findViewById(R.id.btnContainerMain);
+        View container = layoutVoiceMode != null && layoutVoiceMode.getVisibility() == View.VISIBLE
+                ? btnVoiceStartStop : findViewById(R.id.btnContainerMain);
         if (container == null) return;
         if (pressed) {
             if (!isVoiceRecording) return;
@@ -559,8 +690,12 @@ public class MainActivity extends AppCompatActivity
         runOnUiThread(() -> {
             View wave = findViewById(R.id.voiceWaveView);
             View sonar = findViewById(R.id.sonarRipple);
+            View voiceModeWave = findViewById(R.id.voiceModeWaveView);
+            View voiceModeSonar = findViewById(R.id.voiceModeSonarRipple);
             if (wave instanceof VoiceWaveView) ((VoiceWaveView) wave).start();
             if (sonar instanceof SonarRippleView) ((SonarRippleView) sonar).start();
+            if (voiceModeWave instanceof VoiceWaveView) ((VoiceWaveView) voiceModeWave).start();
+            if (voiceModeSonar instanceof SonarRippleView) ((SonarRippleView) voiceModeSonar).start();
         });
     }
 
@@ -568,8 +703,12 @@ public class MainActivity extends AppCompatActivity
         runOnUiThread(() -> {
             View wave = findViewById(R.id.voiceWaveView);
             View sonar = findViewById(R.id.sonarRipple);
+            View voiceModeWave = findViewById(R.id.voiceModeWaveView);
+            View voiceModeSonar = findViewById(R.id.voiceModeSonarRipple);
             if (wave instanceof VoiceWaveView) ((VoiceWaveView) wave).stop();
             if (sonar instanceof SonarRippleView) ((SonarRippleView) sonar).stop();
+            if (voiceModeWave instanceof VoiceWaveView) ((VoiceWaveView) voiceModeWave).stop();
+            if (voiceModeSonar instanceof SonarRippleView) ((SonarRippleView) voiceModeSonar).stop();
         });
     }
 
@@ -740,11 +879,13 @@ public class MainActivity extends AppCompatActivity
         isVoiceRecording = false;
         cancelVoiceCountdown();
         stopWaveAnimation();
-        triggerHaptic(findViewById(R.id.btnContainerMain), HapticFeedbackConstants.VIRTUAL_KEY);
+        triggerHaptic(btnVoiceStartStop, HapticFeedbackConstants.VIRTUAL_KEY);
         stopVoiceRecognition();
 
         animateVoiceButton(false);
         radarVM.setRecording(false);
+        if (tvVoiceStatus != null) tvVoiceStatus.setText("正在整理你的表达…");
+        if (tvVoiceAction != null) tvVoiceAction.setText("开始倾诉");
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -785,6 +926,19 @@ public class MainActivity extends AppCompatActivity
         }).bind(findViewById(R.id.btnCloseCamera), findViewById(R.id.btnFlipCamera),
                 btnCaptureFace, btnSaveCapture, btnDiscardCapture);
 
+        if (btnCloseVoice != null) {
+            btnCloseVoice.setOnClickListener(v -> closeVoiceOverlay());
+        }
+        if (btnVoiceStartStop != null) {
+            btnVoiceStartStop.setOnClickListener(v -> {
+                if (isVoiceRecording) {
+                    stopRecording();
+                } else {
+                    startVoicePageRecording();
+                }
+            });
+        }
+
         new SosOverlayCoordinator(new SosOverlayCoordinator.Host() {
             @Override
             public void performActionHaptic(View source) {
@@ -815,7 +969,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         // 显示结果卡片
-        tvCaptureScore.setText(String.valueOf(r.weightedScore));
+        int displayScore = FaceCaptureScorePolicy.displayScore(r.weightedScore);
+        tvCaptureScore.setText(String.valueOf(displayScore));
         tvCaptureEmotions.setText("① " + r.prob1 + "\n② " + r.prob2 + "\n③ " + r.prob3);
         cardFaceResult.setVisibility(View.VISIBLE);
         cardFaceResult.setAlpha(0f);
@@ -839,6 +994,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void closeCameraOverlay() {
+        if (llRppgDisplay != null) llRppgDisplay.setVisibility(View.GONE);
         layoutCameraMode.animate().cancel();
         layoutCameraMode.animate().alpha(0f).setDuration(300).withEndAction(() -> {
             layoutCameraMode.setVisibility(View.GONE);
@@ -1019,6 +1175,12 @@ public class MainActivity extends AppCompatActivity
 
         radarVM.setVoiceResult("\"" + text + "\"",
                 features.summary);
+        // 温和语速解读 — 供 UI 展示，不发往 AI
+        radarVM.setVoiceGentleHint(VoiceFeatureAnalyzer.gentleDescription(features));
+        if (tvVoiceStatus != null) tvVoiceStatus.setText("已听见你的表达");
+        if (tvVoiceTranscript != null) tvVoiceTranscript.setText(text);
+        if (tvVoiceHint != null) tvVoiceHint.setText(VoiceFeatureAnalyzer.gentleDescription(features));
+        if (tvVoiceAction != null) tvVoiceAction.setText("再说一次");
         deepSeekClient.call(currentFaceTop3Desc, text, features.summary, currentLightDesc);
     }
 
@@ -1099,6 +1261,7 @@ public class MainActivity extends AppCompatActivity
         bottomNav = findViewById(R.id.bottomNav);
         layoutBreathing = findViewById(R.id.layoutBreathing);
         layoutCameraMode = findViewById(R.id.layoutCameraMode);
+        layoutVoiceMode = findViewById(R.id.layoutVoiceMode);
         viewFinder = findViewById(R.id.viewFinder);
         tvCameraFaceEmoji = findViewById(R.id.tvCameraFaceEmoji);
         tvCameraFaceState = findViewById(R.id.tvCameraFaceState);
@@ -1117,6 +1280,39 @@ public class MainActivity extends AppCompatActivity
         btnDiscardCapture = findViewById(R.id.btnDiscardCapture);
         tvCaptureScore = findViewById(R.id.tvCaptureScore);
         tvCaptureEmotions = findViewById(R.id.tvCaptureEmotions);
+        btnCloseVoice = findViewById(R.id.btnCloseVoice);
+        btnVoiceStartStop = findViewById(R.id.btnVoiceStartStop);
+        tvVoiceStatus = findViewById(R.id.tvVoiceStatus);
+        tvVoiceTranscript = findViewById(R.id.tvVoiceTranscript);
+        tvVoiceHint = findViewById(R.id.tvVoiceHint);
+        tvVoiceAction = findViewById(R.id.tvVoiceAction);
+        // 实验性 rPPG
+        llRppgDisplay = findViewById(R.id.llRppgDisplay);
+        tvRppgBpm = findViewById(R.id.tvRppgBpm);
+        tvRppgQuality = findViewById(R.id.tvRppgQuality);
+    }
+
+    /** 实验性 rPPG 心率显示更新 */
+    private void updateRppgDisplay(RppgAnalyzer.RppgResult result) {
+        if (llRppgDisplay == null || tvRppgBpm == null || tvRppgQuality == null) return;
+
+        if (result.hasBpm() && result.confidence > 0.3f) {
+            llRppgDisplay.setVisibility(View.VISIBLE);
+            tvRppgBpm.setText(result.bpmText());
+            if (result.confidence > 0.6f) {
+                tvRppgQuality.setText("信号好");
+                tvRppgQuality.setTextColor(0xFF10B981);
+            } else {
+                tvRppgQuality.setText("实验性");
+                tvRppgQuality.setTextColor(0xFF71717A);
+            }
+        } else if (result.signalQuality > 20) {
+            llRppgDisplay.setVisibility(View.VISIBLE);
+            tvRppgBpm.setText("...");
+            tvRppgQuality.setText("采集中");
+            tvRppgQuality.setTextColor(0xFF71717A);
+        }
+        // signalQuality太低时保持隐藏，避免闪烁不靠谱的数字
     }
 
     private void showCameraPermissionDialog() {

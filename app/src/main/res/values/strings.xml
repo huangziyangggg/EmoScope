@@ -38,7 +38,7 @@
 
     <!-- SOS -->
     <string name="sos_no_contact">请先在设置中配置紧急联络人</string>
-    <string name="sos_sms_body">【心镜安全提醒】我目前情绪状态不稳定，触发了紧急阻断机制，请尽快联系我确认安全。</string>
+    <string name="sos_sms_body">【心镜安全提醒】我目前情绪状态需要关注，如果你能联系我确认安全会让我安心很多。</string>
     <string name="sos_sms_failed">短信发送失败，请检查紧急联络人号码</string>
 
     <!-- 导出 -->

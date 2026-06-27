@@ -199,7 +199,7 @@ public class FaceAnalyzer {
             EmotionConfidenceEvaluator.Result confidence =
                     EmotionConfidenceEvaluator.evaluate(percentages, ambientLuminance, true);
 
-            // 消极主导且占比高 → 预警
+            // 消极主导且占比高 → 关注
             boolean isWarning = EMOTIONS[t1[0]].valence < 0 && t1[1] > 35;
 
             callback.onEmotionResult(new EmotionResult(

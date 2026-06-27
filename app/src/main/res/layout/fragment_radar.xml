@@ -378,7 +378,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/section_spacing"
                 android:visibility="gone"
-                app:cardBackgroundColor="#F7FFFFFF"
+                app:cardBackgroundColor="@color/glass_panel"
                 app:cardElevation="0dp"
                 app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
                 app:strokeColor="@color/deco_outline_variant"

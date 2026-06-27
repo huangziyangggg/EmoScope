@@ -118,7 +118,7 @@
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="120dp"
             android:visibility="gone"
-            app:cardBackgroundColor="#E6FFFFFF"
+            app:cardBackgroundColor="@color/glass_panel"
             app:cardElevation="2dp"
             app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
             app:layout_constraintBottom_toBottomOf="parent">
@@ -237,6 +237,48 @@
                         android:textSize="13sp"
                         android:textStyle="bold"/>
                 </LinearLayout>
+                <!-- 实验性 rPPG 心率显示 -->
+                <LinearLayout
+                    android:id="@+id/llRppgDisplay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="♥"
+                        android:textColor="#EF4444"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="6dp" />
+                    <TextView
+                        android:id="@+id/tvRppgBpm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="#1D1D1F"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" BPM"
+                        android:textColor="#71717A"
+                        android:textSize="12sp"
+                        android:layout_marginEnd="10dp" />
+                    <TextView
+                        android:id="@+id/tvRppgQuality"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/filter_pill"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:text="实验性"
+                        android:textColor="#71717A"
+                        android:textSize="10sp" />
+                </LinearLayout>
                 <TextView
                     android:id="@+id/tvCameraProb1"
                     android:layout_width="wrap_content"
@@ -269,6 +311,175 @@
     <!-- ═══════════════════════════════════════════════════════════
          SOS 呼吸急救遮罩 — 最高层级，覆盖所有内容
          ═══════════════════════════════════════════════════════════ -->
+    <!-- Voice Mode overlay: opened from the home voice card, like camera mode. -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutVoiceMode"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_home_canvas"
+        android:elevation="55dp"
+        android:fitsSystemWindows="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnCloseVoice"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="48dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/glass_panel"
+            app:cardElevation="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+            app:strokeColor="@color/deco_outline_variant"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="关闭语音倾诉"
+                android:padding="13dp"
+                android:src="@drawable/ic_close"
+                app:tint="@color/glass_ink" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/voiceModeContent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvVoiceTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="语音倾诉"
+                android:textColor="@color/glass_ink"
+                android:textSize="34sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvVoiceStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:text="进入后点按下方按钮，说出此刻的感受。"
+                android:textColor="@color/glass_ink_soft"
+                android:textSize="16sp" />
+
+            <FrameLayout
+                android:layout_width="148dp"
+                android:layout_height="148dp"
+                android:layout_marginTop="32dp">
+
+                <com.example.emoscope.SonarRippleView
+                    android:id="@+id/voiceModeSonarRipple"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <com.example.emoscope.VoiceWaveView
+                    android:id="@+id/voiceModeWaveView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnVoiceStartStop"
+                    android:layout_width="112dp"
+                    android:layout_height="112dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/home_entry_voice_soft"
+                    app:cardElevation="0dp"
+                    app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+                    app:strokeColor="@color/deco_outline_variant"
+                    app:strokeWidth="1dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="开始或停止语音识别"
+                        android:padding="34dp"
+                        android:src="@drawable/ic_mic"
+                        app:tint="@color/home_entry_voice" />
+                </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvVoiceAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="开始倾诉"
+                android:textColor="@color/home_entry_voice"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                app:cardBackgroundColor="@color/glass_panel"
+                app:cardElevation="0dp"
+                app:shapeAppearance="?attr/shapeAppearanceLargeComponent"
+                app:strokeColor="@color/deco_outline_variant"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="识别内容"
+                        android:textColor="@color/glass_ink"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvVoiceTranscript"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:lineSpacingExtra="5dp"
+                        android:text="还没有开始。"
+                        android:textColor="@color/glass_ink_soft"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvVoiceHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="4dp"
+                        android:text="如果设备没有系统语音服务，请先安装或启用 Google App / Google 语音搜索。"
+                        android:textColor="@color/glass_ink_muted"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutBreathing"
         android:layout_width="match_parent"

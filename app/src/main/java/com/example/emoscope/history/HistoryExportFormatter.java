@@ -5,7 +5,8 @@ import com.example.emoscope.AppBrand;
 import java.util.List;
 
 public final class HistoryExportFormatter {
-    private HistoryExportFormatter() {}
+    private HistoryExportFormatter() {
+    }
 
     public static final class Record {
         public final String time;
@@ -21,21 +22,34 @@ public final class HistoryExportFormatter {
         }
 
         public static Record fromLegacyRow(String[] row) {
-            return new Record(row[0], row[1], row[2], "1".equals(row[3]));
+            if (row == null) {
+                return new Record("", "", "", false);
+            }
+            return new Record(
+                    valueAt(row, 0),
+                    valueAt(row, 1),
+                    valueAt(row, 2),
+                    "1".equals(valueAt(row, 3))
+            );
+        }
+
+        private static String valueAt(String[] row, int index) {
+            return index < row.length && row[index] != null ? row[index] : "";
         }
     }
 
     public static String buildText(List<Record> rows, String generatedAt) {
         StringBuilder sb = new StringBuilder();
-        sb.append("【").append(AppBrand.APP_NAME).append("情绪分析报告】\n生成时间：");
-        sb.append(generatedAt).append("\n\n");
+        sb.append("【").append(AppBrand.APP_NAME).append("情绪分析报告】\n");
+        sb.append("生成时间：").append(generatedAt).append("\n\n");
+
         int count = 0;
         for (Record row : rows) {
             count++;
             sb.append("--- 样本 ").append(count).append(" ---\n")
                     .append("时刻: ").append(row.time).append("\n")
                     .append("类型: ").append(row.type).append("\n")
-                    .append("判定: ").append(row.positive ? "[积极/平稳]" : "[压力/预警]").append("\n")
+                    .append("判定: ").append(row.positive ? "[积极/平稳]" : "[关注/压力]").append("\n")
                     .append("详情:\n").append(row.detail).append("\n\n");
         }
         return sb.toString();
@@ -46,8 +60,9 @@ public final class HistoryExportFormatter {
         sb.append('\uFEFF');
         sb.append("时间,类型,情绪判定,详情\n");
         for (Record row : rows) {
-            sb.append(row.time).append(",").append(row.type).append(",")
-                    .append(row.positive ? "积极" : "预警").append(",")
+            sb.append(row.time).append(",")
+                    .append(row.type).append(",")
+                    .append(row.positive ? "积极" : "关注").append(",")
                     .append(csv(row.detail)).append("\n");
         }
         return sb.toString();
@@ -59,12 +74,14 @@ public final class HistoryExportFormatter {
         sb.append("> 生成时间: ").append(generatedAt);
         sb.append("\n\n| # | 时间 | 类型 | 情绪 | 详情 |\n");
         sb.append("|---|------|------|------|------|\n");
+
         int count = 0;
         for (Record row : rows) {
             count++;
-            sb.append("| ").append(count).append(" | ").append(row.time)
+            sb.append("| ").append(count)
+                    .append(" | ").append(row.time)
                     .append(" | ").append(row.type)
-                    .append(" | ").append(row.positive ? "[积极]" : "[预警]")
+                    .append(" | ").append(row.positive ? "[积极]" : "[关注]")
                     .append(" | ").append(shortDetail(row.detail)).append(" |\n");
         }
         sb.append("\n> 共 ").append(rows.size()).append(" 条记录\n");
@@ -73,7 +90,8 @@ public final class HistoryExportFormatter {
 
     private static String csv(String value) {
         return "\"" + (value == null ? "" : value.replace("\"", "\"\"")
-                .replace("\n", " / ").replace("\r", "")) + "\"";
+                .replace("\n", " / ")
+                .replace("\r", "")) + "\"";
     }
 
     private static String shortDetail(String detail) {

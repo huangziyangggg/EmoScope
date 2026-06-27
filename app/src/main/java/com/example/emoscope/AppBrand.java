@@ -5,7 +5,8 @@ public final class AppBrand {
     public static final String EXPORT_DIRECTORY = APP_NAME;
     public static final String LEGACY_EXPORT_DIRECTORY = "EmoScope";
 
-    private AppBrand() {}
+    private AppBrand() {
+    }
 
     public static String androidSourceLabel() {
         return APP_NAME + " Android";

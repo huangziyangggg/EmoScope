@@ -21,8 +21,8 @@ android {
         applicationId = "com.example.emoscope"
         minSdk = 24
         targetSdk = 36
-        versionCode = 5
-        versionName = "5.3"
+        versionCode = 6
+        versionName = "5.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -60,6 +60,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 

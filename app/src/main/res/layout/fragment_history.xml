@@ -187,7 +187,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="预警"
+                        android:text="关注"
                         android:textColor="@color/glass_ink_soft"
                         android:textSize="12sp" />
 
@@ -328,7 +328,7 @@
             android:id="@+id/filterWarning"
             android:layout_width="48dp"
             android:layout_height="match_parent"
-            android:contentDescription="预警记录"
+            android:contentDescription="关注记录"
             android:padding="13dp"
             android:src="@drawable/ic_filter_warning"
             app:tint="@color/glass_ink_soft" />

@@ -27,6 +27,7 @@ public class RadarViewModel extends ViewModel {
     // ── 声纹 ──
     private final MutableLiveData<String> voiceText = new MutableLiveData<>("长按按钮，开始语音记录...");
     private final MutableLiveData<String> voiceSpeed = new MutableLiveData<>("- 字/秒");
+    private final MutableLiveData<String> voiceGentleHint = new MutableLiveData<>("");
 
     // ── AI 响应 ──
     private final MutableLiveData<String> aiResponse = new MutableLiveData<>("");
@@ -87,10 +88,15 @@ public class RadarViewModel extends ViewModel {
     // ═══════════════════════════════════════════════════════════════
     public LiveData<String> getVoiceText() { return voiceText; }
     public LiveData<String> getVoiceSpeed() { return voiceSpeed; }
+    public LiveData<String> getVoiceGentleHint() { return voiceGentleHint; }
 
     public void setVoiceResult(String text, String speed) {
         voiceText.setValue(text);
         voiceSpeed.setValue(speed);
+    }
+
+    public void setVoiceGentleHint(String hint) {
+        voiceGentleHint.setValue(hint);
     }
 
     public void setVoiceText(String text) {

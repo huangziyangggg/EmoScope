@@ -3,7 +3,7 @@
     <!-- Shared layout rhythm: designed to keep all primary actions visible on compact screens. -->
     <dimen name="page_horizontal_padding">16dp</dimen>
     <dimen name="page_top_padding">16dp</dimen>
-    <dimen name="page_bottom_safe_padding">88dp</dimen>
+    <dimen name="page_bottom_safe_padding">32dp</dimen>
     <dimen name="section_spacing">16dp</dimen>
     <dimen name="item_spacing">12dp</dimen>
     <dimen name="home_header_height">164dp</dimen>
@@ -16,10 +16,10 @@
     <dimen name="home_narrative_text_size">14sp</dimen>
     <dimen name="home_entry_title_text_size">19sp</dimen>
     <dimen name="home_entry_body_text_size">13sp</dimen>
-    <dimen name="bottom_nav_height">64dp</dimen>
-    <dimen name="bottom_nav_bottom_margin">4dp</dimen>
+    <dimen name="bottom_nav_height">60dp</dimen>
+    <dimen name="bottom_nav_bottom_margin">2dp</dimen>
     <dimen name="bottom_nav_padding_top">0dp</dimen>
-    <dimen name="bottom_nav_padding_bottom">4dp</dimen>
+    <dimen name="bottom_nav_padding_bottom">2dp</dimen>
     <dimen name="bottom_nav_icon_size">20dp</dimen>
     <dimen name="growth_level_card_height">168dp</dimen>
     <dimen name="growth_weekly_card_min_height">174dp</dimen>

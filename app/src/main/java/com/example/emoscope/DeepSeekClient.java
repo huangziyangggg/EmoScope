@@ -92,12 +92,14 @@ public class DeepSeekClient {
             JSONObject systemMsg = new JSONObject();
             systemMsg.put("role", "system");
             systemMsg.put("content",
-                    "你是一位极其温柔、富有同理心的情感疗愈师。" +
-                    "请结合用户的【面部表情概率】、【环境光照】、【声带语速】和【长程记忆】进行综合分析。" +
-                    "要求：① 先简短共情（1句），再给出积极的解读或建议（1-2句）" +
-                    "② 如果检测到负面情绪，优先安抚而非分析 " +
+                    "你是一个温和的陪伴者，帮用户回看此刻的情绪线索。" +
+                    "你不是诊断师，也不提供医疗建议。" +
+                    "请结合【面部表情概率】、【环境光照】、【语速】和【近期记忆】给出回应。" +
+                    "要求：① 先简短共情（1句），再给出温和的观察或开放式建议（1-2句）" +
+                    "② 如果用户可能正在经历困难情绪，优先安抚和肯定，而非分析和贴标签 " +
                     "③ 总字数严格控制在80字以内 " +
-                    "④ 不要使用\"你应该\"等说教句式，用\"或许可以\"\"不妨试试\"等柔软表达。");
+                    "④ 使用\"你可能会注意到\"\"或许可以\"\"不妨试试\"等柔软表达，不要用\"你应该\"等说教句式 " +
+                    "⑤ 不要使用\"抑郁\"\"焦虑症\"\"障碍\"等诊断词汇，也不暗示用户需要治疗。");
             messages.put(systemMsg);
 
             JSONObject userMsg = new JSONObject();
@@ -177,8 +179,9 @@ public class DeepSeekClient {
                     JSONObject respJson = new JSONObject(respStr);
                     String aiReply = respJson.getJSONArray("choices").getJSONObject(0)
                             .getJSONObject("message").getString("content");
-                    boolean isPos = !(aiReply.contains("压力") || aiReply.contains("焦虑")
-                            || aiReply.contains("抑郁") || aiReply.contains("悲伤"));
+                    // 温和的积极/关注判定：只基于明显提示词，不作为诊断依据
+                    boolean isPos = !(aiReply.contains("可以试试") && aiReply.contains("放松"))
+                            && !(aiReply.contains("压力较大") || aiReply.contains("需要关注"));
 
                     isInProgress = false;
                     callback.onAiResponse(aiReply, faceProbs, spokenText, lightDesc, isPos);

@@ -25,6 +25,9 @@ public class BreathingOverlayView extends View {
     private float globalScale = 1f;
     private ValueAnimator pulseAnim;
     private boolean isAnimating = false;
+    private final Paint centerPaint;
+    private Shader[] ringShaders;
+    private float lastCx = -1, lastCy = -1;
 
     public BreathingOverlayView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -32,6 +35,9 @@ public class BreathingOverlayView extends View {
             ringPaints[i] = new Paint(Paint.ANTI_ALIAS_FLAG);
             ringPaints[i].setStyle(Paint.Style.STROKE);
         }
+        centerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        centerPaint.setColor(0xFFC4B5FD);
+        centerPaint.setStyle(Paint.Style.FILL);
     }
 
     public void startBreathing(long phaseDuration) {
@@ -63,6 +69,18 @@ public class BreathingOverlayView extends View {
         float cy = getHeight() / 2f;
         float maxR = Math.min(cx, cy) * 0.85f;
 
+        // 仅在尺寸变化时重建渐变（避免 onDraw 中反复创建对象）
+        if (cx != lastCx || cy != lastCy || ringShaders == null) {
+            lastCx = cx; lastCy = cy;
+            ringShaders = new Shader[5];
+            for (int i = 0; i < 5; i++) {
+                float r = maxR * ringScales[i];
+                ringShaders[i] = new RadialGradient(cx, cy, r,
+                        ringColors[i], (ringColors[i] & 0x00FFFFFF) | 0x00000000,
+                        Shader.TileMode.CLAMP);
+            }
+        }
+
         for (int i = 4; i >= 0; i--) {
             float r = maxR * ringScales[i] * globalScale;
             float alpha = ringAlphas[i] * (2f - Math.abs(globalScale - 1f));
@@ -71,21 +89,13 @@ public class BreathingOverlayView extends View {
             p.setColor(ringColors[i]);
             p.setAlpha((int) (alpha * 255));
             p.setStrokeWidth(3f + i * 1.5f);
-
-            // 渐变描边
-            Shader shader = new RadialGradient(cx, cy, r,
-                    ringColors[i], (ringColors[i] & 0x00FFFFFF) | 0x00000000,
-                    Shader.TileMode.CLAMP);
-            p.setShader(shader);
+            p.setShader(ringShaders[i]);
 
             canvas.drawCircle(cx, cy, r, p);
         }
 
-        // 中心发光点
-        Paint centerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        centerPaint.setColor(0xFFC4B5FD);
+        // 中心发光点（复用预创建的 Paint）
         centerPaint.setAlpha((int) (100 * (2f - Math.abs(globalScale - 1f))));
-        centerPaint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(cx, cy, maxR * 0.08f * globalScale, centerPaint);
     }
 }

@@ -1100,6 +1100,7 @@
         </FrameLayout>
 
         <TextView
+            android:id="@+id/tvAppVersion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
@@ -1107,7 +1108,7 @@
             android:gravity="center"
             android:letterSpacing="0"
             android:paddingBottom="24dp"
-            android:text="心镜 · 1.0.0"
+            android:text="心镜"
             android:textColor="@color/glass_ink_muted"
             android:textSize="12sp" />
     </LinearLayout>

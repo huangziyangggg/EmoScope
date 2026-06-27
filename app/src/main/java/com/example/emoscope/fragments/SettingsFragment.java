@@ -46,6 +46,7 @@ public class SettingsFragment extends Fragment {
 
     private SharedPreferences prefs;
     private SecureStorage secureStorage;
+    private TextView tvAppVersion;
 
     private TextView tvCurrentContact;
     private TextView tvCurrentSensitivity;
@@ -122,6 +123,7 @@ public class SettingsFragment extends Fragment {
         btnClearLocalData = v.findViewById(R.id.btnClearLocalData);
         btnFocusGoal = v.findViewById(R.id.btnFocusGoal);
         btnPersonalProfile = v.findViewById(R.id.btnPersonalProfile);
+        tvAppVersion = v.findViewById(R.id.tvAppVersion);
     }
 
     private void loadPreferences() {
@@ -174,6 +176,9 @@ public class SettingsFragment extends Fragment {
         isRestoringUI = false;
 
         syncTtsIcon();
+        if (tvAppVersion != null) {
+            tvAppVersion.setText("心镜 · v" + com.example.emoscope.BuildConfig.VERSION_NAME);
+        }
     }
 
     private void syncTtsIcon() {
@@ -507,7 +512,7 @@ public class SettingsFragment extends Fragment {
     private void confirmClearLocalData() {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("清除本机数据？")
-                .setMessage("这会删除本机情绪记录、偏好设置、提醒计划、API Key 和紧急联系人。操作完成后无法恢复。")
+                .setMessage("这会删除本机情绪记录、偏好设置、提醒计划、API Key 和紧急联系人。\n\n如果还想保留记录，可以先去「记录」页导出或备份数据。\n\n操作完成后无法恢复。")
                 .setPositiveButton("确认清除", (dialog, which) -> clearLocalData())
                 .setNegativeButton("取消", null)
                 .show();

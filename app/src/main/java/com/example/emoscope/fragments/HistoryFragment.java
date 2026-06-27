@@ -24,9 +24,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.emoscope.AiMemoryEngine;
 import com.example.emoscope.AppBrand;
 import com.example.emoscope.Constants;
 import com.example.emoscope.EmoDatabaseHelper;
+import com.example.emoscope.StreakManager;
 import com.example.emoscope.EmoLineChartView;
 import com.example.emoscope.HistoryAdapter;
 import com.example.emoscope.MainActivity;
@@ -73,7 +75,6 @@ public class HistoryFragment extends Fragment {
     private TextView tvNotifyTime; // 可能为 null（在 settings 中）
 
     private static final SimpleDateFormat SDF_DAY = new SimpleDateFormat("MM-dd", Locale.getDefault());
-    private static final Object SDF_LOCK = new Object();
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -226,6 +227,7 @@ public class HistoryFragment extends Fragment {
         v.findViewById(R.id.btnHistoryMore).setOnClickListener(view -> {
             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             String[] actions = {
+                    "30天情绪回顾",
                     "记录心情",
                     "AI 情绪洞察",
                     "导出报告",
@@ -244,24 +246,27 @@ public class HistoryFragment extends Fragment {
     private void handleMoreAction(int actionIndex) {
         switch (actionIndex) {
             case 0:
-                showManualMoodDialog();
+                show30DayReview();
                 break;
             case 1:
-                generateAIInsight();
+                showManualMoodDialog();
                 break;
             case 2:
-                exportHistoryData();
+                generateAIInsight();
                 break;
             case 3:
-                exportResearchData();
+                exportHistoryData();
                 break;
             case 4:
-                exportJSON();
+                exportResearchData();
                 break;
             case 5:
-                importJSON();
+                exportJSON();
                 break;
             case 6:
+                importJSON();
+                break;
+            case 7:
                 clearHistory();
                 break;
             default:
@@ -441,29 +446,9 @@ public class HistoryFragment extends Fragment {
     }
 
     private void updateStreak() {
-        Context ctx = requireContext();
-        String today;
-        synchronized (SDF_LOCK) { today = SDF_DAY.format(new Date()); }
-        android.content.SharedPreferences prefs = ctx.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
-        String lastDate = prefs.getString(Constants.KEY_LAST_RECORD_DATE, "");
-        int streak = prefs.getInt(Constants.KEY_STREAK_COUNT, 0);
-
-        if (today.equals(lastDate)) return;
-        if (!lastDate.isEmpty()) {
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("MM-dd", Locale.getDefault());
-                Date last = sdf.parse(lastDate);
-                Date now = sdf.parse(today);
-                long diff = (now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24);
-                if (diff == 1) streak++;
-                else streak = 1;
-            } catch (Exception e) { streak = 1; }
-        } else {
-            streak = 1;
-        }
-
-        prefs.edit().putString(Constants.KEY_LAST_RECORD_DATE, today)
-                .putInt(Constants.KEY_STREAK_COUNT, streak).apply();
+        android.content.SharedPreferences prefs = requireContext()
+                .getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        StreakManager.updateAndGetStreak(prefs);
     }
 
     private void clearHistory() {
@@ -796,18 +781,26 @@ public class HistoryFragment extends Fragment {
                         .limit(3)
                         .forEach(e -> topEmotions.append(e.getKey()).append("(").append(e.getValue()).append("次) "));
 
+                // 非诊断性表述：用"你可能会注意到"替代"[良好/波动/偏低]诊断式标签
+                String gentleHint;
+                if (avgScore >= 65) {
+                    gentleHint = "你可能注意到：这段时间整体状态比较平稳。保持现在的生活节奏就好。";
+                } else if (avgScore >= 40) {
+                    gentleHint = "你可能注意到：情绪有些起伏，这在生活中很常见。给自己多一些空间和时间，做一件让你感到放松的小事。";
+                } else {
+                    gentleHint = "你可能注意到：这段时间情绪偏低。这并不说明你有什么“问题”，只是提醒你可以多接触阳光、自然，或者联系你信任的人聊一聊。";
+                }
                 String insight = String.format(Locale.getDefault(),
-                        "[近期情绪洞察]\n\n"
-                        + "分析样本：最近 %d 条记录\n"
+                        "近期情绪回顾\n\n"
+                        + "回顾样本：最近 %d 条记录\n"
                         + "平均情绪分：%.0f / 100\n"
-                        + "积极比例：%.0f%% (%d条)\n"
-                        + "常见情绪：%s\n\n"
-                        + "%s",
+                        + "平稳占比：%.0f%% (%d条)\n"
+                        + "常出现的情绪：%s\n\n"
+                        + "%s\n\n"
+                        + "提醒：这不是诊断，只是帮你回看。如果持续感到困扰，可以考虑联系专业资源或信任的人。",
                         rows.size(), avgScore, posRatio, posCount,
                         topEmotions.toString().trim(),
-                        avgScore >= 65 ? "[良好] 整体情绪状态良好，保持积极的生活方式"
-                                : avgScore >= 40 ? "[波动] 情绪有些波动，给自己多一些关爱和时间"
-                                : "[偏低] 近期情绪偏低，建议多接触阳光和自然，必要时寻求支持");
+                        gentleHint);
 
                 final String finalInsight = insight;
                 requireActivity().runOnUiThread(() -> {
@@ -819,6 +812,68 @@ public class HistoryFragment extends Fragment {
                 });
             } finally {
                 if (cursor != null) cursor.close();
+                db.close();
+            }
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 30天情绪回顾 — 调用 AiMemoryEngine 本地分析
+    // ═══════════════════════════════════════════════════════════════
+    private void show30DayReview() {
+        executor.execute(() -> {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            try {
+                AiMemoryEngine.MemoryResult result = AiMemoryEngine.analyze(db);
+                if (result.totalRecords < 3) {
+                    requireActivity().runOnUiThread(() ->
+                            showSnackbar("需要至少 3 条记录才能生成回顾，继续记录吧 🌱"));
+                    return;
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.append("回溯样本：最近 30 天，共 ").append(result.totalRecords).append(" 条\n");
+                sb.append("情绪均值：").append(String.format("%.0f", result.avgScore)).append(" / 100\n");
+                sb.append("平稳占比：").append(String.format("%.0f", result.positivityRatio)).append("%\n");
+                if (result.streakDays > 1) {
+                    sb.append("连续记录：").append(result.streakDays).append(" 天\n");
+                }
+                sb.append("\n");
+                if (result.dominantEmotion != null && !result.dominantEmotion.isEmpty()) {
+                    sb.append("这段时间最常出现的情绪线索：").append(result.dominantEmotion).append("\n");
+                }
+                if (result.weeklyTrendDesc != null && !result.weeklyTrendDesc.isEmpty()) {
+                    sb.append("近两周趋势：").append(result.weeklyTrendDesc).append("\n\n");
+                }
+                if (!result.topStressSources.isEmpty()) {
+                    sb.append("你可能在意的：\n");
+                    int r = 1;
+                    for (AiMemoryEngine.KeywordCount kc : result.topStressSources) {
+                        sb.append("  ").append(r++).append(". ").append(kc.keyword)
+                                .append("（").append(kc.count).append("次）\n");
+                        if (r > 3) break;
+                    }
+                    sb.append("\n");
+                }
+                if (!result.topJoySources.isEmpty()) {
+                    sb.append("让你开心的事：\n");
+                    int r = 1;
+                    for (AiMemoryEngine.KeywordCount kc : result.topJoySources) {
+                        sb.append("  ").append(r++).append(". ").append(kc.keyword)
+                                .append("（").append(kc.count).append("次）\n");
+                        if (r > 3) break;
+                    }
+                }
+                sb.append("\n提醒：这只是基于记录的回看，不是诊断。数据只保存在你的手机上。");
+
+                final String reviewText = sb.toString();
+                requireActivity().runOnUiThread(() -> {
+                    new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("30天情绪回顾")
+                            .setMessage(reviewText)
+                            .setPositiveButton("谢谢，我看到了", null)
+                            .show();
+                });
+            } finally {
                 db.close();
             }
         });

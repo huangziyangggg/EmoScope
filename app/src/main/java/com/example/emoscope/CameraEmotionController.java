@@ -36,6 +36,8 @@ public class CameraEmotionController {
         void onFaceBlendshapes(List<List<Category>> blendshapes, long timestampMs);
         void onNoFace();
         void onCameraError(String message);
+        /** 实验性 rPPG 心率更新（每3秒触发一次） */
+        void onRppgUpdate(RppgAnalyzer.RppgResult result);
     }
 
     private final Context context;
@@ -50,6 +52,9 @@ public class CameraEmotionController {
     private int lensFacing = CameraSelector.LENS_FACING_FRONT;
     private long lastFaceDetectionMs = 0;
     private final SignalUpdateGate lightUpdateGate = new SignalUpdateGate(450, 10);
+
+    // ── 实验性 rPPG ──
+    private final RppgAnalyzer rppgAnalyzer = new RppgAnalyzer();
 
     public CameraEmotionController(Context context, LifecycleOwner lifecycleOwner,
                                    PreviewView viewFinder,
@@ -110,12 +115,14 @@ public class CameraEmotionController {
     public void flipCamera() {
         lensFacing = (lensFacing == CameraSelector.LENS_FACING_FRONT)
                 ? CameraSelector.LENS_FACING_BACK : CameraSelector.LENS_FACING_FRONT;
+        rppgAnalyzer.reset();
         startCamera();
     }
 
     public void release() {
         if (cameraProvider != null) cameraProvider.unbindAll();
         if (faceLandmarker != null) faceLandmarker.close();
+        rppgAnalyzer.reset();
     }
 
     private void analyzeFrame(androidx.camera.core.ImageProxy proxy) {
@@ -123,7 +130,15 @@ public class CameraEmotionController {
             ByteBuffer buffer = proxy.getPlanes()[0].getBuffer();
             int avgLuminance = averageLuminance(buffer);
 
+            // ── 实验性 rPPG：每帧采样面部中央ROI绿色通道 ──
             long now = System.currentTimeMillis();
+            float greenMean = sampleFaceRoiGreen(buffer, proxy.getWidth(), proxy.getHeight());
+            rppgAnalyzer.addSample(greenMean, now);
+            if (rppgAnalyzer.shouldProcess()) {
+                RppgAnalyzer.RppgResult rppgResult = rppgAnalyzer.process();
+                callback.onRppgUpdate(rppgResult);
+            }
+
             if (lightUpdateGate.shouldUpdate(now, avgLuminance)) {
                 callback.onLightState(lightIcon(avgLuminance), lightDescription(avgLuminance), avgLuminance);
             }
@@ -155,6 +170,40 @@ public class CameraEmotionController {
         }
     }
 
+    /**
+     * 从RGBA帧的中央上部ROI（额头区域）采样绿色通道均值，用于实验性rPPG心率检测。
+     * ROI: 水平居中30%宽度 × 垂直上方25%高度。
+     */
+    private float sampleFaceRoiGreen(ByteBuffer buffer, int width, int height) {
+        try {
+            // ROI 定义：中央上部（额头通常在此区域）
+            int roiX = width * 35 / 100;
+            int roiY = height * 10 / 100;
+            int roiW = width * 30 / 100;
+            int roiH = height * 25 / 100;
+
+            int sampleStep = 3; // 每隔3个像素采样
+            long total = 0;
+            int count = 0;
+
+            int bufferStart = buffer.position();
+            for (int y = roiY; y < roiY + roiH && y < height; y += sampleStep) {
+                for (int x = roiX; x < roiX + roiW && x < width; x += sampleStep) {
+                    int pixelOffset = bufferStart + (y * width + x) * 4;
+                    if (pixelOffset + 2 < buffer.limit()) {
+                        // RGBA: offset+1 = Green
+                        total += (buffer.get(pixelOffset + 1) & 0xFF);
+                        count++;
+                    }
+                }
+            }
+
+            return count > 0 ? (float) total / count : 128f;
+        } catch (Exception e) {
+            return 128f;
+        }
+    }
+
     private int averageLuminance(ByteBuffer buffer) {
         int sampleStep = Constants.LUMINANCE_SAMPLE_STEP;
         long total = 0;
@@ -175,9 +224,9 @@ public class CameraEmotionController {
     }
 
     private String lightDescription(int avgLuminance) {
-        if (avgLuminance < Constants.LUMINANCE_LOW) return "昏暗阴沉";
-        if (avgLuminance > Constants.LUMINANCE_HIGH) return "极度刺眼";
-        return "光照舒适";
+        if (avgLuminance < Constants.LUMINANCE_LOW) return "环境偏暗";
+        if (avgLuminance > Constants.LUMINANCE_HIGH) return "光线较亮";
+        return "光照适中";
     }
 
     private void onFaceAnalyzed(FaceLandmarkerResult result, MPImage inputImage) {

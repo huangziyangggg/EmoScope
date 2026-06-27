@@ -6,23 +6,28 @@ public final class FaceCaptureRecord {
     public final String type;
     public final String detail;
     public final boolean isPositive;
-    private final int weightedScore;
+    private final int displayScore;
 
-    private FaceCaptureRecord(String type, String detail, boolean isPositive, int weightedScore) {
+    private FaceCaptureRecord(String type, String detail, boolean isPositive, int displayScore) {
         this.type = type;
         this.detail = detail;
         this.isPositive = isPositive;
-        this.weightedScore = weightedScore;
+        this.displayScore = displayScore;
     }
 
-    public static FaceCaptureRecord create(int weightedScore, String probabilityOne,
+    public static FaceCaptureRecord create(int rawWeightedScore, String probabilityOne,
                                            String probabilityTwo, String probabilityThree) {
-        String detail = "面容快照 | 加权分: " + weightedScore
+        int boostedScore = FaceCaptureScorePolicy.displayScore(rawWeightedScore);
+        String detail = "面容快照 | 情绪评分 " + boostedScore
                 + " | ①" + probabilityOne + " ②" + probabilityTwo + " ③" + probabilityThree;
-        return new FaceCaptureRecord("面容分析", detail, weightedScore >= 50, weightedScore);
+        return new FaceCaptureRecord("面容分析", detail, boostedScore >= 50, boostedScore);
+    }
+
+    public int displayScore() {
+        return displayScore;
     }
 
     public String successMessage() {
-        return "已保存 · 情绪分 " + weightedScore + "/100";
+        return "已保存 · 情绪评分 " + displayScore + "/100";
     }
 }

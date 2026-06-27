@@ -38,8 +38,14 @@ public class EmoDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.TABLE_RECORDS);
-        onCreate(db);
+        // 保留数据的迁移策略：仅在表结构变化时执行 ALTER TABLE
+        // 当前 DB_VERSION=1，无需迁移。升级版本号后在此添加具体迁移逻辑。
+        // 示例：
+        // if (oldV < 2) {
+        //     db.execSQL("ALTER TABLE " + Constants.TABLE_RECORDS
+        //             + " ADD COLUMN " + Constants.COL_TAG + " TEXT DEFAULT ''");
+        // }
+        // 不要在无迁移策略时直接 DROP TABLE — 会导致用户数据全部丢失。
     }
 
     /**

@@ -580,9 +580,11 @@ public class WorkshopFragment extends Fragment {
                 report.append("情绪均值：").append(String.format("%.0f", avgScore)).append(" 分\n");
                 report.append("积极占比：").append(String.format("%.0f", (float) pos / total * 100)).append("%\n\n");
 
-                if (avgScore >= 65) report.append("整体状态良好，继续保持当前的生活节奏。\n");
-                else if (avgScore >= 40) report.append("情绪有些波动，属于正常范围。建议增加户外活动。\n");
-                else report.append("本周情绪偏低，请多给自己一些关爱和休息时间。\n");
+                // 温和表述，不使用诊断性标签
+                if (avgScore >= 65) report.append("你可能注意到：本周整体状态比较平稳，保持当前节奏即可。\n");
+                else if (avgScore >= 40) report.append("你可能注意到：本周有一些起伏，这在生活中很常见。可以考虑增加户外活动或做一些让你放松的事。\n");
+                else report.append("你可能注意到：本周情绪偏低。这不是诊断，只是帮你回看。给自己多一些关爱和休息时间。\n");
+                report.append("\n提醒：这份报告只反映记录的趋势，不是诊断。如果持续感到困扰，可以联系信任的人或专业资源。\n");
 
                 final String finalReport = report.toString();
                 requireActivity().runOnUiThread(() -> {

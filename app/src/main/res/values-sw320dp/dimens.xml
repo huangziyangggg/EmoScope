@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="page_horizontal_padding">20dp</dimen>
-    <dimen name="page_top_padding">32dp</dimen>
-    <dimen name="page_bottom_safe_padding">112dp</dimen>
-    <dimen name="section_spacing">20dp</dimen>
+    <dimen name="page_top_padding">24dp</dimen>
+    <dimen name="page_bottom_safe_padding">40dp</dimen>
+    <dimen name="section_spacing">16dp</dimen>
     <dimen name="home_header_height">180dp</dimen>
-    <dimen name="home_entry_height">100dp</dimen>
-    <dimen name="home_entry_icon_size">56dp</dimen>
+    <dimen name="home_entry_height">88dp</dimen>
+    <dimen name="home_entry_icon_size">50dp</dimen>
     <dimen name="home_action_size">44dp</dimen>
     <dimen name="home_header_content_end_padding">60dp</dimen>
     <dimen name="home_date_text_size">15sp</dimen>
     <dimen name="home_greeting_text_size">28sp</dimen>
     <dimen name="home_narrative_text_size">16sp</dimen>
-    <dimen name="home_entry_title_text_size">21sp</dimen>
+    <dimen name="home_entry_title_text_size">20sp</dimen>
     <dimen name="home_entry_body_text_size">15sp</dimen>
-    <dimen name="bottom_nav_height">88dp</dimen>
-    <dimen name="bottom_nav_bottom_margin">10dp</dimen>
-    <dimen name="bottom_nav_padding_top">4dp</dimen>
-    <dimen name="bottom_nav_padding_bottom">6dp</dimen>
-    <dimen name="bottom_nav_icon_size">22dp</dimen>
+    <dimen name="bottom_nav_height">72dp</dimen>
+    <dimen name="bottom_nav_bottom_margin">6dp</dimen>
+    <dimen name="bottom_nav_padding_top">2dp</dimen>
+    <dimen name="bottom_nav_padding_bottom">4dp</dimen>
+    <dimen name="bottom_nav_icon_size">21dp</dimen>
     <dimen name="growth_level_card_height">174dp</dimen>
     <dimen name="growth_weekly_card_min_height">184dp</dimen>
     <dimen name="growth_quote_card_min_height">172dp</dimen>

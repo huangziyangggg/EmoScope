@@ -5,7 +5,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -148,14 +147,8 @@ public class RadarFragment extends Fragment {
 
         // 语音按钮 — 触摸监听绑定到整个卡片，扩大可点击区域
         View btnContainer = v.findViewById(R.id.btnContainerMain);
-        btnContainer.setOnTouchListener((view, motionEvent) -> {
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                if (callback != null) callback.onVoiceButtonPressed();
-            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP
-                    || motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
-                if (callback != null) callback.onVoiceButtonReleased();
-            }
-            return true;
+        btnContainer.setOnClickListener(view -> {
+            if (callback != null) callback.onVoiceButtonPressed();
         });
     }
 

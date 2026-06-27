@@ -113,7 +113,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         holder.tvDetail.setText(formatMoodTitle(detail, isPos));
 
         int dotColor = isPos ? holder.itemView.getContext().getColor(R.color.positive_green)
-                : holder.itemView.getContext().getColor(R.color.danger_red);
+                : holder.itemView.getContext().getColor(R.color.warning_orange);
         holder.tvDetail.setTextColor(dotColor);
         holder.moodDot.setBackgroundResource(isPos
                 ? R.drawable.bg_history_icon_positive
@@ -125,7 +125,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private String formatMoodTitle(String detail, boolean isPos) {
         if (detail == null || detail.trim().isEmpty()) {
-            return isPos ? "心情：平静" : "心情：需要留意";
+            return isPos ? "心情：平静" : "心情：可以关注";
         }
         String compact = detail.replace('\n', ' ').trim();
         int moodIndex = compact.indexOf("心情:");

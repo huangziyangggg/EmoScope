@@ -39,7 +39,7 @@ public final class ResearchDataExporter {
             sb.append("\"index\":").append(i + 1).append(",");
             sb.append("\"time_bucket\":\"").append(escape(bucketTime(r.time))).append("\",");
             sb.append("\"type\":\"").append(escape(r.type)).append("\",");
-            sb.append("\"valence\":\"").append(r.positive ? "positive_or_stable" : "warning_or_pressure").append("\",");
+            sb.append("\"valence\":\"").append(r.positive ? "positive_or_stable" : "attention_or_pressure").append("\",");
             sb.append("\"detail\":\"").append(escape(anonymize(r.detail))).append("\"");
             sb.append("}");
             if (i < records.size() - 1) sb.append(",");
@@ -58,7 +58,7 @@ public final class ResearchDataExporter {
             sb.append(i + 1).append(",");
             sb.append(csv(bucketTime(r.time))).append(",");
             sb.append(csv(r.type)).append(",");
-            sb.append(r.positive ? "positive_or_stable" : "warning_or_pressure").append(",");
+            sb.append(r.positive ? "positive_or_stable" : "attention_or_pressure").append(",");
             sb.append(csv(anonymize(r.detail))).append("\n");
         }
         return sb.toString();

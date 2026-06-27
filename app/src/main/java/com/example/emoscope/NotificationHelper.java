@@ -94,7 +94,7 @@ public final class NotificationHelper {
                     Constants.COL_TIME + " LIKE ? ORDER BY " + Constants.COL_ID + " DESC LIMIT 5",
                     EmoDatabaseHelper.dayLikeArgs(cal.getTime()));
             if (cursor.getCount() == 0) {
-                return "昨天没有记录心情，今天别忘了记录哦";
+                return "昨天没有记录，今天要不要试试看？哪怕只写一句话也可以";
             }
             int pos = 0, neg = 0;
             while (cursor.moveToNext()) {
@@ -102,9 +102,9 @@ public final class NotificationHelper {
                 else neg++;
             }
             if (pos >= neg) {
-                return "昨天状态不错，今天继续保持";
+                return "昨天看起来挺平稳的，今天继续保持就好";
             } else {
-                return "昨天似乎有些低落，今天感觉好点了吗？";
+                return "昨天可能有些起伏，今天感觉怎么样？给自己一点空间";
             }
         } catch (Exception e) {
             return "花 30 秒记录此刻的感受，持续追踪情绪变化";

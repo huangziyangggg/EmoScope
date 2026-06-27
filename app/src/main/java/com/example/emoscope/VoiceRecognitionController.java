@@ -9,9 +9,7 @@ import android.speech.SpeechRecognizer;
 
 import java.util.ArrayList;
 
-/**
- * Owns Android SpeechRecognizer lifecycle and reports plain voice events to UI code.
- */
+/** Owns Android SpeechRecognizer lifecycle and reports plain voice events to UI code. */
 public class VoiceRecognitionController {
 
     public interface Callback {
@@ -44,6 +42,11 @@ public class VoiceRecognitionController {
     public void start() {
         if (listening) return;
         stop();
+        if (!isAvailable()) {
+            callback.onError("当前设备没有可用的语音识别服务，请安装或启用 Google App / Google 语音搜索后重试。");
+            return;
+        }
+
         listening = true;
         recordingStartedAt = System.currentTimeMillis();
         rmsTotal = 0f;
@@ -53,28 +56,34 @@ public class VoiceRecognitionController {
         try {
             recognizer = SpeechRecognizer.createSpeechRecognizer(context);
         } catch (Exception e) {
-            callback.onError("语音识别服务不可用，请安装 Google 语音搜索");
+            listening = false;
+            callback.onError("语音识别服务不可用，请安装或启用 Google App / Google 语音搜索。");
+            return;
+        }
+        if (recognizer == null) {
+            listening = false;
+            callback.onError("语音识别服务不可用，请安装或启用 Google App / Google 语音搜索。");
             return;
         }
 
         recognizer.setRecognitionListener(new RecognitionListener() {
             @Override public void onReadyForSpeech(Bundle params) {
-                if (!listening) return;
-                callback.onReady();
+                if (listening) callback.onReady();
             }
 
             @Override public void onBeginningOfSpeech() {}
+
             @Override public void onRmsChanged(float rmsdB) {
                 if (rmsdB <= 0f) return;
                 rmsTotal += rmsdB;
                 rmsPeak = Math.max(rmsPeak, rmsdB);
                 rmsSamples++;
             }
+
             @Override public void onBufferReceived(byte[] buffer) {}
 
             @Override public void onEndOfSpeech() {
-                if (!listening) return;
-                callback.onProcessing();
+                if (listening) callback.onProcessing();
             }
 
             @Override public void onError(int error) {
@@ -122,6 +131,20 @@ public class VoiceRecognitionController {
         recognizer.startListening(intent);
     }
 
+    public void stop() {
+        listening = false;
+        if (recognizer == null) return;
+        try {
+            recognizer.stopListening();
+        } catch (Exception ignored) {
+        }
+        try {
+            recognizer.destroy();
+        } catch (Exception ignored) {
+        }
+        recognizer = null;
+    }
+
     private VoiceFeatureAnalyzer.Result buildVoiceFeatures(String text) {
         float durationSec = Math.max(0.5f,
                 (System.currentTimeMillis() - recordingStartedAt) / 1000f);
@@ -132,28 +155,20 @@ public class VoiceRecognitionController {
     private String errorMessage(int error) {
         switch (error) {
             case SpeechRecognizer.ERROR_AUDIO:
-                return "麦克风录音失败，请检查设备麦克风";
+                return "麦克风录音失败，请检查设备麦克风。";
             case SpeechRecognizer.ERROR_CLIENT:
-                return "语音识别暂时不可用，请稍后重试";
+                return "语音识别暂时不可用，请稍后重试。";
             case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
-                return "缺少麦克风权限，请在系统设置中允许录音";
+                return "缺少麦克风权限，请在系统设置中允许录音。";
             case SpeechRecognizer.ERROR_NETWORK:
             case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-                return "语音识别需要网络，请检查连接后重试";
+                return "语音识别需要网络，请检查连接后重试。";
             case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
-                return "语音识别正在处理中，请稍后再试";
+                return "语音识别正在处理中，请稍后再试。";
             case SpeechRecognizer.ERROR_SERVER:
-                return "系统语音服务暂时不可用，请稍后重试";
+                return "系统语音服务暂时不可用，请稍后重试。";
             default:
-                return "语音识别失败，请稍后重试";
+                return "语音识别失败，请稍后重试。";
         }
-    }
-
-    public void stop() {
-        listening = false;
-        if (recognizer == null) return;
-        try { recognizer.stopListening(); } catch (Exception ignored) {}
-        try { recognizer.destroy(); } catch (Exception ignored) {}
-        recognizer = null;
     }
 }

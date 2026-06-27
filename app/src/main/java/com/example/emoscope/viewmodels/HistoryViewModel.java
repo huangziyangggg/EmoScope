@@ -24,7 +24,7 @@ public class HistoryViewModel extends ViewModel {
 
     // ── 筛选状态 ──
     private final MutableLiveData<Integer> dateFilter = new MutableLiveData<>(0); // 0=全部, 2=7天, 3=30天
-    private final MutableLiveData<Integer> moodFilter = new MutableLiveData<>(0); // 0=全部, 1=积极, 2=预警
+    private final MutableLiveData<Integer> moodFilter = new MutableLiveData<>(0); // 0=全部, 1=积极, 2=关注
 
     // ── 图表数据 ──
     private final MutableLiveData<List<Float>> chartData = new MutableLiveData<>(new ArrayList<>());

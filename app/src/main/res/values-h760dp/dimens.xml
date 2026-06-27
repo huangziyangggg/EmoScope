@@ -6,4 +6,5 @@
     <dimen name="home_entry_icon_size">64dp</dimen>
     <dimen name="home_action_size">48dp</dimen>
     <dimen name="home_header_content_end_padding">72dp</dimen>
+    <dimen name="page_bottom_safe_padding">56dp</dimen>
 </resources>

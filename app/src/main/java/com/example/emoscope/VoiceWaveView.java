@@ -20,6 +20,7 @@ public class VoiceWaveView extends View {
     private final float[] barHeights = new float[5];
     private final float[] targetHeights = new float[5];
     private final Random random = new Random();
+    private final RectF barRect = new RectF();
     private ValueAnimator animator;
     private boolean isAnimating = false;
     private int waveColor = 0xFFFFFFFF;
@@ -78,8 +79,8 @@ public class VoiceWaveView extends View {
             float h = barHeights[i] * maxHeight;
             float left = i * (barWidth + gap);
             float top = centerY - h / 2f;
-            RectF rect = new RectF(left, top, left + barWidth, top + h);
-            canvas.drawRoundRect(rect, barWidth / 2f, barWidth / 2f, barPaint);
+            barRect.set(left, top, left + barWidth, top + h);
+            canvas.drawRoundRect(barRect, barWidth / 2f, barWidth / 2f, barPaint);
         }
     }
 }

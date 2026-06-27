@@ -262,7 +262,7 @@ public class EmoLineChartView extends View {
                     y + 4f, labelPaint);
         }
 
-        // 参考线：积极线(70) + 预警线(30) — 使用预分配 Paint
+        // 参考线：积极线(70) + 关注线(30) — 使用预分配 Paint
         float refY70 = py + graphH * 0.3f;
         canvas.drawLine(px, refY70, px + graphW, refY70, refPaint70);
         float refY30 = py + graphH * 0.7f;
