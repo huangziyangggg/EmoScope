@@ -154,7 +154,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnQuickMood"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/home_entry_height"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/home_entry_height"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@android:color/transparent"
@@ -164,12 +165,15 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/home_entry_height"
                     android:background="@drawable/bg_home_card_record"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingStart="24dp"
-                    android:paddingEnd="18dp">
+                    android:paddingEnd="18dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
 
                     <ImageView
                         android:layout_width="@dimen/home_entry_icon_size"
@@ -218,7 +222,7 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/home_entry_height"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_spacing"
                 android:clipChildren="false"
                 android:clipToPadding="false">
@@ -226,7 +230,8 @@
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnContainerMain"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/home_entry_height"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/home_entry_height"
                     android:layout_gravity="center"
                     android:clickable="true"
                     android:focusable="true"
@@ -237,12 +242,15 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/home_entry_height"
                         android:background="@drawable/bg_home_card_voice"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingStart="24dp"
-                        android:paddingEnd="18dp">
+                        android:paddingEnd="18dp"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp">
 
                         <ImageView
                         android:layout_width="@dimen/home_entry_icon_size"
@@ -308,7 +316,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvFaceAnalysis"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/home_entry_height"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/home_entry_height"
                 android:layout_marginTop="@dimen/item_spacing"
                 android:clickable="true"
                 android:focusable="true"
@@ -319,12 +328,15 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/home_entry_height"
                     android:background="@drawable/bg_home_card_face"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingStart="24dp"
-                    android:paddingEnd="18dp">
+                    android:paddingEnd="18dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
 
                     <ImageView
                         android:layout_width="@dimen/home_entry_icon_size"

@@ -21,8 +21,7 @@ public final class GrowthJourneyMessage {
                     "不是打卡任务，是留给自己的片刻空间");
         }
         String progress = recordsNeeded > 0
-                ? recordCount + "/" + nextThreshold + " 条记录 · 升级还需 "
-                + recordsNeeded + " 条"
+                ? recordCount + "/" + nextThreshold + " 条 · 继续记录中"
                 : recordCount + " 条记录 · 已达最高等级";
         return new GrowthJourneyMessage("Lv" + (level + 1), levelName, progress);
     }

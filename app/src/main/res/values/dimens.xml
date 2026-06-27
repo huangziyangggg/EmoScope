@@ -3,7 +3,7 @@
     <!-- Shared layout rhythm: generous spacing, bottom-safe scroll area. -->
     <dimen name="page_horizontal_padding">24dp</dimen>
     <dimen name="page_top_padding">16dp</dimen>
-    <dimen name="page_bottom_safe_padding">96dp</dimen>
+    <dimen name="page_bottom_safe_padding">120dp</dimen>
     <dimen name="section_spacing">20dp</dimen>
     <dimen name="item_spacing">18dp</dimen>
     <dimen name="card_padding_horizontal">24dp</dimen>

@@ -127,8 +127,7 @@
         <item name="shapeAppearance">@style/ShapeAppearance.EmoScope.DialogAction</item>
     </style>
 
-    <!-- 极窄屏优先呈现入口名称，避免说明文字被卡片高度裁切。 -->
+    <!-- 首页入口副标题 — 始终显示，允许换行 -->
     <style name="Widget.EmoScope.HomeEntryBody" parent="">
-        <item name="android:visibility">gone</item>
     </style>
 </resources>

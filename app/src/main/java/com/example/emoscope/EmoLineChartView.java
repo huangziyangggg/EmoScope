@@ -294,9 +294,9 @@ public class EmoLineChartView extends View {
     private void drawDateLabels(Canvas canvas) {
         if (dateLabels == null || dateLabels.isEmpty()) return;
 
-        int maxLabels = Math.min(dateLabels.size(), 6);
+        int maxLabels = Math.min(dateLabels.size(), 4);
         float step = dateLabels.size() > 1 ? graphW / (dateLabels.size() - 1) : 0;
-        int interval = Math.max(1, dateLabels.size() / maxLabels);
+        int interval = Math.max(2, dateLabels.size() / maxLabels);
 
         Paint datePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         datePaint.setColor(textColor);
