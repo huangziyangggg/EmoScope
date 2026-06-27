@@ -32,6 +32,6 @@ public class PersonalProfileTest {
     public void buildsPrivacyFirstSummary() {
         PersonalProfile profile = new PersonalProfile("Ziyang", "学生", "减压", "平静");
 
-        assertEquals("Ziyang · 学生 · 关注减压 · 本机私人档案", profile.summary());
+        assertEquals("Ziyang · 学生 · 关注减压 · 本机保存", profile.summary());
     }
 }

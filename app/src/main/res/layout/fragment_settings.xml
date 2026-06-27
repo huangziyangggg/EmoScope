@@ -20,29 +20,31 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="116dp">
+            android:minHeight="128dp"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:layout_width="118dp"
                 android:layout_height="118dp"
                 android:layout_gravity="bottom|end"
-                android:alpha="0.16"
+                android:alpha="0.08"
                 android:gravity="center"
                 android:importantForAccessibility="no"
                 android:text="☻"
                 android:textColor="@color/glass_violet"
-                android:textSize="58sp" />
+                android:textSize="52sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center|end"
-                android:layout_marginEnd="120dp"
-                android:alpha="0.72"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="18dp"
+                android:layout_marginEnd="96dp"
+                android:alpha="0.18"
                 android:importantForAccessibility="no"
                 android:text="✦"
                 android:textColor="@color/glass_violet"
-                android:textSize="24sp" />
+                android:textSize="28sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -63,8 +65,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:includeFontPadding="true"
                     android:letterSpacing="0"
-                    android:paddingEnd="@dimen/settings_header_text_end_padding"
+                    android:lineSpacingExtra="3dp"
+                    android:maxLines="2"
+                    android:paddingEnd="32dp"
                     android:text="你的记录、边界和陪伴方式，都由你决定"
                     android:textColor="@color/glass_ink_soft"
                     android:textSize="15sp" />
@@ -106,6 +111,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
@@ -124,8 +130,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
+                        android:ellipsize="end"
+                        android:includeFontPadding="true"
                         android:letterSpacing="0"
-                        android:maxLines="2"
+                        android:lineSpacingExtra="2dp"
+                        android:maxLines="3"
                         android:text="我 · 私人情绪档案 · 本机保存"
                         android:textColor="@color/glass_ink_soft"
                         android:textSize="13sp" />

@@ -1,6 +1,9 @@
 package com.example.emoscope;
 
 public class PersonalProfile {
+    private static final String DEFAULT_DISPLAY_NAME = "我";
+    private static final String DEFAULT_IDENTITY_LABEL = "私人情绪档案";
+
     private final String displayName;
     private final String identityLabel;
     private final String focusGoal;
@@ -8,8 +11,8 @@ public class PersonalProfile {
 
     public PersonalProfile(String displayName, String identityLabel,
                            String focusGoal, String emotionPreference) {
-        this.displayName = TextSanitizer.safeLabel(displayName, "我", 18);
-        this.identityLabel = TextSanitizer.safeLabel(identityLabel, "私人情绪档案", 18);
+        this.displayName = TextSanitizer.safeLabel(displayName, DEFAULT_DISPLAY_NAME, 18);
+        this.identityLabel = TextSanitizer.safeLabel(identityLabel, DEFAULT_IDENTITY_LABEL, 18);
         this.focusGoal = TextSanitizer.safeLabel(focusGoal, Constants.DEFAULT_FOCUS_GOAL, 18);
         this.emotionPreference = TextSanitizer.safeLabel(emotionPreference, "", 18);
     }
@@ -31,10 +34,10 @@ public class PersonalProfile {
     }
 
     public boolean hasCustomName() {
-        return !"我".equals(displayName);
+        return !DEFAULT_DISPLAY_NAME.equals(displayName);
     }
 
     public String summary() {
-        return displayName + " · " + identityLabel + " · 关注" + focusGoal + " · 本机私人档案";
+        return displayName + " · " + identityLabel + " · 关注" + focusGoal + " · 本机保存";
     }
 }
