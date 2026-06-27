@@ -178,7 +178,7 @@
                         android:layout_height="@dimen/home_entry_icon_size"
                         android:background="@drawable/bg_home_icon_record"
                         android:contentDescription="快速记录"
-                        android:padding="16dp"
+                        android:padding="12dp"
                         android:src="@drawable/ic_workshop_journal"
                         app:tint="@color/home_entry_record" />
 
@@ -255,7 +255,7 @@
                         android:layout_height="@dimen/home_entry_icon_size"
                         android:background="@drawable/bg_home_icon_voice"
                             android:contentDescription="语音倾诉"
-                            android:padding="16dp"
+                            android:padding="12dp"
                             android:src="@drawable/ic_mic"
                             app:tint="@color/home_entry_voice" />
 
@@ -339,7 +339,7 @@
                         android:layout_height="@dimen/home_entry_icon_size"
                         android:background="@drawable/bg_home_icon_face"
                         android:contentDescription="面容分析"
-                        android:padding="16dp"
+                        android:padding="12dp"
                         android:src="@drawable/ic_face_scan"
                         app:tint="@color/home_entry_face" />
 
