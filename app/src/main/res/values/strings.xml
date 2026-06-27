@@ -163,7 +163,7 @@
     <string name="workshop_subtitle">滋养内心，探索更好的自己</string>
     <string name="workshop_journal">情绪日记</string>
     <string name="workshop_meditation">正念冥想</string>
-    <string name="workshop_prediction">情绪趋势预测</string>
+    <string name="workshop_prediction">情绪趋势回看</string>
     <string name="workshop_gratitude">感恩清单</string>
     <string name="workshop_badges">成就徽章</string>
 </resources>
