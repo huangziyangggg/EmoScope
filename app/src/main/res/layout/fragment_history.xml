@@ -197,7 +197,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="0"
-                        android:textColor="@color/danger_red"
+                        android:textColor="@color/warning_orange"
                         android:textSize="27sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -219,7 +219,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_workshop_prediction"
-                        app:tint="@color/home_entry_voice" />
+                        app:tint="@color/glass_violet" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -247,7 +247,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_history_chart_soft"
-                android:padding="4dp">
+                android:padding="8dp">
 
                 <FrameLayout
                     android:id="@+id/chartContainer"
@@ -274,7 +274,7 @@
         android:background="@drawable/bg_history_filter_bar"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="5dp">
+        android:padding="8dp">
 
         <TextView
             android:id="@+id/filterAll"
@@ -369,7 +369,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:translationY="62dp"
+                android:layout_marginTop="48dp"
                 android:visibility="gone"
                 android:text="开始记录"
                 android:textColor="@android:color/white"

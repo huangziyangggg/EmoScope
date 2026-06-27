@@ -29,7 +29,7 @@
                 android:gravity="center"
                 android:importantForAccessibility="no"
                 android:text="☻"
-                android:textColor="#9B7BFF"
+                android:textColor="@color/glass_violet"
                 android:textSize="58sp" />
 
             <TextView
@@ -40,7 +40,7 @@
                 android:alpha="0.72"
                 android:importantForAccessibility="no"
                 android:text="✦"
-                android:textColor="#B69AFF"
+                android:textColor="@color/glass_violet"
                 android:textSize="24sp" />
 
             <LinearLayout
@@ -237,7 +237,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="22dp"
             android:drawablePadding="8dp"
             android:letterSpacing="0"
             android:text="安全"
@@ -329,7 +329,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:id="@+id/btnSetContact"
@@ -387,7 +387,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:id="@+id/btnSetSensitivity"
@@ -442,7 +442,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -483,7 +483,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -539,7 +539,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:id="@+id/btnClearLocalData"
@@ -594,7 +594,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="22dp"
             android:drawablePadding="8dp"
             android:letterSpacing="0"
             android:text="交互"
@@ -673,7 +673,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -729,7 +729,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -785,7 +785,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="22dp"
             android:drawablePadding="8dp"
             android:letterSpacing="0"
             android:text="提醒"
@@ -864,7 +864,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:id="@+id/btnNotifyTime"
@@ -920,7 +920,7 @@
                     android:layout_height="1dp"
                     android:layout_marginStart="66dp"
                     android:layout_marginEnd="18dp"
-                    android:background="#E8EAF2" />
+                    android:background="@color/glass_stroke" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -976,7 +976,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="22dp"
             android:drawablePadding="8dp"
             android:letterSpacing="0"
             android:text="引擎"

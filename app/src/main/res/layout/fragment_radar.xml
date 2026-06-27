@@ -48,7 +48,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:contentDescription="日期"
-                            android:src="@drawable/ic_history"
+                            android:src="@drawable/ic_time_afternoon"
                             app:tint="@color/glass_ink_muted" />
 
                         <TextView
@@ -133,8 +133,8 @@
                     android:paddingHorizontal="16dp">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:contentDescription="紧急干预"
                         android:src="@drawable/ic_sos" />
 
