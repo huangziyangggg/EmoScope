@@ -243,7 +243,7 @@
             android:layout_marginBottom="14dp"
             android:letterSpacing="0"
             android:text="安全"
-            android:textColor="@color/glass_violet"
+            android:textColor="@color/glass_rose"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -274,11 +274,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_red"
                         android:contentDescription="@null"
                         android:padding="10dp"
                         android:src="@drawable/ic_settings"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_rose" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -346,11 +346,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_red"
                         android:contentDescription="@null"
                         android:padding="10dp"
                         android:src="@drawable/ic_phone"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_rose" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -404,11 +404,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_red"
                         android:contentDescription="@null"
                         android:padding="10dp"
                         android:src="@drawable/ic_notification"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_rose" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -456,11 +456,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_red"
                         android:contentDescription="@null"
                         android:padding="11dp"
                         android:src="@drawable/ic_settings"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_rose" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -513,11 +513,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_red"
                         android:contentDescription="@null"
                         android:padding="10dp"
                         android:src="@drawable/ic_mood_smile"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_rose" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -617,7 +617,7 @@
             android:layout_marginBottom="14dp"
             android:letterSpacing="0"
             android:text="交互"
-            android:textColor="@color/glass_violet"
+            android:textColor="@color/glass_blue"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -645,11 +645,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_blue"
                         android:contentDescription="@null"
                         android:padding="11dp"
                         android:src="@drawable/ic_settings"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_blue" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -702,11 +702,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_blue"
                         android:contentDescription="@null"
                         android:padding="11dp"
                         android:src="@drawable/ic_tts_on"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_blue" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -759,11 +759,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_blue"
                         android:contentDescription="@null"
                         android:padding="11dp"
                         android:src="@drawable/ic_mic"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_blue" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -808,7 +808,7 @@
             android:layout_marginBottom="14dp"
             android:letterSpacing="0"
             android:text="提醒"
-            android:textColor="@color/glass_violet"
+            android:textColor="@color/glass_mint"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -836,11 +836,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_green"
                         android:contentDescription="@null"
                         android:padding="11dp"
                         android:src="@drawable/ic_notification"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_mint" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -896,11 +896,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_green"
                         android:contentDescription="@null"
                         android:padding="11dp"
                         android:src="@drawable/ic_time_afternoon"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_mint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -949,11 +949,11 @@
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_settings_icon_purple"
+                        android:background="@drawable/bg_settings_icon_green"
                         android:contentDescription="@null"
                         android:padding="11dp"
                         android:src="@drawable/ic_history"
-                        app:tint="@color/glass_violet" />
+                        app:tint="@color/glass_mint" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -998,7 +998,7 @@
             android:layout_marginBottom="14dp"
             android:letterSpacing="0"
             android:text="可选 AI 设置"
-            android:textColor="@color/glass_violet"
+            android:textColor="@color/glass_ink_soft"
             android:textSize="20sp"
             android:textStyle="bold" />
 
