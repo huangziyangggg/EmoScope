@@ -1064,8 +1064,9 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="144dp"
-            android:layout_marginTop="28dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:minHeight="100dp"
             android:background="@drawable/bg_settings_banner"
             android:padding="18dp">
 
