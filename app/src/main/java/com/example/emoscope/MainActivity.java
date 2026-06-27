@@ -387,6 +387,22 @@ public class MainActivity extends AppCompatActivity
                     showUserMessage("语音识别未完成，可再试一次。");
                 });
             }
+
+            @Override public void onRequestSystemVoice(Intent intent, int requestCode) {
+                // 路径 B：启动系统语音对话框（国产手机回退方案）
+                runOnUiThread(() -> {
+                    try {
+                        startActivityForResult(intent, requestCode);
+                    } catch (Exception e) {
+                        stopRecording();
+                        if (tvVoiceStatus != null) tvVoiceStatus.setText("语音识别暂不可用");
+                        if (tvVoiceTranscript != null) tvVoiceTranscript.setText(
+                                "此设备没有可用的语音识别服务。你可以使用文字记录替代。");
+                        if (tvVoiceAction != null) tvVoiceAction.setText("开始倾诉");
+                        showUserMessage("未找到语音识别服务，可先使用文字记录。");
+                    }
+                });
+            }
         });
 
         // 初始化 Fragment
@@ -1280,6 +1296,15 @@ public class MainActivity extends AppCompatActivity
             showUserMessage("SOS 短信权限已就绪，请再次触发 SOS 发送求助短信");
         } else if (requestCode == Constants.PERM_SMS) {
             showUserMessage("未获得短信权限，SOS 将只启动呼吸干预，不会发送短信");
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == VoiceRecognitionController.REQUEST_CODE_SYSTEM_VOICE
+                && voiceController != null) {
+            voiceController.handleActivityResult(resultCode, data);
         }
     }
 
