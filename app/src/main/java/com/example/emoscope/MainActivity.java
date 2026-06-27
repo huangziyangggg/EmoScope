@@ -576,8 +576,8 @@ public class MainActivity extends AppCompatActivity
             tvVoiceStatus.setText("当前设备暂未启用语音识别服务");
         }
         if (tvVoiceTranscript != null) {
-            tvVoiceTranscript.setText("语音倾诉依赖系统语音识别服务。你可以启用 Google App / Google"
-                    + " 语音服务后再试，或先使用文字记录保存此刻感受。");
+            tvVoiceTranscript.setText("语音倾诉会调用当前手机系统自带的语音识别服务。"
+                    + "请在系统设置中启用语音输入、语音助手或输入法语音识别；也可以先使用文字记录保存此刻感受。");
         }
         if (tvVoiceHint != null) {
             tvVoiceHint.setText("这不是麦克风故障，也不会影响手动记录、回顾和成长功能。");
@@ -660,7 +660,7 @@ public class MainActivity extends AppCompatActivity
         radarVM.setRecording(true);
         radarVM.setVoiceListening();
         enterVoiceListeningState();
-        // 启动系统语音对话框
+        // 启动系统语音识别；优先使用系统 RecognitionService，必要时降级为系统语音对话框。
         startVoiceRecognition();
     }
 
@@ -937,7 +937,7 @@ public class MainActivity extends AppCompatActivity
         }
         if (tvVoiceHelpLink != null) {
             tvVoiceHelpLink.setOnClickListener(v -> {
-                showUserMessage("请前往系统设置 → 语言与输入 → 启用 Google 语音服务");
+                showUserMessage("请前往系统设置 → 语言与输入法 → 启用系统语音输入或语音助手");
             });
         }
 

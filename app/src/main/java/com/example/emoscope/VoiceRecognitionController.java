@@ -1,29 +1,37 @@
 package com.example.emoscope;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 语音识别控制器 —— 纯系统语音对话框方案。
+ * 语音识别控制器。
  *
- * 使用 RecognizerIntent.ACTION_RECOGNIZE_SPEECH 启动系统语音对话框，
- * 由系统内置语音服务（小爱/小艺/Breeno/百度输入法等）接管语音识别。
- * 不依赖 Google SpeechRecognizer，适配所有国产手机。
+ * 优先使用 Android 系统默认 SpeechRecognizer 服务，不绑定 Google 包名。
+ * 在国产 Android 上，默认服务通常由小爱、小艺、Breeno、讯飞、百度输入法或系统语音输入提供。
+ * 如果设备没有 RecognitionService，但提供系统语音识别对话框，则降级使用 RecognizerIntent。
  */
 public class VoiceRecognitionController {
 
     public interface Callback {
         /** 最终识别结果 */
         void onFinalText(String text, VoiceFeatureAnalyzer.Result features);
-        /** 没有检测到语音或用户取消 */
+
+        /** 没有检测到语音、用户取消或系统识别失败 */
         void onNoSpeech();
-        /** 请求 Activity 启动系统语音对话框 */
+
+        /** 请求 Activity 启动系统语音对话框，作为没有 RecognitionService 时的兼容路径 */
         void onRequestSystemVoice(Intent intent, int requestCode);
     }
 
@@ -31,8 +39,12 @@ public class VoiceRecognitionController {
 
     private final Context context;
     private final Callback callback;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private SpeechRecognizer speechRecognizer;
     private long recordingStartedAt;
     private boolean listening;
+    private boolean usingIntentFallback;
 
     public VoiceRecognitionController(Context context, Callback callback) {
         this.context = context.getApplicationContext();
@@ -40,53 +52,148 @@ public class VoiceRecognitionController {
     }
 
     /**
-     * 检查系统是否有语音识别服务可用（任一国产语音服务响应即可）
+     * 任意系统语音识别能力可用即可，不要求 Google。
      */
     public boolean isAvailable() {
-        Intent probe = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        List<ResolveInfo> activities = context.getPackageManager()
-                .queryIntentActivities(probe, PackageManager.MATCH_DEFAULT_ONLY);
-        return activities != null && !activities.isEmpty();
+        return isSpeechRecognizerAvailable() || isRecognizerIntentAvailable();
     }
 
-    public boolean isListening() { return listening; }
+    public boolean isListening() {
+        return listening;
+    }
 
-    /**
-     * 启动系统语音对话框
-     */
     public void start() {
-        if (listening) return;
+        if (listening) {
+            return;
+        }
         stop();
 
         listening = true;
         recordingStartedAt = System.currentTimeMillis();
 
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "说出此刻的感受…");
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+        if (isSpeechRecognizerAvailable()) {
+            startWithSystemSpeechRecognizer();
+            return;
+        }
 
-        callback.onRequestSystemVoice(intent, REQUEST_CODE_SYSTEM_VOICE);
+        if (isRecognizerIntentAvailable()) {
+            usingIntentFallback = true;
+            callback.onRequestSystemVoice(createRecognizerIntent(), REQUEST_CODE_SYSTEM_VOICE);
+            return;
+        }
+
+        listening = false;
+        callback.onNoSpeech();
     }
 
     /**
-     * 由 Activity.onActivityResult 调用
+     * 由 Activity.onActivityResult 调用，仅用于系统语音对话框 fallback。
      */
     public void handleActivityResult(int resultCode, Intent data) {
-        if (!listening) return;
+        if (!listening || !usingIntentFallback) {
+            return;
+        }
         listening = false;
+        usingIntentFallback = false;
 
-        if (resultCode != android.app.Activity.RESULT_OK || data == null) {
+        if (resultCode != Activity.RESULT_OK || data == null) {
             callback.onNoSpeech();
             return;
         }
 
-        ArrayList<String> matches = data.getStringArrayListExtra(
-                RecognizerIntent.EXTRA_RESULTS);
+        deliverMatches(data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS));
+    }
+
+    public void stop() {
+        listening = false;
+        usingIntentFallback = false;
+        if (speechRecognizer != null) {
+            try {
+                speechRecognizer.cancel();
+                speechRecognizer.destroy();
+            } catch (RuntimeException ignored) {
+                // 系统语音服务异常不应影响主流程。
+            } finally {
+                speechRecognizer = null;
+            }
+        }
+    }
+
+    private boolean isSpeechRecognizerAvailable() {
+        return SpeechRecognizer.isRecognitionAvailable(context);
+    }
+
+    private boolean isRecognizerIntentAvailable() {
+        PackageManager packageManager = context.getPackageManager();
+        Intent recognizeIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        List<ResolveInfo> recognizeActivities = packageManager.queryIntentActivities(
+                recognizeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        if (recognizeActivities != null && !recognizeActivities.isEmpty()) {
+            return true;
+        }
+
+        Intent handsFreeIntent = new Intent(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE);
+        List<ResolveInfo> handsFreeActivities = packageManager.queryIntentActivities(
+                handsFreeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        return handsFreeActivities != null && !handsFreeActivities.isEmpty();
+    }
+
+    private void startWithSystemSpeechRecognizer() {
+        mainHandler.post(() -> {
+            if (!listening) {
+                return;
+            }
+            try {
+                speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);
+                speechRecognizer.setRecognitionListener(new RecognitionListener() {
+                    @Override public void onReadyForSpeech(Bundle params) { }
+                    @Override public void onBeginningOfSpeech() { }
+                    @Override public void onRmsChanged(float rmsdB) { }
+                    @Override public void onBufferReceived(byte[] buffer) { }
+                    @Override public void onEndOfSpeech() { }
+                    @Override public void onPartialResults(Bundle partialResults) { }
+                    @Override public void onEvent(int eventType, Bundle params) { }
+
+                    @Override
+                    public void onError(int error) {
+                        finishWithoutSpeech();
+                    }
+
+                    @Override
+                    public void onResults(Bundle results) {
+                        ArrayList<String> matches = results == null ? null
+                                : results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                        deliverMatches(matches);
+                    }
+                });
+                speechRecognizer.startListening(createRecognizerIntent());
+            } catch (RuntimeException e) {
+                listening = false;
+                callback.onNoSpeech();
+            }
+        });
+    }
+
+    private Intent createRecognizerIntent() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "zh-CN");
+        intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "说出此刻的感受…");
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+        intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
+        return intent;
+    }
+
+    private void deliverMatches(ArrayList<String> matches) {
+        listening = false;
+        usingIntentFallback = false;
+        destroyRecognizerAfterResult();
+
         if (matches != null && !matches.isEmpty()) {
-            String text = matches.get(0).trim();
+            String text = matches.get(0) == null ? "" : matches.get(0).trim();
             if (!text.isEmpty()) {
                 float durationSec = Math.max(0.5f,
                         (System.currentTimeMillis() - recordingStartedAt) / 1000f);
@@ -99,7 +206,23 @@ public class VoiceRecognitionController {
         callback.onNoSpeech();
     }
 
-    public void stop() {
+    private void finishWithoutSpeech() {
         listening = false;
+        usingIntentFallback = false;
+        destroyRecognizerAfterResult();
+        callback.onNoSpeech();
+    }
+
+    private void destroyRecognizerAfterResult() {
+        if (speechRecognizer == null) {
+            return;
+        }
+        try {
+            speechRecognizer.destroy();
+        } catch (RuntimeException ignored) {
+            // ignore
+        } finally {
+            speechRecognizer = null;
+        }
     }
 }
