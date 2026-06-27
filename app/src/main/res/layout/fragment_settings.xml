@@ -209,7 +209,8 @@
                         android:id="@+id/tvCurrentGoal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="2dp"
+                        android:paddingBottom="12dp"
                         android:letterSpacing="0"
                         android:text="建立记录习惯"
                         android:textColor="@color/glass_ink_soft"
@@ -300,7 +301,8 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
+                            android:paddingBottom="10dp"
                             android:letterSpacing="0"
                             android:text="管理本地数据与安全边界"
                             android:textColor="@color/glass_ink_soft"
@@ -482,7 +484,8 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
+                            android:paddingBottom="14dp"
                             android:letterSpacing="0"
                             android:text="进入 App 时验证身份"
                             android:textColor="@color/glass_ink_soft"
@@ -539,7 +542,8 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
+                            android:paddingBottom="14dp"
                             android:letterSpacing="0"
                             android:text="阻止截图、切换应用后隐藏内容"
                             android:textColor="@color/glass_ink_soft"
@@ -671,8 +675,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:letterSpacing="0"
+                            android:paddingBottom="14dp"
                             android:text="操作时给予振动反馈"
                             android:textColor="@color/glass_ink_soft"
                             android:textSize="12sp" />
@@ -728,8 +733,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:letterSpacing="0"
+                            android:paddingBottom="14dp"
                             android:text="朗读提示与引导内容"
                             android:textColor="@color/glass_ink_soft"
                             android:textSize="12sp" />
@@ -785,8 +791,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:letterSpacing="0"
+                            android:paddingBottom="14dp"
                             android:text="点击或长按开始，最多录制 30 秒"
                             android:textColor="@color/glass_ink_soft"
                             android:textSize="12sp" />
@@ -862,8 +869,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:letterSpacing="0"
+                            android:paddingBottom="14dp"
                             android:text="每天定时提醒你记录状态"
                             android:textColor="@color/glass_ink_soft"
                             android:textSize="12sp" />
@@ -975,7 +983,8 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
+                            android:paddingBottom="14dp"
                             android:letterSpacing="0"
                             android:text="每周生成温和的记录回顾"
                             android:textColor="@color/glass_ink_soft"
