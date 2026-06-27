@@ -66,8 +66,7 @@
                     android:paddingEnd="@dimen/settings_header_text_end_padding"
                     android:text="你的记录、边界和陪伴方式，都由你决定"
                     android:textColor="@color/glass_ink_soft"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textSize="15sp" />
             </LinearLayout>
         </FrameLayout>
 
@@ -241,7 +240,7 @@
             android:drawablePadding="8dp"
             android:letterSpacing="0"
             android:text="安全"
-            android:textColor="@color/danger_red"
+            android:textColor="@color/glass_rose"
             android:textSize="17sp"
             android:textStyle="bold"
             app:drawableStartCompat="@drawable/ic_sos" />
@@ -598,7 +597,7 @@
             android:drawablePadding="8dp"
             android:letterSpacing="0"
             android:text="交互"
-            android:textColor="@color/glass_blue"
+            android:textColor="@color/glass_violet"
             android:textSize="17sp"
             android:textStyle="bold"
             app:drawableStartCompat="@drawable/ic_mic" />
@@ -789,7 +788,7 @@
             android:drawablePadding="8dp"
             android:letterSpacing="0"
             android:text="提醒"
-            android:textColor="@color/positive_green"
+            android:textColor="@color/glass_violet"
             android:textSize="17sp"
             android:textStyle="bold"
             app:drawableStartCompat="@drawable/ic_notification" />
@@ -979,7 +978,7 @@
             android:layout_marginTop="22dp"
             android:drawablePadding="8dp"
             android:letterSpacing="0"
-            android:text="引擎"
+            android:text="可选 AI 设置"
             android:textColor="@color/glass_violet"
             android:textSize="17sp"
             android:textStyle="bold"

@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
-        android:background="#000000"
+        android:background="@android:color/black"
         android:fitsSystemWindows="true"
         android:elevation="50dp"
         app:layout_constraintTop_toTopOf="parent"
@@ -40,7 +40,7 @@
             android:layout_height="40dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="48dp"
-            app:cardBackgroundColor="#4D000000"
+            app:cardBackgroundColor="@color/overlay_dark_30"
             app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
             app:cardElevation="0dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +59,7 @@
             android:layout_height="40dp"
             android:layout_marginEnd="20dp"
             android:layout_marginTop="48dp"
-            app:cardBackgroundColor="#4D000000"
+            app:cardBackgroundColor="@color/overlay_dark_30"
             app:shapeAppearance="?attr/shapeAppearanceSmallComponent"
             app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -101,7 +101,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="轻触圆圈拍照"
-            android:textColor="#CCFFFFFF"
+            android:textColor="@color/overlay_white_90"
             android:textSize="14sp"
             android:textStyle="bold"
             android:layout_marginTop="12dp"
@@ -184,7 +184,7 @@
                         android:layout_weight="1"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="#F4F4F5"
+                        app:cardBackgroundColor="@color/glass_panel_strong"
                         app:cardElevation="0dp"
                         app:shapeAppearance="?attr/shapeAppearanceMediumComponent">
                         <TextView
@@ -192,7 +192,7 @@
                             android:layout_height="match_parent"
                             android:gravity="center"
                             android:text="丢弃"
-                            android:textColor="#71717A"
+                            android:textColor="@color/glass_ink_soft"
                             android:textSize="15sp"
                             android:textStyle="bold" />
                     </com.google.android.material.card.MaterialCardView>
@@ -205,7 +205,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="96dp"
-            app:cardBackgroundColor="#E6FFFFFF"
+            app:cardBackgroundColor="@color/overlay_white_90"
             app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
             app:cardElevation="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -232,7 +232,7 @@
                         android:id="@+id/tvCameraFaceState"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="正在进行概率分析..."
+                        android:text="正在观察面部表情..."
                         android:textColor="@color/glass_ink"
                         android:textSize="13sp"
                         android:textStyle="bold"/>
@@ -250,7 +250,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="♥"
-                        android:textColor="#EF4444"
+                        android:textColor="@color/danger_red"
                         android:textSize="16sp"
                         android:layout_marginEnd="6dp" />
                     <TextView
@@ -258,14 +258,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="--"
-                        android:textColor="#1D1D1F"
+                        android:textColor="@color/glass_ink"
                         android:textSize="20sp"
                         android:textStyle="bold" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" BPM"
-                        android:textColor="#71717A"
+                        android:textColor="@color/glass_ink_soft"
                         android:textSize="12sp"
                         android:layout_marginEnd="10dp" />
                     <TextView
@@ -276,7 +276,7 @@
                         android:paddingHorizontal="8dp"
                         android:paddingVertical="2dp"
                         android:text="实验性"
-                        android:textColor="#71717A"
+                        android:textColor="@color/glass_ink_soft"
                         android:textSize="10sp" />
                 </LinearLayout>
                 <TextView
@@ -284,7 +284,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:textColor="#52525B"
+                    android:textColor="@color/glass_ink_soft"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:visibility="gone"/>
@@ -293,7 +293,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:textColor="#71717A"
+                    android:textColor="@color/glass_ink_soft"
                     android:textSize="13sp"
                     android:visibility="gone"/>
                 <TextView
@@ -301,7 +301,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textColor="#71717A"
+                    android:textColor="@color/glass_ink_soft"
                     android:textSize="13sp"
                     android:visibility="gone"/>
             </LinearLayout>
@@ -484,7 +484,7 @@
         android:id="@+id/layoutBreathing"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="#EA000000"
+        android:background="@color/overlay_dark_92"
         android:elevation="60dp"
         android:visibility="gone"
         android:fitsSystemWindows="true"
@@ -537,7 +537,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="已向紧急联系人发送求助短信"
-                android:textColor="#80FFFFFF"
+                android:textColor="@color/overlay_white_50"
                 android:textSize="11sp"
                 android:layout_marginBottom="20dp"/>
 
@@ -546,7 +546,7 @@
                 android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:contentDescription="结束呼吸练习"
-                app:cardBackgroundColor="#33FFFFFF"
+                app:cardBackgroundColor="@color/overlay_white_20"
                 app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
                 app:cardElevation="0dp">
                 <TextView

@@ -20,7 +20,7 @@ public final class FaceCaptureRecord {
         int boostedScore = FaceCaptureScorePolicy.displayScore(rawWeightedScore);
         String detail = "面容快照 | 情绪评分 " + boostedScore
                 + " | ①" + probabilityOne + " ②" + probabilityTwo + " ③" + probabilityThree;
-        return new FaceCaptureRecord("面容分析", detail, boostedScore >= 50, boostedScore);
+        return new FaceCaptureRecord("面部线索", detail, boostedScore >= 50, boostedScore);
     }
 
     public int displayScore() {

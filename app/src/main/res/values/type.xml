@@ -40,8 +40,36 @@
 
     <style name="TextAppearance.EmoScope.BottomNavLabel" parent="TextAppearance.Material3.LabelMedium">
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-        <item name="android:textSize">10sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         心镜自定义字体层级 (Phase 2 统一)
+         ═══════════════════════════════════════════════════════════ -->
+    <style name="TextAppearance.EmoScope.PageTitle" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textColor">@color/glass_ink</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.EmoScope.SectionTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/glass_ink</item>
+        <item name="android:textSize">21sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.EmoScope.CardTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/glass_ink</item>
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.EmoScope.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/glass_ink_soft</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineHeight">21sp</item>
+    </style>
+    <style name="TextAppearance.EmoScope.Caption" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/glass_ink_muted</item>
+        <item name="android:textSize">13sp</item>
     </style>
 </resources>

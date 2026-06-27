@@ -21,8 +21,8 @@ android {
         applicationId = "com.example.emoscope"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
-        versionName = "5.7"
+        versionCode = 8
+        versionName = "5.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

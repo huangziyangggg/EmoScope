@@ -40,7 +40,7 @@ public final class HistoryExportFormatter {
 
     public static String buildText(List<Record> rows, String generatedAt) {
         StringBuilder sb = new StringBuilder();
-        sb.append("【").append(AppBrand.APP_NAME).append("情绪分析报告】\n");
+        sb.append("【").append(AppBrand.APP_NAME).append("记录回顾】\n");
         sb.append("生成时间：").append(generatedAt).append("\n\n");
 
         int count = 0;
@@ -49,7 +49,7 @@ public final class HistoryExportFormatter {
             sb.append("--- 样本 ").append(count).append(" ---\n")
                     .append("时刻: ").append(row.time).append("\n")
                     .append("类型: ").append(row.type).append("\n")
-                    .append("判定: ").append(row.positive ? "[积极/平稳]" : "[关注/压力]").append("\n")
+                    .append("判定: ").append(row.positive ? "[积极/平稳]" : "[值得关注]").append("\n")
                     .append("详情:\n").append(row.detail).append("\n\n");
         }
         return sb.toString();
@@ -70,7 +70,7 @@ public final class HistoryExportFormatter {
 
     public static String buildMarkdown(List<Record> rows, String generatedAt) {
         StringBuilder sb = new StringBuilder();
-        sb.append("# ").append(AppBrand.APP_NAME).append("情绪分析报告\n\n");
+        sb.append("# ").append(AppBrand.APP_NAME).append("记录回顾\n\n");
         sb.append("> 生成时间: ").append(generatedAt);
         sb.append("\n\n| # | 时间 | 类型 | 情绪 | 详情 |\n");
         sb.append("|---|------|------|------|------|\n");

@@ -45,7 +45,7 @@ public final class AiMemoryEngine {
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("分析样本：最近 30 天，共 ").append(totalRecords).append(" 条记录\n");
-            sb.append("情绪均值：").append(String.format("%.0f", avgScore)).append(" / 100\n");
+            sb.append("近期概况：").append(String.format("%.0f", avgScore)).append(" / 100\n");
             sb.append("积极占比：").append(String.format("%.0f", positivityRatio)).append("%\n");
 
             if (streakDays > 1) {
@@ -83,11 +83,11 @@ public final class AiMemoryEngine {
             }
 
             if (!lowestDay.isEmpty()) {
-                sb.append("情绪最低谷：").append(lowestDay)
+                sb.append("波动较多记录：").append(lowestDay)
                         .append("（").append(String.format("%.0f", lowestScore)).append("分）\n");
             }
             if (!highestDay.isEmpty()) {
-                sb.append("情绪最高峰：").append(highestDay)
+                sb.append("较平稳记录：").append(highestDay)
                         .append("（").append(String.format("%.0f", highestScore)).append("分）\n");
             }
 
@@ -323,8 +323,8 @@ public final class AiMemoryEngine {
         if (avg >= 70) return "愉悦主导";
         if (avg >= 55) return "平静稳定";
         if (avg >= 40) return "轻度波动";
-        if (avg >= 25) return "焦虑/低落倾向";
-        return "明显低落";
+        if (avg >= 25) return "较多波动";
+        return "起伏较多";
     }
 
     /** 计算本周 vs 上周均分趋势 */

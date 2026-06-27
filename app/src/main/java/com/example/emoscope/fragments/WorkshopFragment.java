@@ -135,7 +135,7 @@ public class WorkshopFragment extends Fragment {
                 R.drawable.ic_workshop_prediction, R.drawable.bg_workshop_icon_purple,
                 R.color.glass_violet);
         tvInsightSample = metricValue(v.findViewById(R.id.rowInsightSample));
-        bindMetricRow(v.findViewById(R.id.rowInsightAverage), "情绪均值",
+        bindMetricRow(v.findViewById(R.id.rowInsightAverage), "近期概况",
                 R.drawable.ic_mood_smile, R.drawable.bg_workshop_icon_green,
                 R.color.positive_green);
         tvInsightAverage = metricValue(v.findViewById(R.id.rowInsightAverage));
@@ -143,11 +143,11 @@ public class WorkshopFragment extends Fragment {
                 R.drawable.ic_workshop_quote, R.drawable.bg_workshop_icon_orange,
                 R.color.glass_peach);
         tvInsightPositive = metricValue(v.findViewById(R.id.rowInsightPositive));
-        bindMetricRow(v.findViewById(R.id.rowInsightLow), "情绪最低谷",
+        bindMetricRow(v.findViewById(R.id.rowInsightLow), "波动较多记录",
                 R.drawable.ic_filter_warning, R.drawable.bg_workshop_icon_purple,
                 R.color.glass_violet);
         tvInsightLow = metricValue(v.findViewById(R.id.rowInsightLow));
-        bindMetricRow(v.findViewById(R.id.rowInsightHigh), "情绪最高峰",
+        bindMetricRow(v.findViewById(R.id.rowInsightHigh), "较平稳记录",
                 R.drawable.ic_workshop_prediction, R.drawable.bg_workshop_icon_green,
                 R.color.positive_green);
         tvInsightHigh = metricValue(v.findViewById(R.id.rowInsightHigh));
@@ -191,7 +191,7 @@ public class WorkshopFragment extends Fragment {
     }
 
     private void loadAiInsight() {
-        if (tvAiInsight != null) tvAiInsight.setText("正在分析你的情绪模式...");
+        if (tvAiInsight != null) tvAiInsight.setText("正在整理记录线索...");
         executor.execute(() -> {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor = null;
@@ -607,9 +607,9 @@ public class WorkshopFragment extends Fragment {
 
                 float avgScore = (float) pos / total * 100;
                 StringBuilder report = new StringBuilder();
-                report.append("本周情绪报告\n\n");
+                report.append("本周记录回顾\n\n");
                 report.append("记录总数：").append(total).append(" 条\n");
-                report.append("情绪均值：").append(String.format("%.0f", avgScore)).append(" 分\n");
+                report.append("近期概况：").append(String.format("%.0f", avgScore)).append(" 条记录\n");
                 report.append("积极占比：").append(String.format("%.0f", (float) pos / total * 100)).append("%\n\n");
 
                 // 温和表述，不使用诊断性标签
@@ -621,7 +621,7 @@ public class WorkshopFragment extends Fragment {
                 final String finalReport = report.toString();
                 requireActivity().runOnUiThread(() -> {
                     new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("本周情绪报告")
+                            .setTitle("本周记录回顾")
                             .setMessage(finalReport)
                             .setPositiveButton("关闭", null)
                             .setNeutralButton("分享文字", (d, w) -> {

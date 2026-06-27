@@ -1238,7 +1238,7 @@ public class MainActivity extends AppCompatActivity
                 tvRppgQuality.setText("信号好");
                 tvRppgQuality.setTextColor(0xFF10B981);
             } else {
-                tvRppgQuality.setText("实验性");
+                tvRppgQuality.setText("测试功能");
                 tvRppgQuality.setTextColor(0xFF71717A);
             }
         } else if (result.signalQuality > 20) {

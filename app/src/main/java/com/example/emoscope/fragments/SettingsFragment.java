@@ -372,7 +372,7 @@ public class SettingsFragment extends Fragment {
             String[] options = {"高：更容易触发 SOS", "中等：推荐", "低：更少误触"};
             int checked = shakeThreshold < 2.0f ? 0 : (shakeThreshold > 3.0f ? 2 : 1);
             new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("应激阻断灵敏度")
+                    .setTitle("安全提醒灵敏度")
                     .setSingleChoiceItems(options, checked, (dialog, which) -> {
                         if (which == 0) shakeThreshold = 1.5f;
                         else if (which == 1) shakeThreshold = 2.5f;
