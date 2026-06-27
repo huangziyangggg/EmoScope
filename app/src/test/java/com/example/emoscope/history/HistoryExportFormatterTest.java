@@ -20,7 +20,7 @@ public class HistoryExportFormatterTest {
 
         assertTrue(text.startsWith("【心镜情绪分析报告】\n生成时间：2026-06-19 14:00"));
         assertTrue(text.contains("判定: [积极/平稳]"));
-        assertTrue(text.contains("判定: [关注/压力]"));
+        assertTrue(text.contains("判定: [压力/预警]"));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class HistoryExportFormatterTest {
         String markdown = HistoryExportFormatter.buildMarkdown(rows, "2026-06-19 14:00");
 
         assertTrue(markdown.startsWith("# 心镜情绪分析报告\n\n> 生成时间: 2026-06-19 14:00"));
-        assertTrue(markdown.contains("[关注]"));
+        assertTrue(markdown.contains("[预警]"));
         assertTrue(markdown.contains("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234..."));
         assertTrue(markdown.endsWith("> 共 1 条记录\n"));
     }

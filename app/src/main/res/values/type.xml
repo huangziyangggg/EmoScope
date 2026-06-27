@@ -66,7 +66,7 @@
     <style name="TextAppearance.EmoScope.Body" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:textColor">@color/glass_ink_soft</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:lineHeight">21sp</item>
+        <item name="lineHeight">21sp</item>
     </style>
     <style name="TextAppearance.EmoScope.Caption" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textColor">@color/glass_ink_muted</item>

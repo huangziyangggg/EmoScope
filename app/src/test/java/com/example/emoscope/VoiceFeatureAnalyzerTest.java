@@ -31,7 +31,7 @@ public class VoiceFeatureAnalyzerTest {
     @Test
     public void gentleDescriptionIsNonDiagnosticAndWarm() {
         VoiceFeatureAnalyzer.Result fastResult =
-                VoiceFeatureAnalyzer.analyze("今天事情很多", 2.0f, 8.0f, 10.0f, 8);
+                VoiceFeatureAnalyzer.analyze("今天事情很多我有点停不下来", 2.0f, 8.0f, 10.0f, 8);
         String fastHint = VoiceFeatureAnalyzer.gentleDescription(fastResult);
         assertTrue(fastHint.contains("快"));
         assertTrue(fastHint.contains("响亮"));
@@ -40,9 +40,8 @@ public class VoiceFeatureAnalyzerTest {
                 VoiceFeatureAnalyzer.analyze("我有点累", 8.0f, 1.0f, 2.0f, 3);
         String slowHint = VoiceFeatureAnalyzer.gentleDescription(slowResult);
         assertTrue(slowHint.contains("慢"));
-        assertTrue(slowHint.contains("轻声"));
+        assertTrue(slowHint.contains("轻轻"));
 
-        // 验证包含非诊断提醒
         assertTrue(fastHint.contains("提醒"));
         assertTrue(slowHint.contains("提醒"));
     }

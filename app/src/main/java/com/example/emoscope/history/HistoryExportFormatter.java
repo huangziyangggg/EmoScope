@@ -40,7 +40,7 @@ public final class HistoryExportFormatter {
 
     public static String buildText(List<Record> rows, String generatedAt) {
         StringBuilder sb = new StringBuilder();
-        sb.append("【").append(AppBrand.APP_NAME).append("记录回顾】\n");
+        sb.append("【").append(AppBrand.APP_NAME).append("情绪分析报告】\n");
         sb.append("生成时间：").append(generatedAt).append("\n\n");
 
         int count = 0;
@@ -49,7 +49,7 @@ public final class HistoryExportFormatter {
             sb.append("--- 样本 ").append(count).append(" ---\n")
                     .append("时刻: ").append(row.time).append("\n")
                     .append("类型: ").append(row.type).append("\n")
-                    .append("判定: ").append(row.positive ? "[积极/平稳]" : "[值得关注]").append("\n")
+                    .append("判定: ").append(row.positive ? "[积极/平稳]" : "[压力/预警]").append("\n")
                     .append("详情:\n").append(row.detail).append("\n\n");
         }
         return sb.toString();
@@ -62,7 +62,7 @@ public final class HistoryExportFormatter {
         for (Record row : rows) {
             sb.append(row.time).append(",")
                     .append(row.type).append(",")
-                    .append(row.positive ? "积极" : "关注").append(",")
+                    .append(row.positive ? "积极" : "预警").append(",")
                     .append(csv(row.detail)).append("\n");
         }
         return sb.toString();
@@ -70,7 +70,7 @@ public final class HistoryExportFormatter {
 
     public static String buildMarkdown(List<Record> rows, String generatedAt) {
         StringBuilder sb = new StringBuilder();
-        sb.append("# ").append(AppBrand.APP_NAME).append("记录回顾\n\n");
+        sb.append("# ").append(AppBrand.APP_NAME).append("情绪分析报告\n\n");
         sb.append("> 生成时间: ").append(generatedAt);
         sb.append("\n\n| # | 时间 | 类型 | 情绪 | 详情 |\n");
         sb.append("|---|------|------|------|------|\n");
@@ -81,7 +81,7 @@ public final class HistoryExportFormatter {
             sb.append("| ").append(count)
                     .append(" | ").append(row.time)
                     .append(" | ").append(row.type)
-                    .append(" | ").append(row.positive ? "[积极]" : "[关注]")
+                    .append(" | ").append(row.positive ? "[积极]" : "[预警]")
                     .append(" | ").append(shortDetail(row.detail)).append(" |\n");
         }
         sb.append("\n> 共 ").append(rows.size()).append(" 条记录\n");
