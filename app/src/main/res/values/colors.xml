@@ -242,10 +242,10 @@
     <color name="glass_shadow">#0A0B1220</color>
 
     <!-- Home entry accents — semantic: 记录=蓝, 语音=紫, 面部=薄荷绿 -->
-    <color name="home_entry_record">#6EA8FF</color>
+    <color name="home_entry_record">#5E93F5</color>
     <color name="home_entry_record_soft">#EDF5FF</color>
-    <color name="home_entry_voice">#A78BFA</color>
+    <color name="home_entry_voice">#8E60F0</color>
     <color name="home_entry_voice_soft">#F4EEFF</color>
-    <color name="home_entry_face">#38CDB1</color>
+    <color name="home_entry_face">#2DB89D</color>
     <color name="home_entry_face_soft">#E8F9F4</color>
 </resources>
