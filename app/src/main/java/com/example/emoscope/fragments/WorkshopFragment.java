@@ -398,56 +398,72 @@ public class WorkshopFragment extends Fragment {
         btnMeditate10.setOnClickListener(starter);
     }
 
-    /** 冥想触觉反馈 — 仅在用户启用触觉时触发 */
+    /** 冥想触觉反馈 — 仅在用户启用触觉时触发，安全包裹 try-catch */
     private void meditationHaptic(long[] timings, int[] amplitudes) {
-        SharedPreferences prefs = requireActivity()
-                .getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
-        if (!prefs.getBoolean(Constants.KEY_HAPTIC, Constants.DEFAULT_HAPTIC)) return;
+        try {
+            if (getActivity() == null || getActivity().isFinishing()) return;
+            SharedPreferences prefs = requireActivity()
+                    .getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+            if (!prefs.getBoolean(Constants.KEY_HAPTIC, Constants.DEFAULT_HAPTIC)) return;
 
-        Vibrator v = (Vibrator) requireActivity().getSystemService(Context.VIBRATOR_SERVICE);
-        if (v == null) return;
+            Vibrator v = (Vibrator) requireActivity().getSystemService(Context.VIBRATOR_SERVICE);
+            if (v == null || !v.hasVibrator()) return;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1));
-        } else {
-            long total = 0;
-            for (long t : timings) total += t;
-            v.vibrate(total);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1));
+            } else {
+                long total = 0;
+                for (long t : timings) total += t;
+                v.vibrate(total);
+            }
+        } catch (Exception ignored) {
+            // 触觉失败不影响冥想功能
         }
     }
 
     private void startMeditation(View root, int minutes) {
         if (meditationOverlay != null && meditationOverlay.getVisibility() == View.VISIBLE) return;
+        if (getActivity() == null || getActivity().isFinishing()) return;
 
-        android.widget.FrameLayout overlay = new android.widget.FrameLayout(requireContext());
-        overlay.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.overlay_dark_90));
+        final Context ctx = requireContext();
+        final ViewGroup rootView = (ViewGroup) requireActivity().findViewById(android.R.id.content);
+        if (rootView == null) return;
+
+        // 清理上一次可能残留的 handler
+        if (meditationHandler != null) {
+            meditationHandler.removeCallbacksAndMessages(null);
+            meditationHandler = null;
+        }
+
+        android.widget.FrameLayout overlay = new android.widget.FrameLayout(ctx);
+        overlay.setBackgroundColor(ContextCompat.getColor(ctx, R.color.overlay_dark_90));
         overlay.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         overlay.setClickable(true);
 
-        TextView guideText = new TextView(requireContext());
+        TextView guideText = new TextView(ctx);
         guideText.setText("闭上眼睛，专注呼吸...\n\n吸气... 感受空气充满肺部...\n呼气... 让所有紧张随气息释放...");
-        guideText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+        guideText.setTextColor(ContextCompat.getColor(ctx, android.R.color.white));
         guideText.setTextSize(18);
         guideText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         guideText.setPadding(40, 0, 40, 0);
 
-        final TextView timerText = new TextView(requireContext());
+        final TextView timerText = new TextView(ctx);
         final int[] seconds = {minutes * 60};
         timerText.setText(String.format(Locale.getDefault(), "%d:%02d", seconds[0] / 60, seconds[0] % 60));
-        timerText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+        timerText.setTextColor(ContextCompat.getColor(ctx, android.R.color.white));
         timerText.setTextSize(48);
         timerText.setTypeface(null, android.graphics.Typeface.BOLD);
         timerText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
-        TextView closeBtn = new TextView(requireContext());
+        TextView closeBtn = new TextView(ctx);
         closeBtn.setText("结束冥想");
-        closeBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.overlay_white_50));
+        closeBtn.setTextColor(ContextCompat.getColor(ctx, R.color.overlay_white_50));
         closeBtn.setTextSize(14);
         closeBtn.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         closeBtn.setPadding(20, 40, 20, 20);
 
-        LinearLayout overlayLayout = new LinearLayout(requireContext());
+        LinearLayout overlayLayout = new LinearLayout(ctx);
         overlayLayout.setOrientation(LinearLayout.VERTICAL);
         overlayLayout.setGravity(android.view.Gravity.CENTER);
         overlayLayout.setLayoutParams(new ViewGroup.LayoutParams(
@@ -460,22 +476,21 @@ public class WorkshopFragment extends Fragment {
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
         overlay.addView(overlayLayout);
 
-        ViewGroup rootView = (ViewGroup) requireActivity().findViewById(android.R.id.content);
         rootView.addView(overlay);
         meditationOverlay = overlay;
 
-        // 冥想开始触觉提示：一次柔和脉冲
+        // 冥想开始触觉提示
         meditationHaptic(new long[]{20}, new int[]{120});
 
-        final android.os.Handler handler = new android.os.Handler(requireActivity().getMainLooper());
+        meditationHandler = new android.os.Handler(requireActivity().getMainLooper());
         final Runnable tick = new Runnable() {
             @Override
             public void run() {
+                if (meditationOverlay == null) return;
                 seconds[0]--;
                 if (seconds[0] <= 0) {
-                    rootView.removeView(overlay);
+                    try { rootView.removeView(overlay); } catch (Exception ignored) {}
                     meditationOverlay = null;
-                    // 冥想完成触觉：三次轻敲
                     meditationHaptic(
                             new long[]{15, 80, 15, 80, 15},
                             new int[]{180, 0, 180, 0, 180});
@@ -495,19 +510,22 @@ public class WorkshopFragment extends Fragment {
                         "每一次呼气，让压力离开你的身体...",
                     };
                     guideText.setText(guides[seconds[0] / 30 % guides.length]);
-                    // 引导语切换触觉：一次轻柔轻敲
                     meditationHaptic(new long[]{15}, new int[]{100});
                 }
-                handler.postDelayed(this, 1000);
+                if (meditationHandler != null) {
+                    meditationHandler.postDelayed(this, 1000);
+                }
             }
         };
-        handler.postDelayed(tick, 1000);
+        meditationHandler.postDelayed(tick, 1000);
 
         closeBtn.setOnClickListener(v -> {
-            handler.removeCallbacks(tick);
-            rootView.removeView(overlay);
+            if (meditationHandler != null) {
+                meditationHandler.removeCallbacks(tick);
+                meditationHandler = null;
+            }
+            try { rootView.removeView(overlay); } catch (Exception ignored) {}
             meditationOverlay = null;
-            // 中断触觉：一次确认轻敲
             meditationHaptic(new long[]{10}, new int[]{60});
             showSnackbar("冥想已中断，下次继续");
         });
