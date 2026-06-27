@@ -919,6 +919,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void closeCameraOverlay() {
+        if (cameraController != null) cameraController.release();
         if (llRppgDisplay != null) llRppgDisplay.setVisibility(View.GONE);
         layoutCameraMode.animate().cancel();
         layoutCameraMode.animate().alpha(0f).setDuration(300).withEndAction(() -> {
