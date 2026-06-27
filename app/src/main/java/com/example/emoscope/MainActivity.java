@@ -119,6 +119,12 @@ public class MainActivity extends AppCompatActivity
     private TextView tvCaptureScore, tvCaptureEmotions;
     private View btnCloseVoice, btnVoiceStartStop;
     private TextView tvVoiceStatus, tvVoiceTranscript, tvVoiceHint, tvVoiceAction;
+    // 语音不可用状态
+    private View voiceAvailableGroup, voiceUnavailableGroup;
+    private View btnVoiceAltRecord, btnVoiceUnavailableHint, tvVoiceHelpLink;
+    private ImageView ivVoiceMic;
+    private View cvVoiceInfo;
+    private TextView tvVoiceInfoTitle;
 
     // ── UI 辅助 ───────────────────────────────────────────────────
     private android.os.Handler countdownHandler;
@@ -337,8 +343,7 @@ public class MainActivity extends AppCompatActivity
             @Override public void onReady() {
                 runOnUiThread(() -> {
                     radarVM.setVoiceListening();
-                    if (tvVoiceStatus != null) tvVoiceStatus.setText("正在聆听…");
-                    if (tvVoiceTranscript != null) tvVoiceTranscript.setText("请自然说出此刻的感受。");
+                    enterVoiceListeningState();
                 });
             }
 
@@ -367,6 +372,7 @@ public class MainActivity extends AppCompatActivity
                     radarVM.setVoiceNotHeard();
                     if (tvVoiceStatus != null) tvVoiceStatus.setText("没有听清");
                     if (tvVoiceTranscript != null) tvVoiceTranscript.setText("没有检测到清晰语音，可以靠近一点再试。");
+                    if (tvVoiceAction != null) tvVoiceAction.setText("开始倾诉");
                 });
             }
 
@@ -374,10 +380,11 @@ public class MainActivity extends AppCompatActivity
                 runOnUiThread(() -> {
                     stopRecording();
                     radarVM.setVoiceText(message);
-                    if (tvVoiceStatus != null) tvVoiceStatus.setText("语音识别失败");
+                    if (tvVoiceStatus != null) tvVoiceStatus.setText("识别未完成");
                     if (tvVoiceTranscript != null) tvVoiceTranscript.setText(message);
-                    if (tvVoiceHint != null) tvVoiceHint.setText("如果反复失败，请检查系统语音服务、网络和麦克风权限。");
-                    showUserMessage(message);
+                    if (tvVoiceHint != null) tvVoiceHint.setText("可以靠近麦克风再试一次，或改用文字记录。");
+                    if (tvVoiceAction != null) tvVoiceAction.setText("重试");
+                    showUserMessage("语音识别未完成，可再试一次。");
                 });
             }
         });
@@ -515,10 +522,27 @@ public class MainActivity extends AppCompatActivity
         if (!ttsOn && tts != null && tts.isSpeaking()) tts.stop();
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // 语音覆盖层 — 四态管理 (idle / listening / result / unavailable)
+    // ═══════════════════════════════════════════════════════════════
+
     private void openVoiceOverlay() {
         triggerHaptic(getWindow().getDecorView(), HapticFeedbackConstants.VIRTUAL_KEY);
         fragmentContainer().setVisibility(View.GONE);
         bottomNav.setVisibility(View.GONE);
+        layoutVoiceMode.setAlpha(0f);
+        layoutVoiceMode.setVisibility(View.VISIBLE);
+        layoutVoiceMode.animate().alpha(1f).setDuration(260).start();
+
+        if (voiceController != null && !voiceController.isAvailable()) {
+            enterVoiceUnavailableState();
+        } else {
+            enterVoiceIdleState();
+        }
+    }
+
+    private void enterVoiceIdleState() {
+        showVoiceAvailableViews(true);
         if (tvVoiceStatus != null) {
             tvVoiceStatus.setText("点按下方按钮，说出此刻的感受。");
         }
@@ -530,10 +554,73 @@ public class MainActivity extends AppCompatActivity
         }
         if (tvVoiceAction != null) {
             tvVoiceAction.setText("开始倾诉");
+            tvVoiceAction.setTextColor(getColor(R.color.home_entry_voice));
         }
-        layoutVoiceMode.setAlpha(0f);
-        layoutVoiceMode.setVisibility(View.VISIBLE);
-        layoutVoiceMode.animate().alpha(1f).setDuration(260).start();
+        if (tvVoiceInfoTitle != null) tvVoiceInfoTitle.setText("识别内容");
+        // 恢复麦克风按钮正常外观
+        resetVoiceMicAppearance();
+    }
+
+    private void enterVoiceListeningState() {
+        showVoiceAvailableViews(true);
+        if (tvVoiceStatus != null) tvVoiceStatus.setText("正在聆听…");
+        if (tvVoiceTranscript != null) tvVoiceTranscript.setText("请自然说出此刻的感受。");
+        if (tvVoiceHint != null) tvVoiceHint.setText("点按按钮可结束本次倾诉。");
+        if (tvVoiceAction != null) {
+            tvVoiceAction.setText("结束倾诉");
+            tvVoiceAction.setTextColor(getColor(R.color.glass_ink_soft));
+        }
+    }
+
+    private void enterVoiceResultState(String text, String gentleHint) {
+        showVoiceAvailableViews(true);
+        if (tvVoiceStatus != null) tvVoiceStatus.setText("已听见你的表达");
+        if (tvVoiceTranscript != null) tvVoiceTranscript.setText(text);
+        if (tvVoiceHint != null) tvVoiceHint.setText(gentleHint);
+        if (tvVoiceAction != null) {
+            tvVoiceAction.setText("再说一次");
+            tvVoiceAction.setTextColor(getColor(R.color.home_entry_voice));
+        }
+        if (tvVoiceInfoTitle != null) tvVoiceInfoTitle.setText("识别内容");
+    }
+
+    /** 语音服务不可用 — 显示替代路径，不弹 Snackbar 骚扰用户 */
+    private void enterVoiceUnavailableState() {
+        showVoiceAvailableViews(false);
+        // 更新信息卡片
+        if (tvVoiceStatus != null) {
+            tvVoiceStatus.setText("当前设备暂未启用语音识别服务");
+        }
+        if (tvVoiceTranscript != null) {
+            tvVoiceTranscript.setText("语音倾诉依赖系统语音识别服务。你可以启用 Google App / Google"
+                    + " 语音服务后再试，或先使用文字记录保存此刻感受。");
+        }
+        if (tvVoiceHint != null) {
+            tvVoiceHint.setText("这不是麦克风故障，也不会影响手动记录、回顾和成长功能。");
+        }
+        if (tvVoiceInfoTitle != null) tvVoiceInfoTitle.setText("为什么暂不可用？");
+    }
+
+    /** 切换可用/不可用两组视图 */
+    private void showVoiceAvailableViews(boolean available) {
+        if (voiceAvailableGroup != null) {
+            voiceAvailableGroup.setVisibility(available ? View.VISIBLE : View.GONE);
+        }
+        if (voiceUnavailableGroup != null) {
+            voiceUnavailableGroup.setVisibility(available ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    /** 恢复麦克风按钮正常外观 */
+    private void resetVoiceMicAppearance() {
+        if (ivVoiceMic != null) {
+            ivVoiceMic.setAlpha(1f);
+            ivVoiceMic.setColorFilter(getColor(R.color.home_entry_voice));
+        }
+        if (btnVoiceStartStop != null) {
+            btnVoiceStartStop.setClickable(true);
+            btnVoiceStartStop.setAlpha(1f);
+        }
     }
 
     private void closeVoiceOverlay() {
@@ -577,11 +664,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         if (voiceController != null && !voiceController.isAvailable()) {
-            String message = "当前设备没有可用的语音识别服务，请安装或启用 Google App / Google 语音搜索后重试。";
-            if (tvVoiceStatus != null) tvVoiceStatus.setText("语音服务暂不可用");
-            if (tvVoiceTranscript != null) tvVoiceTranscript.setText(message);
-            if (tvVoiceHint != null) tvVoiceHint.setText("这是系统语音服务缺失导致的，不是你的麦克风或说话方式问题。");
-            showUserMessage(message);
+            enterVoiceUnavailableState();
+            showUserMessage("语音识别服务暂不可用，可先使用文字记录。");
             return;
         }
 
@@ -593,10 +677,7 @@ public class MainActivity extends AppCompatActivity
         if (tts != null && tts.isSpeaking()) tts.stop();
         radarVM.setRecording(true);
         radarVM.setVoiceListening();
-        if (tvVoiceStatus != null) tvVoiceStatus.setText("正在聆听…");
-        if (tvVoiceTranscript != null) tvVoiceTranscript.setText("请自然说出此刻的感受。");
-        if (tvVoiceHint != null) tvVoiceHint.setText("点按按钮可结束本次倾诉。");
-        if (tvVoiceAction != null) tvVoiceAction.setText("结束倾诉");
+        enterVoiceListeningState();
         startWaveAnimation();
         startVoiceCountdown();
     }
@@ -624,7 +705,7 @@ public class MainActivity extends AppCompatActivity
         }
         // 检查系统语音服务是否可用
         if (voiceController != null && !voiceController.isAvailable()) {
-            showUserMessage("当前设备没有可用的语音识别服务，请安装 Google 语音搜索或 Google App");
+            showUserMessage("语音识别暂不可用，可先使用文字记录。");
             return;
         }
         boolean clickMode = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
@@ -817,8 +898,7 @@ public class MainActivity extends AppCompatActivity
 
         animateVoiceButton(false);
         radarVM.setRecording(false);
-        if (tvVoiceStatus != null) tvVoiceStatus.setText("正在整理你的表达…");
-        if (tvVoiceAction != null) tvVoiceAction.setText("开始倾诉");
+        enterVoiceIdleState();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -864,11 +944,27 @@ public class MainActivity extends AppCompatActivity
         }
         if (btnVoiceStartStop != null) {
             btnVoiceStartStop.setOnClickListener(v -> {
+                if (voiceController != null && !voiceController.isAvailable()) {
+                    showUserMessage("语音识别服务暂不可用，可先使用文字记录。");
+                    return;
+                }
                 if (isVoiceRecording) {
                     stopRecording();
                 } else {
                     startVoicePageRecording();
                 }
+            });
+        }
+        // 语音不可用时的替代操作
+        if (btnVoiceAltRecord != null) {
+            btnVoiceAltRecord.setOnClickListener(v -> {
+                closeVoiceOverlay();
+                showQuickMoodDialog();
+            });
+        }
+        if (tvVoiceHelpLink != null) {
+            tvVoiceHelpLink.setOnClickListener(v -> {
+                showUserMessage("请前往系统设置 → 语言与输入 → 启用 Google 语音服务");
             });
         }
 
@@ -1111,11 +1207,9 @@ public class MainActivity extends AppCompatActivity
         radarVM.setVoiceResult("\"" + text + "\"",
                 features.summary);
         // 温和语速解读 — 供 UI 展示，不发往 AI
-        radarVM.setVoiceGentleHint(VoiceFeatureAnalyzer.gentleDescription(features));
-        if (tvVoiceStatus != null) tvVoiceStatus.setText("已听见你的表达");
-        if (tvVoiceTranscript != null) tvVoiceTranscript.setText(text);
-        if (tvVoiceHint != null) tvVoiceHint.setText(VoiceFeatureAnalyzer.gentleDescription(features));
-        if (tvVoiceAction != null) tvVoiceAction.setText("再说一次");
+        String gentleHint = VoiceFeatureAnalyzer.gentleDescription(features);
+        radarVM.setVoiceGentleHint(gentleHint);
+        enterVoiceResultState(text, gentleHint);
         deepSeekClient.call(currentFaceTop3Desc, text, features.summary, currentLightDesc);
     }
 
@@ -1221,6 +1315,15 @@ public class MainActivity extends AppCompatActivity
         tvVoiceTranscript = findViewById(R.id.tvVoiceTranscript);
         tvVoiceHint = findViewById(R.id.tvVoiceHint);
         tvVoiceAction = findViewById(R.id.tvVoiceAction);
+        // 语音不可用状态视图
+        voiceAvailableGroup = findViewById(R.id.voiceAvailableGroup);
+        voiceUnavailableGroup = findViewById(R.id.voiceUnavailableGroup);
+        btnVoiceAltRecord = findViewById(R.id.btnVoiceAltRecord);
+        btnVoiceUnavailableHint = findViewById(R.id.btnVoiceUnavailableHint);
+        tvVoiceHelpLink = findViewById(R.id.tvVoiceHelpLink);
+        ivVoiceMic = findViewById(R.id.ivVoiceMic);
+        cvVoiceInfo = findViewById(R.id.cvVoiceInfo);
+        tvVoiceInfoTitle = findViewById(R.id.tvVoiceInfoTitle);
         // 实验性 rPPG
         llRppgDisplay = findViewById(R.id.llRppgDisplay);
         tvRppgBpm = findViewById(R.id.tvRppgBpm);

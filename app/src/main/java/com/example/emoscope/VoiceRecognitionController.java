@@ -43,7 +43,7 @@ public class VoiceRecognitionController {
         if (listening) return;
         stop();
         if (!isAvailable()) {
-            callback.onError("当前设备没有可用的语音识别服务，请安装或启用 Google App / Google 语音搜索后重试。");
+            callback.onError("当前设备暂未启用语音识别服务。你可以启用 Google 语音服务后再试。");
             return;
         }
 
@@ -57,12 +57,12 @@ public class VoiceRecognitionController {
             recognizer = SpeechRecognizer.createSpeechRecognizer(context);
         } catch (Exception e) {
             listening = false;
-            callback.onError("语音识别服务不可用，请安装或启用 Google App / Google 语音搜索。");
+            callback.onError("语音识别服务暂不可用，可先使用文字记录。");
             return;
         }
         if (recognizer == null) {
             listening = false;
-            callback.onError("语音识别服务不可用，请安装或启用 Google App / Google 语音搜索。");
+            callback.onError("语音识别服务暂不可用，可先使用文字记录。");
             return;
         }
 
