@@ -109,30 +109,54 @@
     <color name="md_theme_dark_surfaceTint">#A78BFA</color>
 
     <!-- ═══════════════════════════════════════════════════════════
-         语义颜色
+         语义颜色 — 温和克制，避免医疗/警报感
          ═══════════════════════════════════════════════════════════ -->
-    <color name="positive_green">#10B981</color>
-    <color name="positive_green_light">#D1FAE5</color>
-    <color name="warning_orange">#F59E0B</color>
-    <color name="warning_orange_light">#FEF3C7</color>
-    <color name="danger_red">#EF4444</color>
-    <color name="danger_red_light">#FEE2E2</color>
+    <color name="positive_green">#38CDB1</color>
+    <color name="positive_green_light">#D0F8F0</color>
+    <color name="warning_orange">#F2B56B</color>
+    <color name="warning_orange_light">#FFF2E0</color>
+    <color name="danger_red">#E85C5C</color>
+    <color name="danger_red_light">#FFEAEA</color>
 
-    <!-- ── 图表专用 ──────────────────────────────────────────── -->
-    <color name="chart_green">#10B981</color>
-    <color name="chart_green_fill">#20D1FAE5</color>
-    <color name="chart_red">#EF4444</color>
-    <color name="chart_red_fill">#20FEE2E2</color>
-    <color name="chart_purple">#B794F4</color>
-    <color name="chart_purple_fill">#20D9CFFC</color>
+    <!-- 模块语义色 — 不同页面使用不同主色 -->
+    <color name="module_home">#6EA8FF</color>        <!-- 首页：清透蓝 -->
+    <color name="module_home_soft">#F1F7FF</color>
+    <color name="module_growth">#A78BFA</color>       <!-- 成长页：温柔紫 -->
+    <color name="module_growth_soft">#F6F1FF</color>
+    <color name="module_history">#6EA8FF</color>       <!-- 记录页：清透蓝 -->
+    <color name="module_history_soft">#F1F7FF</color>
+    <color name="module_settings">#8B7FB5</color>      <!-- 我的空间：蓝灰紫 -->
+    <color name="module_settings_soft">#F5F3FA</color>
+
+    <!-- 卡片底色 — 超轻量语义着色 -->
+    <color name="card_blue">#F1F7FF</color>
+    <color name="card_violet">#F6F1FF</color>
+    <color name="card_mint">#F1FFFB</color>
+    <color name="card_gold">#FFF7EB</color>
+    <color name="card_rose">#FFF0F2</color>
+    <color name="card_gray">#F7F8FC</color>
+
+    <!-- 按钮色 -->
+    <color name="btn_primary">#16162A</color>          <!-- 主按钮：深蓝黑 -->
+    <color name="btn_primary_text">#FFFFFF</color>
+    <color name="btn_disabled_bg">#D8DCE8</color>
+    <color name="btn_disabled_text">#9A96AA</color>
+
+    <!-- ── 图表专用 — 柔和淡色 ──────────────────────────────── -->
+    <color name="chart_green">#38CDB1</color>
+    <color name="chart_green_fill">#20B8F1E5</color>
+    <color name="chart_red">#E85C5C</color>
+    <color name="chart_red_fill">#20FFEAEA</color>
+    <color name="chart_purple">#A78BFA</color>
+    <color name="chart_purple_fill">#20DDD6FE</color>
     <color name="chart_grid">#1A000000</color>
-    <color name="chart_text">#A1A1AA</color>
+    <color name="chart_text">#A6A1B5</color>
 
     <!-- ── 图表暗色调 (EmoLineChartView 引用) ────────────────── -->
-    <color name="positive_green_dark">#059669</color>
-    <color name="danger_red_dark">#DC2626</color>
-    <color name="accent_purple">#B794F4</color>
-    <color name="accent_purple_dark">#A78BFA</color>
+    <color name="positive_green_dark">#38CDB1</color>
+    <color name="danger_red_dark">#E85C5C</color>
+    <color name="accent_purple">#A78BFA</color>
+    <color name="accent_purple_dark">#B89CFF</color>
 
     <!-- ── 渐变 (淡紫按钮) ────────────────────────────────────── -->
     <color name="grad_btn_start">#B794F4</color>
@@ -156,29 +180,29 @@
     <!-- ═══════════════════════════════════════════════════════════
          分类语义色 — 为不同功能卡片提供独立配色
          ═══════════════════════════════════════════════════════════ -->
-    <!-- 日记: 暖琥珀 -->
-    <color name="cat_journal">#F59E0B</color>
-    <color name="cat_journal_container">#FFF7ED</color>
-    <color name="cat_journal_on_container">#92400E</color>
-    <!-- 冥想: 森林绿 -->
-    <color name="cat_meditation">#10B981</color>
-    <color name="cat_meditation_container">#ECFDF5</color>
-    <color name="cat_meditation_on_container">#065F46</color>
-    <!-- 预测: 淡紫薰衣草 -->
-    <color name="cat_prediction">#B794F4</color>
-    <color name="cat_prediction_container">#F3F0FF</color>
-    <color name="cat_prediction_on_container">#5B21B6</color>
-    <!-- 感恩: 玫瑰粉 -->
-    <color name="cat_gratitude">#EC4899</color>
-    <color name="cat_gratitude_container">#FDF2F8</color>
-    <color name="cat_gratitude_on_container">#9D174D</color>
-    <!-- 金句: 天蓝 -->
-    <color name="cat_quote">#0EA5E9</color>
-    <color name="cat_quote_container">#E0F2FE</color>
-    <color name="cat_quote_on_container">#0C4A6E</color>
+    <!-- 日记: 暖淡金 -->
+    <color name="cat_journal">#F2B56B</color>
+    <color name="cat_journal_container">#FFF7EB</color>
+    <color name="cat_journal_on_container">#7A5510</color>
+    <!-- 冥想: 薄荷绿 -->
+    <color name="cat_meditation">#38CDB1</color>
+    <color name="cat_meditation_container">#F1FFFB</color>
+    <color name="cat_meditation_on_container">#0F5A48</color>
+    <!-- 回顾: 温柔紫 -->
+    <color name="cat_prediction">#A78BFA</color>
+    <color name="cat_prediction_container">#F6F1FF</color>
+    <color name="cat_prediction_on_container">#4C2A8A</color>
+    <!-- 感恩: 柔和粉 -->
+    <color name="cat_gratitude">#E8909A</color>
+    <color name="cat_gratitude_container">#FFF0F2</color>
+    <color name="cat_gratitude_on_container">#7A2D3A</color>
+    <!-- 金句: 清透蓝 -->
+    <color name="cat_quote">#6EA8FF</color>
+    <color name="cat_quote_container">#F1F7FF</color>
+    <color name="cat_quote_on_container">#1A3A6E</color>
     <!-- 徽章: 淡紫星耀 -->
-    <color name="cat_badge">#A78BFA</color>
-    <color name="cat_badge_container">#F5F3FF</color>
+    <color name="cat_badge">#B89CFF</color>
+    <color name="cat_badge_container">#F8F4FF</color>
     <color name="cat_badge_on_container">#4C1D95</color>
 
     <!-- ═══════════════════════════════════════════════════════════
@@ -217,11 +241,11 @@
     <color name="glass_violet_soft">#EDE7FD</color>
     <color name="glass_shadow">#0A0B1220</color>
 
-    <!-- Home entry accents — balanced, low-saturation functional colors -->
-    <color name="home_entry_record">#D98C2B</color>
-    <color name="home_entry_record_soft">#FFF4E5</color>
-    <color name="home_entry_voice">#4F8DEB</color>
-    <color name="home_entry_voice_soft">#EAF3FF</color>
-    <color name="home_entry_face">#2FAE91</color>
-    <color name="home_entry_face_soft">#E8F8F3</color>
+    <!-- Home entry accents — semantic: 记录=蓝, 语音=紫, 面部=薄荷绿 -->
+    <color name="home_entry_record">#6EA8FF</color>
+    <color name="home_entry_record_soft">#EDF5FF</color>
+    <color name="home_entry_voice">#A78BFA</color>
+    <color name="home_entry_voice_soft">#F4EEFF</color>
+    <color name="home_entry_face">#38CDB1</color>
+    <color name="home_entry_face_soft">#E8F9F4</color>
 </resources>

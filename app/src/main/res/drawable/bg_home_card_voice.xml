@@ -9,7 +9,7 @@
     </item>
     <item android:left="226dp" android:top="48dp" android:right="-88dp" android:bottom="-82dp">
         <shape android:shape="oval">
-            <solid android:color="#3FDCEBFF" />
+            <solid android:color="@color/home_entry_voice_soft" />
         </shape>
     </item>
 </layer-list>
