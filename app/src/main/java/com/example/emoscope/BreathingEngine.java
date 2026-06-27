@@ -4,25 +4,28 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 呼吸引导动画引擎 — 从 MainActivity 提取。
- * 支持 4 种呼吸模式, 动态构建缩放动画序列含振动反馈。
+ * 支持 2 种呼吸模式, 动态构建缩放动画序列含触觉引导回调。
  */
 public class BreathingEngine {
 
     public interface BreathCallback {
         /** 阶段切换 — 更新提示文字 */
         void onPhaseChange(String phaseText);
-        /** 触发振动 */
-        void onVibrate(int feedbackConstant);
+        /**
+         * 阶段开始 — 携带完整阶段信息供触觉控制器生成对应波形。
+         * @param phaseIndex 0=吸气, 1=屏息, 2=呼气, 3=屏息
+         * @param durationMs 阶段持续时长（毫秒）
+         * @param phaseText  阶段提示文字
+         */
+        void onPhaseStart(int phaseIndex, long durationMs, String phaseText);
         /** 呼吸循环结束 (用于重新开始) */
         void onCycleEnd();
     }
@@ -71,6 +74,8 @@ public class BreathingEngine {
 
             String phaseText = phaseTexts[Math.min(i, phaseTexts.length - 1)];
 
+            final int phaseIdx = i; // 0=吸气, 1=屏息, 2=呼气, 3=屏息
+
             if (isHold) {
                 ObjectAnimator holdX = ObjectAnimator.ofFloat(breathCircle, "scaleX",
                         currentScale, currentScale * 1.05f, currentScale);
@@ -83,7 +88,7 @@ public class BreathingEngine {
                 holdX.addUpdateListener(a -> {
                     if (a.getAnimatedFraction() >= 0.01f && a.getAnimatedFraction() < 0.02f) {
                         callback.onPhaseChange(phaseText);
-                        callback.onVibrate(HapticFeedbackConstants.LONG_PRESS);
+                        callback.onPhaseStart(phaseIdx, duration, phaseText);
                     }
                 });
                 AnimatorSet holdSet = new AnimatorSet();
@@ -100,7 +105,7 @@ public class BreathingEngine {
                     float frac = a.getAnimatedFraction();
                     if (frac >= 0.01f && frac < 0.02f) {
                         callback.onPhaseChange(phaseText);
-                        callback.onVibrate(HapticFeedbackConstants.LONG_PRESS);
+                        callback.onPhaseStart(phaseIdx, duration, phaseText);
                     }
                 });
                 AnimatorSet scaleSet = new AnimatorSet();

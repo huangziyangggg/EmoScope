@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -395,6 +398,24 @@ public class WorkshopFragment extends Fragment {
         btnMeditate10.setOnClickListener(starter);
     }
 
+    /** 冥想触觉反馈 — 仅在用户启用触觉时触发 */
+    private void meditationHaptic(long[] timings, int[] amplitudes) {
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        if (!prefs.getBoolean(Constants.KEY_HAPTIC, Constants.DEFAULT_HAPTIC)) return;
+
+        Vibrator v = (Vibrator) requireActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        if (v == null) return;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1));
+        } else {
+            long total = 0;
+            for (long t : timings) total += t;
+            v.vibrate(total);
+        }
+    }
+
     private void startMeditation(View root, int minutes) {
         if (meditationOverlay != null && meditationOverlay.getVisibility() == View.VISIBLE) return;
 
@@ -443,6 +464,9 @@ public class WorkshopFragment extends Fragment {
         rootView.addView(overlay);
         meditationOverlay = overlay;
 
+        // 冥想开始触觉提示：一次柔和脉冲
+        meditationHaptic(new long[]{20}, new int[]{120});
+
         final android.os.Handler handler = new android.os.Handler(requireActivity().getMainLooper());
         final Runnable tick = new Runnable() {
             @Override
@@ -451,6 +475,10 @@ public class WorkshopFragment extends Fragment {
                 if (seconds[0] <= 0) {
                     rootView.removeView(overlay);
                     meditationOverlay = null;
+                    // 冥想完成触觉：三次轻敲
+                    meditationHaptic(
+                            new long[]{15, 80, 15, 80, 15},
+                            new int[]{180, 0, 180, 0, 180});
                     showSnackbar("冥想完成！感觉如何？");
                     saveMeditationLog(minutes);
                     loadBadges();
@@ -467,6 +495,8 @@ public class WorkshopFragment extends Fragment {
                         "每一次呼气，让压力离开你的身体...",
                     };
                     guideText.setText(guides[seconds[0] / 30 % guides.length]);
+                    // 引导语切换触觉：一次轻柔轻敲
+                    meditationHaptic(new long[]{15}, new int[]{100});
                 }
                 handler.postDelayed(this, 1000);
             }
@@ -477,6 +507,8 @@ public class WorkshopFragment extends Fragment {
             handler.removeCallbacks(tick);
             rootView.removeView(overlay);
             meditationOverlay = null;
+            // 中断触觉：一次确认轻敲
+            meditationHaptic(new long[]{10}, new int[]{60});
             showSnackbar("冥想已中断，下次继续");
         });
     }

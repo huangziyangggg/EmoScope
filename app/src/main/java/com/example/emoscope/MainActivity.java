@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity
     private CameraEmotionController cameraController;
     private FaceCapturePersistenceController faceCapturePersistence;
     private BreathingEngine breathingEngine;
+    private BreathingHapticController breathingHaptic;
     private SosInterventionController sosController;
     private VoiceRecognitionController voiceController;
     private TextToSpeech tts;
@@ -292,9 +293,16 @@ public class MainActivity extends AppCompatActivity
                 });
 
         // 呼吸引擎
+        breathingHaptic = new BreathingHapticController(this);
         breathingEngine = new BreathingEngine(breathCircle, new BreathingEngine.BreathCallback() {
             @Override public void onPhaseChange(String text) { tvBreathText.setText(text); }
-            @Override public void onVibrate(int fbConstant) { triggerHaptic(breathCircle, fbConstant); }
+            @Override
+            public void onPhaseStart(int phaseIndex, long durationMs, String phaseText) {
+                // 呼吸触觉引导 — 仿 Apple Watch 节奏
+                if (breathingHaptic != null) {
+                    breathingHaptic.playPhase(phaseIndex, durationMs);
+                }
+            }
             @Override public void onCycleEnd() { /* loop */ }
         });
 
@@ -965,6 +973,7 @@ public class MainActivity extends AppCompatActivity
 
     private void stopBreathingIntervention() {
         lastShakeTime = System.currentTimeMillis();
+        if (breathingHaptic != null) breathingHaptic.stop();
         if (sosController != null) sosController.stopBreathingIntervention();
     }
 
@@ -1277,6 +1286,11 @@ public class MainActivity extends AppCompatActivity
             faceAnalyzer.setCalibrationProfile(EmotionCalibrationProfile.fromStorageString(
                     prefs.getString(Constants.KEY_EMOTION_CALIBRATION, "")));
         }
+        // 同步呼吸触觉引导开关
+        if (breathingHaptic != null) {
+            breathingHaptic.setEnabled(
+                    prefs.getBoolean(Constants.KEY_HAPTIC, Constants.DEFAULT_HAPTIC));
+        }
     }
 
     private void triggerHaptic(View view, int feedbackConstant) {
@@ -1344,6 +1358,7 @@ public class MainActivity extends AppCompatActivity
     @Override protected void onDestroy() {
         super.onDestroy();
         if (breathingEngine != null) breathingEngine.stop();
+        if (breathingHaptic != null) breathingHaptic.stop();
         if (tts != null) { tts.stop(); tts.shutdown(); }
         if (backgroundExecutor != null) backgroundExecutor.shutdown();
         if (cameraController != null) cameraController.release();
