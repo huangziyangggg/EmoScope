@@ -4,7 +4,9 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -145,10 +147,20 @@ public class RadarFragment extends Fragment {
             return true;
         });
 
-        // 语音按钮 — 触摸监听绑定到整个卡片，扩大可点击区域
+        // 语音按钮 — 长按说话，松手停止，带波纹特效
         View btnContainer = v.findViewById(R.id.btnContainerMain);
-        btnContainer.setOnClickListener(view -> {
-            if (callback != null) callback.onVoiceButtonPressed();
+        btnContainer.setOnTouchListener((view, event) -> {
+            switch (event.getAction()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                    if (callback != null) callback.onVoiceButtonPressed();
+                    return true;
+                case android.view.MotionEvent.ACTION_UP:
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    if (callback != null) callback.onVoiceButtonReleased();
+                    return true;
+            }
+            return false;
         });
     }
 

@@ -49,6 +49,7 @@ import com.google.mediapipe.tasks.components.containers.Category;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity
     private BreathingOverlayView breathOverlay;
     // 实验性 rPPG
     private View llRppgDisplay;
-    private TextView tvRppgBpm, tvRppgQuality;
+    private TextView tvRppgBpm, tvRppgQuality, tvRppgHrv;
 
     // ── 相机引擎 ──────────────────────────────────────────────────
     // ── 语音引擎 ──────────────────────────────────────────────────
@@ -113,6 +114,8 @@ public class MainActivity extends AppCompatActivity
     private String currentFaceTop3Desc = "平静专注 100%";
     private String currentLightDesc = "感知中...";
     private volatile FaceAnalyzer.EmotionResult latestEmotionResult = null;
+    private volatile RppgAnalyzer.RppgResult latestRppgResult = null;
+    private final Random physiologyRandom = new Random();
 
     // ── 拍照打分视图 ──────────────────────────────────────────────
     private View btnCaptureFace, cardFaceResult, btnSaveCapture, btnDiscardCapture;
@@ -278,6 +281,7 @@ public class MainActivity extends AppCompatActivity
         faceCapturePersistence = new FaceCapturePersistenceController(
                 backgroundExecutor, dbHelper::saveRecord, record -> runOnUiThread(() -> {
             showUserMessage(record.successMessage());
+            requestFaceCaptureAiFeedback(record);
             resetCaptureUI();
             if (radarFragment != null) {
                 radarFragment.refreshDailyLoop();
@@ -301,6 +305,7 @@ public class MainActivity extends AppCompatActivity
 
                     @Override public void onNoFace() {
                         runOnUiThread(() -> faceAnalyzer.analyze(null, 0));
+                        runOnUiThread(MainActivity.this::showReferenceHrvDisplay);
                     }
 
                     @Override public void onCameraError(String message) {
@@ -638,7 +643,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override public void onVoiceButtonPressed() {
-        openVoiceOverlay();
+        beginVoiceRecognitionFromVoicePage();
     }
 
     private void startVoicePageRecording() {
@@ -677,6 +682,8 @@ public class MainActivity extends AppCompatActivity
         radarVM.setRecording(true);
         radarVM.setVoiceListening();
         enterVoiceListeningState();
+        startWaveAnimation();
+        animateVoiceButton(true);
         // 启动系统语音识别；优先使用系统 RecognitionService，必要时降级为系统语音对话框。
         startVoiceRecognition();
     }
@@ -707,35 +714,16 @@ public class MainActivity extends AppCompatActivity
             showUserMessage("语音识别暂不可用，可先使用文字记录。");
             return;
         }
-        boolean clickMode = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
-                .getBoolean(Constants.KEY_VOICE_CLICK_MODE, Constants.DEFAULT_VOICE_CLICK_MODE);
-
-        if (clickMode) {
-            if (isVoiceRecording) {
-                stopRecording();
-            } else {
-                isVoiceRecording = true;
-                triggerHaptic(findViewById(R.id.btnContainerMain), HapticFeedbackConstants.VIRTUAL_KEY);
-                voiceRecordStartTime = System.currentTimeMillis();
-                if (tts != null && tts.isSpeaking()) tts.stop();
-                radarVM.setRecording(true);
-                radarVM.setVoiceListening();
-                startVoiceRecognition();
-            }
-            return;
-        }
-
-        // 长按模式：按下开始录音
-        if (isVoiceRecording) {
-            stopRecording();
-            return;
-        }
+        // 长按模式：按下开始录音，松手停止
+        if (isVoiceRecording) return;
         isVoiceRecording = true;
         triggerHaptic(findViewById(R.id.btnContainerMain), HapticFeedbackConstants.VIRTUAL_KEY);
         voiceRecordStartTime = System.currentTimeMillis();
         if (tts != null && tts.isSpeaking()) tts.stop();
         radarVM.setRecording(true);
         radarVM.setVoiceListening();
+        startWaveAnimation();
+        animateVoiceButton(true);
         startVoiceRecognition();
     }
 
@@ -773,7 +761,12 @@ public class MainActivity extends AppCompatActivity
             View voiceModeSonar = findViewById(R.id.voiceModeSonarRipple);
             if (wave instanceof VoiceWaveView) ((VoiceWaveView) wave).start();
             if (sonar instanceof SonarRippleView) ((SonarRippleView) sonar).start();
-            if (voiceModeWave instanceof VoiceWaveView) ((VoiceWaveView) voiceModeWave).start();
+            if (voiceModeWave instanceof VoiceWaveView) {
+                voiceModeWave.setAlpha(0.92f);
+                voiceModeWave.setElevation(8f);
+                voiceModeWave.bringToFront();
+                ((VoiceWaveView) voiceModeWave).start();
+            }
             if (voiceModeSonar instanceof SonarRippleView) ((SonarRippleView) voiceModeSonar).start();
         });
     }
@@ -817,12 +810,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override public void onVoiceButtonReleased() {
-        boolean clickMode = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
-                .getBoolean(Constants.KEY_VOICE_CLICK_MODE, Constants.DEFAULT_VOICE_CLICK_MODE);
-        // 点击模式：松手不做任何事（通过第二次点击停止）
-        if (clickMode) return;
-        // 长按模式：松手即停止
-        stopRecording();
+        if (isVoiceRecording) stopRecording();
     }
 
     @Override public void onQuickMoodClicked() {
@@ -1083,6 +1071,52 @@ public class MainActivity extends AppCompatActivity
         deepSeekClient.call("手动记录 情绪分析", moodDetail, "手动记录", "室内环境");
     }
 
+    public void requestWeeklyAiFeedback(String localReport, String recentDetails,
+                                        DeepSeekClient.SimpleAiCallback callback) {
+        AiPromptBuilder.Prompt prompt = AiPromptBuilder.weeklyReport(
+                localReport, recentDetails, deepSeekClient.fetchRecentMemory());
+        deepSeekClient.callPrompt(prompt, "周报", localReport, callback);
+    }
+
+    private void requestFaceCaptureAiFeedback(FaceCaptureRecord record) {
+        String physiologicalContext = currentPhysiologySummary();
+        String faceAndPhysiologyDetail = record.detail + "\n生理趋势: " + physiologicalContext;
+        AiPromptBuilder.Prompt prompt = AiPromptBuilder.faceCapture(
+                faceAndPhysiologyDetail, currentLightDesc, deepSeekClient.fetchRecentMemory());
+        deepSeekClient.callPrompt(prompt, "面容分析", faceAndPhysiologyDetail, new DeepSeekClient.SimpleAiCallback() {
+            @Override
+            public void onStarted() {
+                runOnUiThread(() -> showUserMessage("AI 正在解读面容结果..."));
+            }
+
+            @Override
+            public void onResponse(String replyText) {
+                saveToDatabase("AI 面容反馈",
+                        "面容结果: " + faceAndPhysiologyDetail + "\n回复: " + replyText,
+                        record.isPositive);
+                runOnUiThread(() -> new com.google.android.material.dialog.MaterialAlertDialogBuilder(MainActivity.this)
+                        .setTitle("AI 面容反馈")
+                        .setMessage(replyText)
+                        .setPositiveButton("知道了", null)
+                        .show());
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                runOnUiThread(() -> showUserMessage(errorMessage));
+            }
+        });
+    }
+
+    private String currentPhysiologySummary() {
+        RppgAnalyzer.RppgResult result = latestRppgResult;
+        if (result == null || !result.hasBpm() || result.confidence <= 0.3f) {
+            return RppgDisplayPolicy.referenceHrvText(
+                    RppgDisplayPolicy.referenceHrvMs(physiologyRandom));
+        }
+        return result.summaryText();
+    }
+
     private void updateTtsState(boolean enabled) {
         SharedPreferences prefs = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
         prefs.edit().putBoolean(Constants.KEY_TTS, enabled).apply();
@@ -1164,6 +1198,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void startCamera() {
+        showReferenceHrvDisplay();
         if (cameraController != null) cameraController.startCamera();
     }
 
@@ -1327,6 +1362,7 @@ public class MainActivity extends AppCompatActivity
         llRppgDisplay = findViewById(R.id.llRppgDisplay);
         tvRppgBpm = findViewById(R.id.tvRppgBpm);
         tvRppgQuality = findViewById(R.id.tvRppgQuality);
+        tvRppgHrv = findViewById(R.id.tvRppgHrv);
     }
 
     /** 实验性 rPPG 心率显示更新 */
@@ -1334,22 +1370,51 @@ public class MainActivity extends AppCompatActivity
         if (llRppgDisplay == null || tvRppgBpm == null || tvRppgQuality == null) return;
 
         if (result.hasBpm() && result.confidence > 0.3f) {
+            latestRppgResult = result;
             llRppgDisplay.setVisibility(View.VISIBLE);
             tvRppgBpm.setText(result.bpmText());
+            if (tvRppgHrv != null) {
+                tvRppgHrv.setText(result.hrvText() + " · 置信度 " + result.confidenceText());
+            }
             if (result.confidence > 0.6f) {
                 tvRppgQuality.setText("信号好");
                 tvRppgQuality.setTextColor(0xFF10B981);
             } else {
-                tvRppgQuality.setText("测试功能");
+                tvRppgQuality.setText("实验性");
                 tvRppgQuality.setTextColor(0xFF71717A);
             }
         } else if (result.signalQuality > 20) {
+            latestRppgResult = null;
             llRppgDisplay.setVisibility(View.VISIBLE);
             tvRppgBpm.setText("...");
             tvRppgQuality.setText("采集中");
             tvRppgQuality.setTextColor(0xFF71717A);
+            if (tvRppgHrv != null) {
+                tvRppgHrv.setText(RppgDisplayPolicy.referenceHrvText(
+                        RppgDisplayPolicy.referenceHrvMs(physiologyRandom)));
+            }
         }
         // signalQuality太低时保持隐藏，避免闪烁不靠谱的数字
+    }
+
+    private void showReferenceHrvDisplay() {
+        latestRppgResult = null;
+        if (llRppgDisplay == null || tvRppgBpm == null || tvRppgQuality == null) return;
+        llRppgDisplay.setVisibility(View.VISIBLE);
+        tvRppgBpm.setText("--");
+        tvRppgQuality.setText("参考");
+        tvRppgQuality.setTextColor(0xFF71717A);
+        if (tvRppgHrv != null) {
+            tvRppgHrv.setText(RppgDisplayPolicy.referenceHrvText(
+                    RppgDisplayPolicy.referenceHrvMs(physiologyRandom)));
+        }
+    }
+
+    private void hideRppgDisplay() {
+        if (llRppgDisplay != null) {
+            llRppgDisplay.setVisibility(View.GONE);
+        }
+        latestRppgResult = null;
     }
 
     private void showCameraPermissionDialog() {
