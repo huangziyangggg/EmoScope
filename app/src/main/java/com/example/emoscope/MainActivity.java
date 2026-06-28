@@ -188,6 +188,14 @@ public class MainActivity extends AppCompatActivity
                             if (isTtsEnabled() && tts != null && !isFinishing()) {
                                 tts.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
                             }
+                            // 语音覆盖层中展示 AI 回应
+                            if (layoutVoiceMode != null
+                                    && layoutVoiceMode.getVisibility() == View.VISIBLE) {
+                                if (tvVoiceStatus != null) tvVoiceStatus.setText("AI 回应");
+                                if (tvVoiceTranscript != null) tvVoiceTranscript.setText(reply);
+                                if (tvVoiceHint != null) tvVoiceHint.setText("");
+                                if (tvVoiceInfoTitle != null) tvVoiceInfoTitle.setText("AI 温和回应");
+                            }
                         });
                         saveToDatabase("自动分析",
                                 "环境:" + ld + " | 面部:" + fp +
@@ -196,6 +204,15 @@ public class MainActivity extends AppCompatActivity
                     @Override public void onAiError(String msg) {
                         runOnUiThread(() -> {
                             radarVM.setAiError(msg);
+                            // 语音覆盖层中展示错误，让用户能看到
+                            if (layoutVoiceMode != null
+                                    && layoutVoiceMode.getVisibility() == View.VISIBLE) {
+                                if (tvVoiceStatus != null) tvVoiceStatus.setText("AI 暂未回应");
+                                if (tvVoiceTranscript != null) tvVoiceTranscript.setText(msg);
+                                if (tvVoiceHint != null) tvVoiceHint.setText(
+                                        "请在 我的空间 > 可选 AI 设置 中配置 API Key 后重试。");
+                                if (tvVoiceInfoTitle != null) tvVoiceInfoTitle.setText("提示");
+                            }
                             showUserMessage(msg);
                         });
                     }
